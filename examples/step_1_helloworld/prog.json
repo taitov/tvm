@@ -1,0 +1,34 @@
+{
+    "connections": [
+        {
+            "in_id": "{1bae7936-f1c4-40a4-8539-e54a691cdd97}",
+            "in_index": 0,
+            "out_id": "{4b08da93-5a67-4e1f-a413-ca470609d5e0}",
+            "out_index": 0
+        }
+    ],
+    "nodes": [
+        {
+            "id": "{1bae7936-f1c4-40a4-8539-e54a691cdd97}",
+            "model": {
+                "name": "example:print",
+                "variables": {
+                }
+            },
+            "position": {
+                "x": 399,
+                "y": 114
+            }
+        },
+        {
+            "id": "{4b08da93-5a67-4e1f-a413-ca470609d5e0}",
+            "model": {
+                "name": "example:root:run"
+            },
+            "position": {
+                "x": 190,
+                "y": 114
+            }
+        }
+    ]
+}

@@ -1,0 +1,77 @@
+{
+    "connections": [
+        {
+            "in_id": "{f2621d8e-6e28-4e27-9e50-9e3fcd20a98c}",
+            "in_index": 1,
+            "out_id": "{5d680c0d-c6dc-4449-ad55-90b32ffa4a38}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{f2621d8e-6e28-4e27-9e50-9e3fcd20a98c}",
+            "in_index": 0,
+            "out_id": "{6e95abfe-97ea-4caa-ad08-08f8bcab63bb}",
+            "out_index": 0
+        },
+        {
+            "in_id": "{5d680c0d-c6dc-4449-ad55-90b32ffa4a38}",
+            "in_index": 0,
+            "out_id": "{6e95abfe-97ea-4caa-ad08-08f8bcab63bb}",
+            "out_index": 1
+        },
+        {
+            "in_id": "{6e95abfe-97ea-4caa-ad08-08f8bcab63bb}",
+            "in_index": 0,
+            "out_id": "{4c819fb2-6a73-488c-987f-263286f399a9}",
+            "out_index": 0
+        }
+    ],
+    "nodes": [
+        {
+            "id": "{5d680c0d-c6dc-4449-ad55-90b32ffa4a38}",
+            "model": {
+                "name": ":memory:string",
+                "variables": {
+                    "value": ""
+                }
+            },
+            "position": {
+                "x": 323,
+                "y": 171
+            }
+        },
+        {
+            "id": "{f2621d8e-6e28-4e27-9e50-9e3fcd20a98c}",
+            "model": {
+                "name": "example:print",
+                "variables": {
+                }
+            },
+            "position": {
+                "x": 703,
+                "y": 95
+            }
+        },
+        {
+            "id": "{6e95abfe-97ea-4caa-ad08-08f8bcab63bb}",
+            "model": {
+                "name": "example:set",
+                "variables": {
+                }
+            },
+            "position": {
+                "x": 133,
+                "y": 95
+            }
+        },
+        {
+            "id": "{4c819fb2-6a73-488c-987f-263286f399a9}",
+            "model": {
+                "name": "example:root:run"
+            },
+            "position": {
+                "x": -57,
+                "y": 95
+            }
+        }
+    ]
+}
