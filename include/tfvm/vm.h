@@ -102,6 +102,10 @@ public: /** exec */
 	inline void rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TType& value)
 	{
 		std::lock_guard<std::mutex> guard(mutex);
+		if (!currentScheme)
+		{
+			return;
+		}
 		currentScheme->rootSetMemory(rootMemoryExitId, value);
 	}
 
@@ -774,6 +778,10 @@ const cVirtualMachine::tGuiMemoryModules cVirtualMachine::getGuiMemoryModules() 
 inline bool cVirtualMachine::rootSignalFlow(tRootSignalExitId rootSignalExitId)
 {
 	std::lock_guard<std::mutex> guard(mutex);
+	if (!currentScheme)
+	{
+		return false;
+	}
 	return currentScheme->rootSignalFlow(rootSignalExitId);
 }
 
