@@ -709,7 +709,7 @@ private:
 
 		ConnectionPolicy portInConnectionPolicy(PortIndex portIndex) const override
 		{
-			if (portIndex < module->getSignalExits().size())
+			if (portIndex < module->getSignalEntries().size())
 			{
 				return ConnectionPolicy::Many;
 			}
