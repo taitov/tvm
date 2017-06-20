@@ -155,14 +155,48 @@ public:
 
 			if (request.substr(0, 3) == "GET")
 			{
+				std::map<tString, tString> arguments;
+
 				tString host = request.substr(request.find("Host: ") + 6);
 				host = host.substr(0, host.find("\r\n"));
 				tString url = request.substr(4);
 				url = url.substr(0, url.find("\r\n") - 9);
 
+				tString urlArguments = url;
+				if (url.find('?') != tString::npos)
+				{
+					urlArguments = urlArguments.substr(url.find('?') + 1);
+					while (urlArguments.length())
+					{
+						tString argument;
+
+						if (urlArguments.find('&') != tString::npos)
+						{
+							argument = urlArguments.substr(0, urlArguments.find('&'));
+							urlArguments = urlArguments.substr(urlArguments.find('&') + 1);
+						}
+						else
+						{
+							argument = urlArguments;
+							urlArguments.clear();
+						}
+
+						if (argument.find('=') != tString::npos)
+						{
+							const tString argumentName = argument.substr(0, argument.find('='));
+							const tString argumentValue = argument.substr(argument.find('=') + 1);
+
+							arguments[argumentName] = argumentValue;
+						}
+					}
+
+					url = url.substr(0, url.find('?'));
+				}
+
 				rootSetMemory(rootGet.memoryFromIpAddress, address.sin_addr.s_addr);
 				rootSetMemory(rootGet.memoryHost, host);
 				rootSetMemory(rootGet.memoryUrl, url);
+				rootSetMemory(rootGet.memoryArguments, arguments);
 				rootSignalFlow(rootGet.signal);
 			}
 			else if (request.substr(0, 4) == "POST")
@@ -219,6 +253,11 @@ private: /** rootModules */
 				return false;
 			}
 
+			if (!registerMemoryExit("arguments", "map<string,string>", memoryArguments))
+			{
+				return false;
+			}
+
 			return true;
 		}
 
@@ -226,6 +265,7 @@ private: /** rootModules */
 		tRootMemoryExitId memoryFromIpAddress;
 		tRootMemoryExitId memoryHost;
 		tRootMemoryExitId memoryUrl;
+		tRootMemoryExitId memoryArguments;
 	};
 
 	class cRootPost : public cRootModule
