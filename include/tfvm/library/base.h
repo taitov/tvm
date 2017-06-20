@@ -202,7 +202,9 @@ public:
 			return false;
 		}
 
-		if (!registerModules(new cLogicTrue(),
+		if (!registerModules(new cLogicGetArguments(this),
+		                     new cLogicGetEnvironments(this),
+		                     new cLogicTrue(),
 		                     new cLogicFalse()))
 		{
 			return false;
@@ -257,6 +259,118 @@ private:
 	cRootRun rootRun;
 
 private: /** modules */
+	class cLogicGetArguments : public cLogicModule
+	{
+	public:
+		cLogicGetArguments(cBase* library) :
+		        library(library)
+		{
+		}
+
+		cModule* clone() const override
+		{
+			return new cLogicGetArguments(library);
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("getArguments");
+			setCaptionName("getArguments");
+
+			if (!registerSignalEntry("signal", &cLogicGetArguments::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("signal", signalExit))
+			{
+				return false;
+			}
+
+			if (!registerMemoryExit("vector<string>", "vector<string>", vector))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		bool signalEntry()
+		{
+			if (vector)
+			{
+				*vector = library->arguments;
+			}
+			return signalFlow(signalExit);
+		}
+
+	private:
+		cBase* library;
+
+	private:
+		const tSignalExitId signalExit = 1;
+
+	private:
+		std::vector<tString>* vector;
+	};
+
+	class cLogicGetEnvironments : public cLogicModule
+	{
+	public:
+		cLogicGetEnvironments(cBase* library) :
+		        library(library)
+		{
+		}
+
+		cModule* clone() const override
+		{
+			return new cLogicGetEnvironments(library);
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("getEnvironments");
+			setCaptionName("getEnvironments");
+
+			if (!registerSignalEntry("signal", &cLogicGetEnvironments::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("signal", signalExit))
+			{
+				return false;
+			}
+
+			if (!registerMemoryExit("map<string,string>", "map<string,string>", map))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		bool signalEntry()
+		{
+			if (map)
+			{
+				*map = library->environments;
+			}
+			return signalFlow(signalExit);
+		}
+
+	private:
+		cBase* library;
+
+	private:
+		const tSignalExitId signalExit = 1;
+
+	private:
+		std::map<tString, tString>* map;
+	};
+
 	class cLogicBooleanSwitch : public cLogicModule
 	{
 	public:
@@ -297,9 +411,6 @@ private: /** modules */
 			}
 			return signalFlow(signalExit);
 		}
-
-	private:
-		const tMemoryTypeName memoryTypeName;
 
 	private:
 		const tSignalExitId signalExit = 1;
