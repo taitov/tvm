@@ -909,11 +909,13 @@ public:
 			auto openAction = fileMenu->addAction("&Open");
 			auto saveAction = fileMenu->addAction("&Save");
 			auto saveAsAction = fileMenu->addAction("Save &As");
+			auto screenshotAction = fileMenu->addAction("S&creenshot");
 			auto exportAction = fileMenu->addAction("&Export");
 
 			QObject::connect(openAction, &QAction::triggered, this, &cIde::menuOpen);
 			QObject::connect(saveAction, &QAction::triggered, this, &cIde::menuSave);
 			QObject::connect(saveAsAction, &QAction::triggered, this, &cIde::menuSaveAs);
+			QObject::connect(screenshotAction, &QAction::triggered, this, &cIde::menuScreenshot);
 			QObject::connect(exportAction, &QAction::triggered, this, &cIde::menuExport);
 
 			layout->addWidget(menuBar);
@@ -1284,6 +1286,28 @@ private slots:
 		}
 
 		saveToFile(filePath);
+	}
+
+	void menuScreenshot()
+	{
+		QString filePath = QFileDialog::getSaveFileName(nullptr,
+		                                                ("Save screenshot"),
+		                                                QDir::homePath(),
+		                                                ("PNG (*.png)"));
+
+		if (filePath.isEmpty())
+		{
+			return;
+		}
+
+		scene->clearSelection();
+		scene->setSceneRect(scene->itemsBoundingRect());
+		QImage image(scene->sceneRect().size().toSize(), QImage::Format_ARGB32);
+		image.fill(Qt::transparent);
+
+		QPainter painter(&image);
+		scene->render(&painter);
+		image.save(filePath);
 	}
 
 	void menuExport()
