@@ -1104,7 +1104,7 @@ do { \
 
 		cModule* module = map.find(key)->second->clone();
 
-		const auto& memoryEntries = module->getMemoryEntries();
+		const auto& memoryEntries = map.find(key)->second->getMemoryEntries();
 		for (const auto& iter : memoryEntries)
 		{
 			const std::ptrdiff_t memoryOffset = std::get<1>(iter.second);
@@ -1115,7 +1115,7 @@ do { \
 			*(void**)moduleMemoryPointer = nullptr;
 		}
 
-		const auto& memoryExits = module->getMemoryExits();
+		const auto& memoryExits = map.find(key)->second->getMemoryExits();
 		for (const auto& iter : memoryExits)
 		{
 			const std::ptrdiff_t memoryOffset = std::get<1>(iter.second);
