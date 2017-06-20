@@ -672,7 +672,12 @@ void cVirtualMachine::unload()
 		delete iter.second;
 	}
 	schemes.clear();
-	currentScheme = nullptr;
+
+	if (currentScheme)
+	{
+		delete currentScheme;
+		currentScheme = nullptr;
+	}
 }
 
 void cVirtualMachine::run()
