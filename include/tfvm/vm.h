@@ -65,6 +65,7 @@ public:
 
 	bool loadFromFile(const std::string& filePath);
 	bool loadFromMemory(const std::vector<char>& buffer);
+	bool reload();
 	void unload();
 
 	void run();
@@ -657,8 +658,36 @@ bool cVirtualMachine::loadFromMemory(const std::vector<char>& buffer)
 		currentScheme = schemes["main"]->clone();
 		if (!currentScheme->init(nullptr))
 		{
+			delete currentScheme;
+			currentScheme = nullptr;
 			return false;
 		}
+	}
+
+	return true;
+}
+
+bool cVirtualMachine::reload()
+{
+	std::lock_guard<std::mutex> guard(mutex);
+
+	if (currentScheme)
+	{
+		delete currentScheme;
+		currentScheme = nullptr;
+	}
+
+	if (schemes.find("main") == schemes.end())
+	{
+		return false;
+	}
+
+	currentScheme = schemes["main"]->clone();
+	if (!currentScheme->init(nullptr))
+	{
+		delete currentScheme;
+		currentScheme = nullptr;
+		return false;
 	}
 
 	return true;
