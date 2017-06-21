@@ -197,11 +197,6 @@ public:
 			return false;
 		}
 
-		if (!registerRootModules(rootRun))
-		{
-			return false;
-		}
-
 		if (!registerModules(new cLogicGetArguments(this),
 		                     new cLogicGetEnvironments(this),
 		                     new cLogicTrue(),
@@ -213,50 +208,9 @@ public:
 		return true;
 	}
 
-	void run() override
-	{
-		rootSetMemory(rootRun.memoryArguments, arguments);
-		rootSetMemory(rootRun.memoryEnvironments, environments);
-		rootSignalFlow(rootRun.signal);
-	}
-
 private:
 	std::vector<tString> arguments;
 	std::map<tString, tString> environments;
-
-private: /** rootModules */
-	class cRootRun : public cRootModule
-	{
-	public:
-		bool registerModule() override
-		{
-			setModuleName("run");
-
-			if (!registerSignalExit("signal", signal))
-			{
-				return false;
-			}
-
-			if (!registerMemoryExit("arguments", "vector<string>", memoryArguments))
-			{
-				return false;
-			}
-
-			if (!registerMemoryExit("environments", "map<string,string>", memoryEnvironments))
-			{
-				return false;
-			}
-
-			return true;
-		}
-
-		tRootSignalExitId signal;
-		tRootMemoryExitId memoryArguments;
-		tRootMemoryExitId memoryEnvironments;
-	};
-
-private:
-	cRootRun rootRun;
 
 private: /** modules */
 	class cLogicGetArguments : public cLogicModule

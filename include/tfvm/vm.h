@@ -505,6 +505,8 @@ private:
 		return true;
 	}
 
+	void registerBuildInLibrary();
+
 private: /** load */
 	bool readScheme(cStreamIn& stream);
 
@@ -556,12 +558,14 @@ private: /** exec */
 	volatile bool stopped;
 	cScheme* currentScheme;
 	std::mutex mutex;
+	tRootSignalExitId rootSignalSchemeLoaded;
 };
 
 cVirtualMachine::cVirtualMachine()
 {
 	stopped = false;
 	currentScheme = nullptr;
+	registerBuildInLibrary();
 }
 
 cVirtualMachine::~cVirtualMachine()
@@ -591,6 +595,8 @@ void cVirtualMachine::unregisterLibraries()
 		delete memoryModule.second;
 	}
 	memoryModules.clear();
+
+	registerBuildInLibrary();
 }
 
 bool cVirtualMachine::init()
@@ -662,6 +668,8 @@ bool cVirtualMachine::loadFromMemory(const std::vector<char>& buffer)
 			currentScheme = nullptr;
 			return false;
 		}
+
+		currentScheme->rootSignalFlow(rootSignalSchemeLoaded);
 	}
 
 	return true;
@@ -689,6 +697,8 @@ bool cVirtualMachine::reload()
 		currentScheme = nullptr;
 		return false;
 	}
+
+	currentScheme->rootSignalFlow(rootSignalSchemeLoaded);
 
 	return true;
 }
@@ -907,6 +917,11 @@ bool cVirtualMachine::registerRootMemoryExit(const tLibraryName& libraryName,
 	rootMemoryExits[key] = std::make_tuple(memoryTypeName,
 	                                       rootMemoryExitId);
 	return true;
+}
+
+void cVirtualMachine::registerBuildInLibrary()
+{
+	registerRootSignalExit("tfvm", "schemeLoaded", "signal", rootSignalSchemeLoaded);
 }
 
 bool cVirtualMachine::readScheme(cStreamIn& stream)
