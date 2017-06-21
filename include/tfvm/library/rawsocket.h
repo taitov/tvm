@@ -71,7 +71,10 @@ public:
 			return false;
 		}
 
-		if (!registerMemory<tEthernetType>("ethernetType"))
+		if (!registerMemoryStandart<tEthernetType,
+		                            tBoolean>("ethernetType",
+		                                      "boolean",
+		                                      0))
 		{
 			return false;
 		}
