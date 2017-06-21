@@ -16,6 +16,7 @@
 #include <netinet/in.h>
 #include <linux/if_ether.h>
 #include <netpacket/packet.h>
+#include <endian.h>
 
 #include <tfvm/library.h>
 
@@ -457,7 +458,7 @@ private: /** modules */
 				return false;
 			}
 
-			if (!registerMemoryEntry("buffer", "buffer", packet))
+			if (!registerMemoryEntry("packetData", "buffer", packet))
 			{
 				return false;
 			}
@@ -518,7 +519,7 @@ private: /** modules */
 				return false;
 			}
 
-			if (!registerMemoryEntry("buffer", "buffer", packet))
+			if (!registerMemoryEntry("packetData", "buffer", packet))
 			{
 				return false;
 			}
@@ -582,7 +583,7 @@ private: /** modules */
 				return false;
 			}
 
-			if (!registerMemoryEntry("buffer", "buffer", packet))
+			if (!registerMemoryEntry("packetData", "buffer", packet))
 			{
 				return false;
 			}
@@ -627,7 +628,9 @@ private: /** modules */
 
 				if (ethernetType)
 				{
-					memcpy(ethernetType, &(*packet)[12], sizeof(*ethernetType));
+					uint16_t value;
+					memcpy(&value, &(*packet)[12], sizeof(value));
+					*ethernetType = be16toh(value);
 				}
 			}
 			return signalFlow(signalExit);
