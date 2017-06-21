@@ -58,8 +58,8 @@ public:
 	using tGuiRootMemoryExits = std::vector<std::tuple<tMemoryExitName,
 	                                                   tMemoryTypeName>>;
 
-	using tGuiModuleIds = std::unordered_map<QUuid,
-	                                         tModuleId>;
+	using tGuiModuleIds = std::map<QUuid,
+	                               tModuleId>;
 
 	static std::shared_ptr<QtNodes::DataModelRegistry> makeDataModelRegistry(const cVirtualMachine* virtualMachine)
 	{
