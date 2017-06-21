@@ -832,7 +832,7 @@
         {
             "id": "{90ca8851-df36-48e7-8f1d-45d10981667c}",
             "model": {
-                "name": "base:root:run"
+                "name": "tfvm:root:schemeLoaded"
             },
             "position": {
                 "x": -361,
