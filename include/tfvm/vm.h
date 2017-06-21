@@ -911,34 +911,34 @@ bool cVirtualMachine::registerRootMemoryExit(const tLibraryName& libraryName,
 
 bool cVirtualMachine::readScheme(cStreamIn& stream)
 {
-		tSchemeName schemeName;
-		stream.pop(schemeName);
-		if (!schemeName.value.length())
-		{
-			return false;
-		}
+	tSchemeName schemeName;
+	stream.pop(schemeName);
+	if (!schemeName.value.length())
+	{
+		return false;
+	}
 
-		cScheme* scheme = new cScheme(this);
-		if (!scheme->read(stream))
-		{
-			delete scheme;
-			return false;
-		}
+	cScheme* scheme = new cScheme(this);
+	if (!scheme->read(stream))
+	{
+		delete scheme;
+		return false;
+	}
 
-		if (stream.isFailed())
-		{
-			delete scheme;
-			return false;
-		}
+	if (stream.isFailed())
+	{
+		delete scheme;
+		return false;
+	}
 
-		if (schemes.find(schemeName) != schemes.end())
-		{
-			delete scheme;
-			return false;
-		}
+	if (schemes.find(schemeName) != schemes.end())
+	{
+		delete scheme;
+		return false;
+	}
 
-		schemes[schemeName] = scheme;
-		return true;
+	schemes[schemeName] = scheme;
+	return true;
 }
 
 const cVirtualMachine::tMemoryTypes cVirtualMachine::getMemoryTypes() const
