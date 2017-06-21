@@ -2320,6 +2320,414 @@ private:
 	TType* result;
 };
 
+template<typename TType>
+class cLogicBitwiseNot : public cLogicModule
+{
+public:
+	cLogicBitwiseNot(const tMemoryTypeName& memoryTypeName) :
+	        memoryTypeName(memoryTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicBitwiseNot(memoryTypeName);
+	}
+
+	bool registerModule() override
+	{
+		setModuleName("bitwiseNot");
+		setCaptionName("bitwiseNot");
+
+		if (!registerSignalEntry("signal", &cLogicBitwiseNot::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("value", memoryTypeName, value))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("signal", signalExit))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit("result", memoryTypeName, result))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (value && result)
+		{
+			*result = ~(*value);
+		}
+		return signalFlow(signalExit);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeName;
+
+private:
+	const tSignalExitId signalExit = 1;
+
+private:
+	TType* value;
+	TType* result;
+};
+
+template<typename TType>
+class cLogicBitwiseAnd : public cLogicModule
+{
+public:
+	cLogicBitwiseAnd(const tMemoryTypeName& memoryTypeName) :
+	        memoryTypeName(memoryTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicBitwiseAnd(memoryTypeName);
+	}
+
+	bool registerModule() override
+	{
+		setModuleName("bitwiseAnd");
+		setCaptionName("bitwiseAnd");
+
+		if (!registerSignalEntry("signal", &cLogicBitwiseAnd::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("first", memoryTypeName, first))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("second", memoryTypeName, second))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("signal", signalExit))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit("result", memoryTypeName, result))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (first && second && result)
+		{
+			*result = (*first) & (*second);
+		}
+		return signalFlow(signalExit);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeName;
+
+private:
+	const tSignalExitId signalExit = 1;
+
+private:
+	TType* first;
+	TType* second;
+	TType* result;
+};
+
+template<typename TType>
+class cLogicBitwiseOr : public cLogicModule
+{
+public:
+	cLogicBitwiseOr(const tMemoryTypeName& memoryTypeName) :
+	        memoryTypeName(memoryTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicBitwiseOr(memoryTypeName);
+	}
+
+	bool registerModule() override
+	{
+		setModuleName("bitwiseOr");
+		setCaptionName("bitwiseOr");
+
+		if (!registerSignalEntry("signal", &cLogicBitwiseOr::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("first", memoryTypeName, first))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("second", memoryTypeName, second))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("signal", signalExit))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit("result", memoryTypeName, result))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (first && second && result)
+		{
+			*result = (*first) | (*second);
+		}
+		return signalFlow(signalExit);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeName;
+
+private:
+	const tSignalExitId signalExit = 1;
+
+private:
+	TType* first;
+	TType* second;
+	TType* result;
+};
+
+template<typename TType>
+class cLogicBitwiseXor : public cLogicModule
+{
+public:
+	cLogicBitwiseXor(const tMemoryTypeName& memoryTypeName) :
+	        memoryTypeName(memoryTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicBitwiseXor(memoryTypeName);
+	}
+
+	bool registerModule() override
+	{
+		setModuleName("bitwiseXor");
+		setCaptionName("bitwiseXor");
+
+		if (!registerSignalEntry("signal", &cLogicBitwiseXor::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("first", memoryTypeName, first))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("second", memoryTypeName, second))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("signal", signalExit))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit("result", memoryTypeName, result))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (first && second && result)
+		{
+			*result = (*first) ^ (*second);
+		}
+		return signalFlow(signalExit);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeName;
+
+private:
+	const tSignalExitId signalExit = 1;
+
+private:
+	TType* first;
+	TType* second;
+	TType* result;
+};
+
+template<typename TType>
+class cLogicBitwiseLeftShift : public cLogicModule
+{
+public:
+	cLogicBitwiseLeftShift(const tMemoryTypeName& memoryTypeName) :
+	        memoryTypeName(memoryTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicBitwiseLeftShift(memoryTypeName);
+	}
+
+	bool registerModule() override
+	{
+		setModuleName("bitwiseLeftShift");
+		setCaptionName("bitwiseLeftShift");
+
+		if (!registerSignalEntry("signal", &cLogicBitwiseLeftShift::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("first", memoryTypeName, first))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("second", memoryTypeName, second))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("signal", signalExit))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit("result", memoryTypeName, result))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (first && second && result)
+		{
+			*result = (*first) << (*second);
+		}
+		return signalFlow(signalExit);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeName;
+
+private:
+	const tSignalExitId signalExit = 1;
+
+private:
+	TType* first;
+	TType* second;
+	TType* result;
+};
+
+template<typename TType>
+class cLogicBitwiseRightShift : public cLogicModule
+{
+public:
+	cLogicBitwiseRightShift(const tMemoryTypeName& memoryTypeName) :
+	        memoryTypeName(memoryTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicBitwiseRightShift(memoryTypeName);
+	}
+
+	bool registerModule() override
+	{
+		setModuleName("bitwiseRightShift");
+		setCaptionName("bitwiseRightShift");
+
+		if (!registerSignalEntry("signal", &cLogicBitwiseRightShift::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("first", memoryTypeName, first))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("second", memoryTypeName, second))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("signal", signalExit))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit("result", memoryTypeName, result))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (first && second && result)
+		{
+			*result = (*first) >> (*second);
+		}
+		return signalFlow(signalExit);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeName;
+
+private:
+	const tSignalExitId signalExit = 1;
+
+private:
+	TType* first;
+	TType* second;
+	TType* result;
+};
+
 }
 
 #endif // TFVM_LOGIC_H

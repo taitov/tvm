@@ -502,6 +502,42 @@ private:
 			return false;
 		}
 
+		if (!registerMemoryModule(memoryTypeName,
+		                          new cLogicBitwiseNot<TType>(memoryTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeName,
+		                          new cLogicBitwiseAnd<TType>(memoryTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeName,
+		                          new cLogicBitwiseOr<TType>(memoryTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeName,
+		                          new cLogicBitwiseXor<TType>(memoryTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeName,
+		                          new cLogicBitwiseLeftShift<TType>(memoryTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeName,
+		                          new cLogicBitwiseRightShift<TType>(memoryTypeName)))
+		{
+			return false;
+		}
+
 		return true;
 	}
 
