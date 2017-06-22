@@ -259,7 +259,7 @@ public:
 			return false;
 		}
 
-		if (!registerMemoryEntry(memoryIntegerTypeName.value, memoryIntegerTypeName, index))
+		if (!registerMemoryEntry("index", memoryIntegerTypeName, index))
 		{
 			return false;
 		}
@@ -314,6 +314,99 @@ private:
 	tVector* vector;
 	TIntegerType* index;
 	TType* value;
+};
+
+template<typename TType, typename TIntegerType>
+class cLogicVectorSet : public cLogicModule
+{
+	using tVector = std::vector<TType>;
+
+public:
+	cLogicVectorSet(const tMemoryTypeName& memoryTypeName,
+	                const tMemoryTypeName& memoryIntegerTypeName) :
+	        memoryTypeName(memoryTypeName),
+	        memoryIntegerTypeName(memoryIntegerTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicVectorSet(memoryTypeName,
+		                           memoryIntegerTypeName);
+	}
+
+	bool registerModule() override
+	{
+		tMemoryTypeName memoryTypeNameVector = "vector<" + memoryTypeName.value + ">";
+
+		setModuleName("set");
+		setCaptionName("set");
+
+		if (!registerSignalEntry("signal", &cLogicVectorSet::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry(memoryTypeName.value, memoryTypeName, value))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("index", memoryIntegerTypeName, index))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("done", signalExitDone))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("fail", signalExitFail))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit(memoryTypeNameVector.value, memoryTypeNameVector, vector))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (vector && index)
+		{
+			if ((std::size_t)(*index) >= vector->size())
+			{
+				return signalFlow(signalExitFail);
+			}
+
+			if (value)
+			{
+				(*vector)[*index] = *value;
+			}
+
+			return signalFlow(signalExitDone);
+		}
+		return signalFlow(signalExitFail);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeName;
+	const tMemoryTypeName memoryIntegerTypeName;
+
+private:
+	const tSignalExitId signalExitDone = 1;
+	const tSignalExitId signalExitFail = 2;
+
+private:
+	TType* value;
+	TIntegerType* index;
+	tVector* vector;
 };
 
 template<typename TType, typename TIntegerType>

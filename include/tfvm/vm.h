@@ -245,6 +245,14 @@ public:
 		}
 
 		if (!registerMemoryModule(memoryTypeNameVector,
+		                          new cLogicVectorSet<TType,
+		                                              TIntegerType>(memoryTypeName,
+		                                                            memoryIntegerTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameVector,
 		                          new cLogicVectorForEach<TType>(memoryTypeName)))
 		{
 			return false;
