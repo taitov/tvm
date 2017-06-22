@@ -2821,6 +2821,316 @@ private:
 	TType* result;
 };
 
+template<typename TType,
+         std::size_t TSize,
+         typename TIntegerType>
+class cLogicArrayGet : public cLogicModule
+{
+	using tArray = std::array<TType,
+	                          TSize>;
+
+public:
+	cLogicArrayGet(const tMemoryTypeName& memoryTypeNameArray,
+	               const tMemoryTypeName& memoryTypeName,
+	               const tMemoryTypeName& memoryIntegerTypeName) :
+	        memoryTypeNameArray(memoryTypeNameArray),
+	        memoryTypeName(memoryTypeName),
+	        memoryIntegerTypeName(memoryIntegerTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicArrayGet(memoryTypeNameArray,
+		                          memoryTypeName,
+		                          memoryIntegerTypeName);
+	}
+
+	bool registerModule() override
+	{
+		setModuleName("get");
+		setCaptionName("get");
+
+		if (!registerSignalEntry("signal", &cLogicArrayGet::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry(memoryTypeNameArray.value, memoryTypeNameArray, array))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("index", memoryIntegerTypeName, index))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("done", signalExitDone))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("fail", signalExitFail))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit(memoryTypeName.value, memoryTypeName, value))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (array && index)
+		{
+			if ((std::size_t)(*index) >= array->size())
+			{
+				return signalFlow(signalExitFail);
+			}
+
+			if (value)
+			{
+				*value = (*array)[*index];
+			}
+
+			return signalFlow(signalExitDone);
+		}
+		return signalFlow(signalExitFail);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeNameArray;
+	const tMemoryTypeName memoryTypeName;
+	const tMemoryTypeName memoryIntegerTypeName;
+
+private:
+	const tSignalExitId signalExitDone = 1;
+	const tSignalExitId signalExitFail = 2;
+
+private:
+	tArray* array;
+	TIntegerType* index;
+	TType* value;
+};
+
+template<typename TType,
+         std::size_t TSize,
+         typename TIntegerType>
+class cLogicArraySet : public cLogicModule
+{
+	using tArray = std::array<TType,
+	                          TSize>;
+
+public:
+	cLogicArraySet(const tMemoryTypeName& memoryTypeNameArray,
+	               const tMemoryTypeName& memoryTypeName,
+	               const tMemoryTypeName& memoryIntegerTypeName) :
+	        memoryTypeNameArray(memoryTypeNameArray),
+	        memoryTypeName(memoryTypeName),
+	        memoryIntegerTypeName(memoryIntegerTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicArraySet(memoryTypeNameArray,
+		                          memoryTypeName,
+		                          memoryIntegerTypeName);
+	}
+
+	bool registerModule() override
+	{
+		setModuleName("set");
+		setCaptionName("set");
+
+		if (!registerSignalEntry("signal", &cLogicArraySet::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry(memoryTypeName.value, memoryTypeName, value))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("index", memoryIntegerTypeName, index))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("done", signalExitDone))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("fail", signalExitFail))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit(memoryTypeNameArray.value, memoryTypeNameArray, array))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (array && index)
+		{
+			if ((std::size_t)(*index) >= array->size())
+			{
+				return signalFlow(signalExitFail);
+			}
+
+			if (value)
+			{
+				(*array)[*index] = *value;
+			}
+
+			return signalFlow(signalExitDone);
+		}
+		return signalFlow(signalExitFail);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeNameArray;
+	const tMemoryTypeName memoryTypeName;
+	const tMemoryTypeName memoryIntegerTypeName;
+
+private:
+	const tSignalExitId signalExitDone = 1;
+	const tSignalExitId signalExitFail = 2;
+
+private:
+	TType* value;
+	TIntegerType* index;
+	tArray* array;
+};
+
+template<typename TType,
+         std::size_t TSize>
+class cLogicArrayForEach : public cLogicModule
+{
+	using tArray = std::array<TType, TSize>;
+	using tArrayIterator = typename tArray::const_iterator;
+
+public:
+	cLogicArrayForEach(const tMemoryTypeName& memoryTypeNameArray,
+	                   const tMemoryTypeName& memoryTypeName) :
+	        memoryTypeNameArray(memoryTypeNameArray),
+	        memoryTypeName(memoryTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicArrayForEach(memoryTypeNameArray,
+		                              memoryTypeName);
+	}
+
+	bool registerModule() override
+	{
+		setModuleName("forEach");
+		setCaptionName("forEach");
+
+		if (!registerSignalEntry("begin", &cLogicArrayForEach::signalEntryBegin))
+		{
+			return false;
+		}
+
+		if (!registerSignalEntry("continue", &cLogicArrayForEach::signalEntryContinue))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry(memoryTypeNameArray.value, memoryTypeNameArray, array))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("iteration", signalExitIteration))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("done", signalExitDone))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit("value", memoryTypeName, value))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntryBegin()
+	{
+		if (!array)
+		{
+			return signalFlow(signalExitDone);
+		}
+
+		iter = array->begin();
+
+		return iteration();
+	}
+
+	bool signalEntryContinue()
+	{
+		if (!array)
+		{
+			return signalFlow(signalExitDone);
+		}
+
+		return iteration();
+	}
+
+private:
+	bool iteration()
+	{
+		if (iter != array->end())
+		{
+			if (value)
+			{
+				*value = *iter;
+			}
+
+			++iter;
+			return signalFlow(signalExitIteration);
+		}
+		return signalFlow(signalExitDone);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeNameArray;
+	const tMemoryTypeName memoryTypeName;
+
+private:
+	const tSignalExitId signalExitIteration = 1;
+	const tSignalExitId signalExitDone = 2;
+
+private:
+	tArray* array;
+	TType* value;
+
+private:
+	tArrayIterator iter;
+};
+
 }
 
 #endif // TFVM_LOGIC_H

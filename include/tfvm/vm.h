@@ -181,6 +181,81 @@ public:
 	}
 
 	template<typename TType,
+	         std::size_t TSize,
+	         typename TIntegerType,
+	         typename TBooleanType>
+	bool registerMemoryArray(tMemoryTypeName memoryTypeNameArray,
+	                         const tMemoryTypeName& memoryTypeName,
+	                         const tMemoryTypeName& memoryIntegerTypeName,
+	                         const tMemoryTypeName& memoryBooleanTypeName)
+	{
+		using tArray = std::array<TType, TSize>;
+		if (!memoryTypeNameArray.value.length())
+		{
+			memoryTypeNameArray = "array<" + memoryTypeName.value + "," + std::to_string(TSize) + ">";
+		}
+
+		if (memoryTypes.find(memoryTypeNameArray) != memoryTypes.end())
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameArray,
+		                          new cLogicCopy<tArray>(memoryTypeNameArray)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameArray,
+		                          new cLogicSize<tArray,
+		                                         TIntegerType>("getCount",
+		                                                       memoryTypeNameArray,
+		                                                       memoryIntegerTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameArray,
+		                          new cLogicArrayGet<TType,
+		                                             TSize,
+		                                             TIntegerType>(memoryTypeNameArray,
+		                                                           memoryTypeName,
+		                                                           memoryIntegerTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameArray,
+		                          new cLogicArraySet<TType,
+		                                             TSize,
+		                                             TIntegerType>(memoryTypeNameArray,
+		                                                           memoryTypeName,
+		                                                           memoryIntegerTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameArray,
+		                          new cLogicArrayForEach<TType,
+		                                                 TSize>(memoryTypeNameArray,
+		                                                        memoryTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameArray,
+		                          new cLogicIfEqual<tArray,
+		                                            TBooleanType>(memoryTypeNameArray,
+		                                                          memoryBooleanTypeName)))
+		{
+			return false;
+		}
+
+		memoryTypes[memoryTypeNameArray] = new cMemoryVariable<tArray>();
+		return true;
+	}
+
+	template<typename TType,
 	         typename TIntegerType,
 	         typename TBooleanType>
 	bool registerMemoryVector(const tMemoryTypeName& memoryTypeName,
@@ -1077,6 +1152,24 @@ bool cLibrary::registerMemoryStandart(const tMemoryTypeName& memoryTypeName,
 	                                              TBooleanType>(memoryTypeName,
 	                                                            memoryBooleanTypeName,
 	                                                            value);
+}
+
+template<typename TType,
+         std::size_t TSize,
+         typename TIntegerType,
+         typename TBooleanType>
+bool cLibrary::registerMemoryArray(tMemoryTypeName memoryTypeNameArray,
+                                   const tMemoryTypeName& memoryTypeName,
+                                   const tMemoryTypeName& memoryIntegerTypeName,
+                                   const tMemoryTypeName& memoryBooleanTypeName)
+{
+	return virtualMachine->registerMemoryArray<TType,
+	                                           TSize,
+	                                           TIntegerType,
+	                                           TBooleanType>(memoryTypeNameArray,
+	                                                         memoryTypeName,
+	                                                         memoryIntegerTypeName,
+	                                                         memoryBooleanTypeName);
 }
 
 template<typename TType,

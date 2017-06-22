@@ -58,7 +58,13 @@ public:
 			return false;
 		}
 
-		if (!registerMemory<tEthernetAddress>("ethernetAddress"))
+		if (!registerMemoryArray<uint8_t,
+		                         6,
+		                         tInteger,
+		                         tBoolean>("ethernetAddress",
+		                                   "byte",
+		                                   "integer",
+		                                   "boolean"))
 		{
 			return false;
 		}

@@ -52,6 +52,15 @@ protected:
 	                            const TType& value);
 
 	template<typename TType,
+	         std::size_t TSize,
+	         typename TIntegerType,
+	         typename TBooleanType>
+	bool registerMemoryArray(tMemoryTypeName memoryTypeNameArray,
+	                         const tMemoryTypeName& memoryTypeName,
+	                         const tMemoryTypeName& memoryIntegerTypeName,
+	                         const tMemoryTypeName& memoryBooleanTypeName);
+
+	template<typename TType,
 	         typename TIntegerType,
 	         typename TBooleanType>
 	bool registerMemoryVector(const tMemoryTypeName& memoryTypeName,
