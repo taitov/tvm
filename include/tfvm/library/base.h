@@ -22,6 +22,7 @@ class cBase : public cLibrary
 {
 public:
 	using tBoolean = bool;
+	using tByte = uint8_t;
 	using tString = std::string;
 	using tInteger = int64_t;
 	using tBuffer = std::vector<uint8_t>;
@@ -90,6 +91,14 @@ public:
 			{
 				*to = ((*from) ? "true" : "false");
 			})))
+		{
+			return false;
+		}
+
+		if (!registerMemoryStandart<tByte,
+		                            tBoolean>("byte",
+		                                      "boolean",
+		                                      0))
 		{
 			return false;
 		}
