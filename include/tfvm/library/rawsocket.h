@@ -37,16 +37,7 @@ public:
 	using tPortId = int64_t;
 	using tBuffer = std::vector<uint8_t>;
 	using tEthernetType = uint16_t;
-
-	struct sEthernetAddress
-	{
-		uint8_t addr_bytes[6];
-
-		bool operator<(const sEthernetAddress& second) const
-		{
-			return memcmp(this, &second, sizeof(*this)) < 0;
-		}
-	} __attribute__((__packed__));
+	using tEthernetAddress = std::array<uint8_t, 6>;
 
 public:
 	cRawSocket()
@@ -67,7 +58,7 @@ public:
 			return false;
 		}
 
-		if (!registerMemory<sEthernetAddress>("ethernetAddress"))
+		if (!registerMemory<tEthernetAddress>("ethernetAddress"))
 		{
 			return false;
 		}
@@ -101,20 +92,20 @@ public:
 		}
 
 		if (!registerMemoryModule("ethernetAddress",
-		                          new cLogicConvert<sEthernetAddress,
+		                          new cLogicConvert<tEthernetAddress,
 		                                            tString>("toString",
 		                                                     "ethernetAddress",
 		                                                     "string",
-			[](sEthernetAddress* from, tString* to)
+			[](tEthernetAddress* from, tString* to)
 			{
 				char ethernetAddressStr[18];
 				snprintf(ethernetAddressStr, 18, "%2.2X:%2.2X:%2.2X:%2.2X:%2.2X:%2.2X",
-				         from->addr_bytes[0],
-				         from->addr_bytes[1],
-				         from->addr_bytes[2],
-				         from->addr_bytes[3],
-				         from->addr_bytes[4],
-				         from->addr_bytes[5]);
+				         (*from)[0],
+				         (*from)[1],
+				         (*from)[2],
+				         (*from)[3],
+				         (*from)[4],
+				         (*from)[5]);
 				*to = ethernetAddressStr;
 			})))
 		{
@@ -641,8 +632,8 @@ private: /** modules */
 
 	private:
 		tBuffer* packet;
-		sEthernetAddress* destination;
-		sEthernetAddress* source;
+		tEthernetAddress* destination;
+		tEthernetAddress* source;
 		tEthernetType* ethernetType;
 	};
 };

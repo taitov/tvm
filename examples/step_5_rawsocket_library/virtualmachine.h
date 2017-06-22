@@ -26,7 +26,7 @@ static bool registerVirtualMachine(nVirtualMachine::cVirtualMachine& virtualMach
 		return false;
 	}
 
-	if (!virtualMachine.registerMemoryMap<cRawSocket::sEthernetAddress,
+	if (!virtualMachine.registerMemoryMap<cRawSocket::tEthernetAddress,
 	                                      cRawSocket::tPortId,
 	                                      tInteger,
 	                                      tBoolean>("ethernetAddress",

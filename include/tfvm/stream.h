@@ -192,6 +192,17 @@ public:
 		pop(pair.second);
 	}
 
+	template<typename TType, std::size_t TSize>
+	inline void pop(std::array<TType, TSize>& array)
+	{
+		for (uint64_t i = 0; i < TSize; i++)
+		{
+			TType value;
+			pop(value);
+			array[i] = value;
+		}
+	}
+
 	template<typename TVectorType>
 	inline void pop(std::vector<TVectorType>& vector)
 	{
@@ -368,10 +379,19 @@ public:
 	}
 
 	template<typename TFirstType, typename TSecondType>
-	inline void push(std::pair<TFirstType, TSecondType>& pair)
+	inline void push(const std::pair<TFirstType, TSecondType>& pair)
 	{
 		push(pair.first);
 		push(pair.second);
+	}
+
+	template<typename TType, std::size_t TSize>
+	inline void push(const std::array<TType, TSize>& array)
+	{
+		for (uint64_t i = 0; i < TSize; i++)
+		{
+			push(array[i]);
+		}
 	}
 
 	template<typename TVectorType>
