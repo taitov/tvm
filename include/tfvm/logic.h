@@ -1809,8 +1809,10 @@ public:
 	using tTuple = std::tuple<TTypes ...>;
 
 public:
-	cLogicTupleGet(const std::vector<tMemoryName>& memoryNames,
+	cLogicTupleGet(const tMemoryTypeName& memoryTypeNameTuple,
+	               const std::vector<tMemoryName>& memoryNames,
 	               const std::vector<tMemoryTypeName>& memoryTypeNames) :
+	        memoryTypeNameTuple(memoryTypeNameTuple),
 	        memoryNames(memoryNames),
 	        memoryTypeNames(memoryTypeNames)
 	{
@@ -1818,7 +1820,8 @@ public:
 
 	cModule* clone() const override
 	{
-		return new cLogicTupleGet(memoryNames,
+		return new cLogicTupleGet(memoryTypeNameTuple,
+		                          memoryNames,
 		                          memoryTypeNames);
 	}
 
@@ -1833,20 +1836,6 @@ public:
 		{
 			return false;
 		}
-
-		tMemoryTypeName memoryTypeNameTuple = "tuple<";
-		if (memoryNames.size())
-		{
-			for (unsigned int memoryTypeName_i = 0; memoryTypeName_i < memoryNames.size() - 1; memoryTypeName_i++)
-			{
-				memoryTypeNameTuple.value += memoryNames[memoryTypeName_i].value + ",";
-			}
-			for (unsigned int memoryTypeName_i = memoryNames.size() - 1; memoryTypeName_i < memoryNames.size(); memoryTypeName_i++)
-			{
-				memoryTypeNameTuple.value += memoryNames[memoryTypeName_i].value;
-			}
-		}
-		memoryTypeNameTuple.value += ">";
 
 		setModuleName("get");
 		setCaptionName("get");
@@ -1924,6 +1913,7 @@ private: /** signalEntries */
 	}
 
 private:
+	const tMemoryTypeName memoryTypeNameTuple;
 	const std::vector<tMemoryName> memoryNames;
 	const std::vector<tMemoryTypeName> memoryTypeNames;
 
@@ -1942,8 +1932,10 @@ public:
 	using tTuple = std::tuple<TTypes ...>;
 
 public:
-	cLogicTupleSet(const std::vector<tMemoryName>& memoryNames,
+	cLogicTupleSet(const tMemoryTypeName& memoryTypeNameTuple,
+	               const std::vector<tMemoryName>& memoryNames,
 	               const std::vector<tMemoryTypeName>& memoryTypeNames) :
+	        memoryTypeNameTuple(memoryTypeNameTuple),
 	        memoryNames(memoryNames),
 	        memoryTypeNames(memoryTypeNames)
 	{
@@ -1951,7 +1943,8 @@ public:
 
 	cModule* clone() const override
 	{
-		return new cLogicTupleSet(memoryNames,
+		return new cLogicTupleSet(memoryTypeNameTuple,
+		                          memoryNames,
 		                          memoryTypeNames);
 	}
 
@@ -1966,20 +1959,6 @@ public:
 		{
 			return false;
 		}
-
-		tMemoryTypeName memoryTypeNameTuple = "tuple<";
-		if (memoryNames.size())
-		{
-			for (unsigned int memoryTypeName_i = 0; memoryTypeName_i < memoryNames.size() - 1; memoryTypeName_i++)
-			{
-				memoryTypeNameTuple.value += memoryNames[memoryTypeName_i].value + ",";
-			}
-			for (unsigned int memoryTypeName_i = memoryNames.size() - 1; memoryTypeName_i < memoryNames.size(); memoryTypeName_i++)
-			{
-				memoryTypeNameTuple.value += memoryNames[memoryTypeName_i].value;
-			}
-		}
-		memoryTypeNameTuple.value += ">";
 
 		setModuleName("set");
 		setCaptionName("set");
@@ -2057,6 +2036,7 @@ private: /** signalEntries */
 	}
 
 private:
+	const tMemoryTypeName memoryTypeNameTuple;
 	const std::vector<tMemoryName> memoryNames;
 	const std::vector<tMemoryTypeName> memoryTypeNames;
 

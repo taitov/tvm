@@ -38,6 +38,7 @@ public:
 	using tBuffer = std::vector<uint8_t>;
 	using tEthernetType = uint16_t;
 	using tEthernetAddress = std::array<uint8_t, 6>;
+	using tInterfaceInformation = std::tuple<tBoolean, tString>;
 
 public:
 	cRawSocket()
@@ -120,7 +121,8 @@ public:
 
 		if (!registerMemoryTuple<tBoolean,
 		                         tBoolean,
-		                         tString>("boolean",
+		                         tString>("interfaceInformation",
+		                                  "boolean",
 		                                  {"state", "name"},
 		                                  {"boolean", "string"}))
 		{
@@ -128,11 +130,10 @@ public:
 		}
 
 		if (!registerMemoryMap<tPortId,
-		                       std::tuple<tBoolean,
-		                                  tString>,
+		                       tInterfaceInformation,
 		                       tInteger,
 		                       tBoolean>("portId",
-		                                 "tuple<state,name>",
+		                                 "interfaceInformation",
 		                                 "integer",
 		                                 "boolean"))
 		{
@@ -147,7 +148,7 @@ public:
 		if (!registerModules(new cLogicSendPacket(this),
 		                     new cLogicGetEthernetHeader(),
 		                     new cLogicSendPacketBroadcast(this),
-		                     new cLogicGetInterfaces(this)))
+		                     new cLogicGetInterfacesInformation(this)))
 		{
 			return false;
 		}
@@ -352,29 +353,28 @@ private:
 	cRootRecvPacket rootRecvPacket;
 
 private: /** modules */
-	class cLogicGetInterfaces : public cLogicModule
+	class cLogicGetInterfacesInformation : public cLogicModule
 	{
 	public:
 		using tMap = std::map<tPortId,
-		                      std::tuple<tBoolean,
-		                                 tString>>;
+		                      tInterfaceInformation>;
 
 	public:
-		cLogicGetInterfaces(cRawSocket* library) :
+		cLogicGetInterfacesInformation(cRawSocket* library) :
 		        library(library)
 		{
 		}
 
 		cModule* clone() const override
 		{
-			return new cLogicGetInterfaces(library);
+			return new cLogicGetInterfacesInformation(library);
 		}
 
 		bool registerModule() override
 		{
-			setModuleName("getInterfaces");
+			setModuleName("getInterfacesInformation");
 
-			if (!registerSignalEntry("signal", &cLogicGetInterfaces::signalEntry))
+			if (!registerSignalEntry("signal", &cLogicGetInterfacesInformation::signalEntry))
 			{
 				return false;
 			}
@@ -384,7 +384,7 @@ private: /** modules */
 				return false;
 			}
 
-			if (!registerMemoryExit("map<portId,tuple<state,name>>", "map<portId,tuple<state,name>>", map))
+			if (!registerMemoryExit("map<portId,interfaceInformation>", "map<portId,interfaceInformation>", map))
 			{
 				return false;
 			}

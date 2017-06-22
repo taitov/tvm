@@ -413,7 +413,8 @@ public:
 
 	template<typename TBooleanType,
 	         typename ... TTypes>
-	bool registerMemoryTuple(const tMemoryTypeName& memoryBooleanTypeName,
+	bool registerMemoryTuple(tMemoryTypeName memoryTypeNameTuple,
+	                         const tMemoryTypeName& memoryBooleanTypeName,
 	                         const std::vector<tMemoryName>& memoryNames,
 	                         const std::vector<tMemoryTypeName>& memoryTypeNames)
 	{
@@ -429,19 +430,22 @@ public:
 			return false;
 		}
 
-		tMemoryTypeName memoryTypeNameTuple = "tuple<";
-		if (memoryNames.size())
+		if (!memoryTypeNameTuple.value.length())
 		{
-			for (unsigned int memoryTypeName_i = 0; memoryTypeName_i < memoryNames.size() - 1; memoryTypeName_i++)
+			memoryTypeNameTuple = "tuple<";
+			if (memoryNames.size())
 			{
-				memoryTypeNameTuple.value += memoryNames[memoryTypeName_i].value + ",";
+				for (unsigned int memoryTypeName_i = 0; memoryTypeName_i < memoryNames.size() - 1; memoryTypeName_i++)
+				{
+					memoryTypeNameTuple.value += memoryNames[memoryTypeName_i].value + ",";
+				}
+				for (unsigned int memoryTypeName_i = memoryNames.size() - 1; memoryTypeName_i < memoryNames.size(); memoryTypeName_i++)
+				{
+					memoryTypeNameTuple.value += memoryNames[memoryTypeName_i].value;
+				}
 			}
-			for (unsigned int memoryTypeName_i = memoryNames.size() - 1; memoryTypeName_i < memoryNames.size(); memoryTypeName_i++)
-			{
-				memoryTypeNameTuple.value += memoryNames[memoryTypeName_i].value;
-			}
+			memoryTypeNameTuple.value += ">";
 		}
-		memoryTypeNameTuple.value += ">";
 
 		if (memoryTypes.find(memoryTypeNameTuple) != memoryTypes.end())
 		{
@@ -463,14 +467,16 @@ public:
 		}
 
 		if (!registerMemoryModule(memoryTypeNameTuple,
-		                          new cLogicTupleGet<TTypes ...>(memoryNames,
+		                          new cLogicTupleGet<TTypes ...>(memoryTypeNameTuple,
+		                                                         memoryNames,
 		                                                         memoryTypeNames)))
 		{
 			return false;
 		}
 
 		if (!registerMemoryModule(memoryTypeNameTuple,
-		                          new cLogicTupleSet<TTypes ...>(memoryNames,
+		                          new cLogicTupleSet<TTypes ...>(memoryTypeNameTuple,
+		                                                         memoryNames,
 		                                                         memoryTypeNames)))
 		{
 			return false;
@@ -1206,12 +1212,14 @@ bool cLibrary::registerMemoryMap(const tMemoryTypeName& memoryKeyTypeName,
 
 template<typename TBooleanType,
          typename ... TTypes>
-bool cLibrary::registerMemoryTuple(const tMemoryTypeName& memoryBooleanTypeName,
+bool cLibrary::registerMemoryTuple(tMemoryTypeName memoryTypeNameTuple,
+                                   const tMemoryTypeName& memoryBooleanTypeName,
                                    const std::vector<tMemoryName>& memoryNames,
                                    const std::vector<tMemoryTypeName>& memoryTypeNames)
 {
 	return virtualMachine->registerMemoryTuple<TBooleanType,
-	                                           TTypes ...>(memoryBooleanTypeName,
+	                                           TTypes ...>(memoryTypeNameTuple,
+	                                                       memoryBooleanTypeName,
 	                                                       memoryNames,
 	                                                       memoryTypeNames);
 }

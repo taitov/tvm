@@ -78,7 +78,8 @@ protected:
 
 	template<typename TBooleanType,
 	         typename ... TTypes>
-	bool registerMemoryTuple(const tMemoryTypeName& memoryBooleanTypeName,
+	bool registerMemoryTuple(tMemoryTypeName memoryTypeNameTuple,
+	                         const tMemoryTypeName& memoryBooleanTypeName,
 	                         const std::vector<tMemoryName>& memoryNames,
 	                         const std::vector<tMemoryTypeName>& memoryTypeNames);
 
