@@ -27,7 +27,8 @@ public:
 	{
 		setLibraryName("console");
 
-		if (!registerModules(new cLogicPrintLine()))
+		if (!registerModules(new cLogicPrint(),
+		                     new cLogicPrintLine()))
 		{
 			return false;
 		}
@@ -36,6 +37,54 @@ public:
 	}
 
 private: /** modules */
+	class cLogicPrint : public cLogicModule
+	{
+	public:
+		cModule* clone() const override
+		{
+			return new cLogicPrint();
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("print");
+
+			if (!registerSignalEntry("signal", &cLogicPrint::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("string", "string", string))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("signal", signalExit))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		bool signalEntry()
+		{
+			if (string)
+			{
+				std::cout << *string;
+				std::cout << std::flush;
+			}
+			return signalFlow(signalExit);
+		}
+
+	private:
+		const tSignalExitId signalExit = 1;
+
+	private:
+		std::string* string;
+	};
+
 	class cLogicPrintLine : public cLogicModule
 	{
 	public:
@@ -74,6 +123,7 @@ private: /** modules */
 				std::cout << *string;
 			}
 			std::cout << std::endl;
+			std::cout << std::flush;
 			return signalFlow(signalExit);
 		}
 

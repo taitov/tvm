@@ -109,8 +109,18 @@ private: /** modules */
 			CURLcode res = curl_easy_perform(curl);
 			if(res != CURLE_OK)
 			{
+				if (string)
+				{
+					string->resize(strnlen(string->c_str(), string->size()));
+				}
+
 				curl_easy_cleanup(curl);
 				return signalFlow(signalExitFail);
+			}
+
+			if (string)
+			{
+				string->resize(strnlen(string->c_str(), string->size()));
 			}
 
 			return signalFlow(signalExitDone);
