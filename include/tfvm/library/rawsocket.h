@@ -34,7 +34,7 @@ public:
 	using tBoolean = bool;
 	using tString = std::string;
 	using tInteger = int64_t;
-	using tPortId = int64_t;
+	using tPortId = uint16_t;
 	using tBuffer = std::vector<uint8_t>;
 	using tEthernetType = uint16_t;
 	using tEthernetAddress = std::array<uint8_t, 6>;
@@ -54,7 +54,10 @@ public:
 	{
 		setLibraryName("rawSocket");
 
-		if (!registerMemory<tPortId>("portId", 0))
+		if (!registerMemoryStandart<tPortId,
+		                            tBoolean>("portId",
+		                                      "boolean",
+		                                      0))
 		{
 			return false;
 		}

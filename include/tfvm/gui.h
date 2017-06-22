@@ -272,9 +272,72 @@ public:
 			textEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
 			return textEdit;
 		}
+		else if (type == typeid(uint64_t))
+		{
+			uint64_t* value = (uint64_t*)defaultValue;
+
+			QLineEdit* lineEdit = new QLineEdit(QString::number(*value));
+			lineEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
+			/** @todo: add validator */
+			return lineEdit;
+		}
+		else if (type == typeid(uint32_t))
+		{
+			uint32_t* value = (uint32_t*)defaultValue;
+
+			QLineEdit* lineEdit = new QLineEdit(QString::number(*value));
+			lineEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
+			/** @todo: add validator */
+			return lineEdit;
+		}
+		else if (type == typeid(uint16_t))
+		{
+			uint16_t* value = (uint16_t*)defaultValue;
+
+			QLineEdit* lineEdit = new QLineEdit(QString::number(*value));
+			lineEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
+			/** @todo: add validator */
+			return lineEdit;
+		}
+		else if (type == typeid(uint8_t))
+		{
+			uint8_t* value = (uint8_t*)defaultValue;
+
+			QLineEdit* lineEdit = new QLineEdit(QString::number(*value));
+			lineEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
+			/** @todo: add validator */
+			return lineEdit;
+		}
 		else if (type == typeid(int64_t))
 		{
 			int64_t* value = (int64_t*)defaultValue;
+
+			QLineEdit* lineEdit = new QLineEdit(QString::number(*value));
+			lineEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
+			/** @todo: add validator */
+			return lineEdit;
+		}
+		else if (type == typeid(int32_t))
+		{
+			int32_t* value = (int32_t*)defaultValue;
+
+			QLineEdit* lineEdit = new QLineEdit(QString::number(*value));
+			lineEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
+			/** @todo: add validator */
+			return lineEdit;
+		}
+		else if (type == typeid(int16_t))
+		{
+			int16_t* value = (int16_t*)defaultValue;
+
+			QLineEdit* lineEdit = new QLineEdit(QString::number(*value));
+			lineEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
+			/** @todo: add validator */
+			return lineEdit;
+		}
+		else if (type == typeid(int8_t))
+		{
+			int8_t* value = (int8_t*)defaultValue;
 
 			QLineEdit* lineEdit = new QLineEdit(QString::number(*value));
 			lineEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
@@ -301,7 +364,14 @@ public:
 			QTextEditSizeHint* textEdit = (QTextEditSizeHint*)widget;
 			return QJsonValue(textEdit->toPlainText());
 		}
-		else if (type == typeid(int64_t))
+		else if (type == typeid(uint64_t) ||
+		         type == typeid(uint32_t) ||
+		         type == typeid(uint16_t) ||
+		         type == typeid(uint8_t) ||
+		         type == typeid(int64_t) ||
+		         type == typeid(int32_t) ||
+		         type == typeid(int16_t) ||
+		         type == typeid(int8_t))
 		{
 			QLineEdit* lineEdit = (QLineEdit*)widget;
 			return QJsonValue(lineEdit->text());
@@ -324,7 +394,14 @@ public:
 			QTextEditSizeHint* textEdit = (QTextEditSizeHint*)widget;
 			textEdit->setPlainText(jsonValue.toString());
 		}
-		else if (type == typeid(int64_t))
+		else if (type == typeid(uint64_t) ||
+		         type == typeid(uint32_t) ||
+		         type == typeid(uint16_t) ||
+		         type == typeid(uint8_t) ||
+		         type == typeid(int64_t) ||
+		         type == typeid(int32_t) ||
+		         type == typeid(int16_t) ||
+		         type == typeid(int8_t))
 		{
 			QLineEdit* lineEdit = (QLineEdit*)widget;
 			lineEdit->setText(jsonValue.toString());
@@ -347,10 +424,52 @@ public:
 			QTextEditSizeHint* textEdit = (QTextEditSizeHint*)widget;
 			stream.push(textEdit->toPlainText().toStdString());
 		}
+		else if (type == typeid(uint64_t))
+		{
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			uint64_t value = lineEdit->text().toULongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == typeid(uint32_t))
+		{
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			uint32_t value = lineEdit->text().toULongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == typeid(uint16_t))
+		{
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			uint16_t value = lineEdit->text().toULongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == typeid(uint8_t))
+		{
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			uint8_t value = lineEdit->text().toULongLong(nullptr, 0);
+			stream.push(value);
+		}
 		else if (type == typeid(int64_t))
 		{
 			QLineEdit* lineEdit = (QLineEdit*)widget;
 			int64_t value = lineEdit->text().toLongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == typeid(int32_t))
+		{
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			int32_t value = lineEdit->text().toLongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == typeid(int16_t))
+		{
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			int16_t value = lineEdit->text().toLongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == typeid(int8_t))
+		{
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			int8_t value = lineEdit->text().toLongLong(nullptr, 0);
 			stream.push(value);
 		}
 		else if (type == typeid(bool))
