@@ -278,7 +278,7 @@ public:
 
 			QLineEdit* lineEdit = new QLineEdit(QString::number(*value));
 			lineEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
-			lineEdit->setValidator(new QIntValidator()); /**< @todo: int64 validator */
+			/** @todo: add validator */
 			return lineEdit;
 		}
 		else if (type == typeid(bool))
@@ -350,7 +350,7 @@ public:
 		else if (type == typeid(int64_t))
 		{
 			QLineEdit* lineEdit = (QLineEdit*)widget;
-			int64_t value = lineEdit->text().toLongLong();
+			int64_t value = lineEdit->text().toLongLong(nullptr, 0);
 			stream.push(value);
 		}
 		else if (type == typeid(bool))
@@ -424,7 +424,9 @@ private:
 				                                           std::get<1>(variable.second));
 				if (elementWidget)
 				{
-					widgets.insert(std::make_pair(variable.first, std::make_tuple(std::get<0>(variable.second), elementWidget)));
+					widgets.insert(std::make_pair(variable.first,
+					                              std::make_tuple(std::get<0>(variable.second),
+					                                              elementWidget)));
 					layout->addWidget(elementWidget);
 				}
 			}
