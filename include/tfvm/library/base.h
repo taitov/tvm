@@ -238,7 +238,6 @@ private: /** modules */
 		bool registerModule() override
 		{
 			setModuleName("getArguments");
-			setCaptionName("getArguments");
 
 			if (!registerSignalEntry("signal", &cLogicGetArguments::signalEntry))
 			{
@@ -294,7 +293,6 @@ private: /** modules */
 		bool registerModule() override
 		{
 			setModuleName("getEnvironments");
-			setCaptionName("getEnvironments");
 
 			if (!registerSignalEntry("signal", &cLogicGetEnvironments::signalEntry))
 			{
