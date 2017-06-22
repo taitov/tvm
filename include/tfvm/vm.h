@@ -684,6 +684,7 @@ private: /** exec */
 	cScheme* currentScheme;
 	std::mutex mutex;
 	tRootSignalExitId rootSignalSchemeLoaded;
+	tRootSignalExitId rootSignalSchemeUnload;
 };
 
 cVirtualMachine::cVirtualMachine()
@@ -806,6 +807,8 @@ bool cVirtualMachine::reload()
 
 	if (currentScheme)
 	{
+		currentScheme->rootSignalFlow(rootSignalSchemeUnload);
+
 		delete currentScheme;
 		currentScheme = nullptr;
 	}
@@ -831,17 +834,20 @@ bool cVirtualMachine::reload()
 void cVirtualMachine::unload()
 {
 	std::lock_guard<std::mutex> guard(mutex);
+
+	if (currentScheme)
+	{
+		currentScheme->rootSignalFlow(rootSignalSchemeUnload);
+
+		delete currentScheme;
+		currentScheme = nullptr;
+	}
+
 	for (auto& iter : schemes)
 	{
 		delete iter.second;
 	}
 	schemes.clear();
-
-	if (currentScheme)
-	{
-		delete currentScheme;
-		currentScheme = nullptr;
-	}
 }
 
 void cVirtualMachine::run()
@@ -1047,6 +1053,7 @@ bool cVirtualMachine::registerRootMemoryExit(const tLibraryName& libraryName,
 void cVirtualMachine::registerBuildInLibrary()
 {
 	registerRootSignalExit("tfvm", "schemeLoaded", "signal", rootSignalSchemeLoaded);
+	registerRootSignalExit("tfvm", "schemeUnload", "signal", rootSignalSchemeUnload);
 }
 
 bool cVirtualMachine::readScheme(cStreamIn& stream)
