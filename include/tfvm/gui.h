@@ -1027,17 +1027,20 @@ public:
 		{
 			auto menuBar = new QMenuBar();
 			auto fileMenu = menuBar->addMenu("&File");
+			auto newAction = fileMenu->addAction("&New"); /**< @todo */
+			fileMenu->addSeparator();
 			auto openAction = fileMenu->addAction("&Open");
+			fileMenu->addSeparator();
 			auto saveAction = fileMenu->addAction("&Save");
 			auto saveAsAction = fileMenu->addAction("Save &As");
-			auto screenshotAction = fileMenu->addAction("S&creenshot");
-			auto exportAction = fileMenu->addAction("&Export");
 
+			QObject::connect(newAction, &QAction::triggered, this, &cIde::menuNew);
 			QObject::connect(openAction, &QAction::triggered, this, &cIde::menuOpen);
 			QObject::connect(saveAction, &QAction::triggered, this, &cIde::menuSave);
 			QObject::connect(saveAsAction, &QAction::triggered, this, &cIde::menuSaveAs);
-			QObject::connect(screenshotAction, &QAction::triggered, this, &cIde::menuScreenshot);
-			QObject::connect(exportAction, &QAction::triggered, this, &cIde::menuExport);
+
+			openAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
+			saveAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
 
 			layout->addWidget(menuBar);
 		}
@@ -1325,20 +1328,84 @@ public:
 	}
 
 private:
-	void saveToFile(const QString& filePath)
+	void saveProject(const QString& filePath)
 	{
 		if (filePath.isEmpty())
 		{
 			return;
 		}
 
+		currentFilePath = filePath;
+
+		QFileInfo fileInfo(filePath);
+		mainWidget->setWindowTitle(fileInfo.completeBaseName() + " - " + titleName);
+
+		saveProjectConfig(filePath);
+		QString baseFilePath = fileInfo.path() + "/" + fileInfo.completeBaseName();
+		saveToFile(baseFilePath + ".json");
+		exportToFile(baseFilePath + ".tfvm");
+		saveScreenshot(baseFilePath + ".png");
+	}
+
+	void openProject(const QString& filePath)
+	{
+		currentFilePath = filePath;
+
+		QFileInfo fileInfo(filePath);
+		mainWidget->setWindowTitle(fileInfo.completeBaseName() + " - " + titleName);
+
+		QString baseFilePath = fileInfo.path() + "/" + fileInfo.completeBaseName();
+
+		openFromFile(baseFilePath + ".json");
+	}
+
+	void saveProjectConfig(const QString& filePath)
+	{
 		QFile file(filePath);
-		if (file.open(QIODevice::WriteOnly))
+		if (!file.open(QIODevice::WriteOnly))
 		{
-			file.write(scene->saveToMemory());
-			currentFilePath = filePath;
-			mainWidget->setWindowTitle(currentFilePath + " - " + titleName);
+			printf("error: file.open()\n");
+			return;
 		}
+	}
+
+	void saveToFile(const QString& filePath)
+	{
+		QFile file(filePath);
+		if (!file.open(QIODevice::WriteOnly))
+		{
+			printf("error: file.open()\n");
+			return;
+		}
+
+		file.write(scene->saveToMemory());
+	}
+
+	void saveScreenshot(const QString& filePath)
+	{
+		scene->clearSelection();
+		scene->setSceneRect(scene->itemsBoundingRect());
+		QImage image(scene->sceneRect().size().toSize(), QImage::Format_ARGB32);
+		image.fill(Qt::transparent);
+
+		QPainter painter(&image);
+		scene->render(&painter);
+		image.save(filePath);
+	}
+
+	void exportToFile(const QString& filePath)
+	{
+		QFile file(filePath);
+		if (!file.open(QIODevice::WriteOnly))
+		{
+			printf("error: file.open()\n");
+			return;
+		}
+
+		std::vector<uint8_t> buffer = cGui::exportToMemory(scene);
+
+		file.write((char*)&buffer[0], buffer.size());
+		file.flush();
 	}
 
 	void openFromFile(const QString& filePath)
@@ -1360,19 +1427,24 @@ private:
 
 		scene->clearScene();
 		scene->loadFromMemory(wholeFile);
-		currentFilePath = filePath;
-		mainWidget->setWindowTitle(currentFilePath + " - " + titleName);
 	}
 
 private slots:
+	void menuNew()
+	{
+		currentFilePath = "";
+		mainWidget->setWindowTitle(this->titleName);
+		scene->clearScene();
+	}
+
 	void menuOpen()
 	{
 		QString fileName = QFileDialog::getOpenFileName(nullptr,
-		                                                ("Open Scheme"),
+		                                                ("Open Project"),
 		                                                QDir::homePath(),
-		                                                ("JSON Scheme Files (*.json)"));
+		                                                ("TFVM Project (*.tfvmproject)"));
 
-		openFromFile(fileName);
+		openProject(fileName);
 	}
 
 	void menuSave()
@@ -1385,80 +1457,23 @@ private slots:
 		}
 		else
 		{
-			saveToFile(filePath);
+			saveProject(filePath);
 		}
 	}
 
 	void menuSaveAs()
 	{
 		QString filePath = QFileDialog::getSaveFileName(nullptr,
-		                                                ("Save Scheme"),
+		                                                ("Save Project"),
 		                                                QDir::homePath(),
-		                                                ("JSON Scheme Files (*.json)"));
+		                                                ("TFVM Project (*.tfvmproject)"));
 
 		if (filePath.isEmpty())
 		{
 			return;
 		}
 
-		if (!filePath.endsWith("json", Qt::CaseInsensitive))
-		{
-			filePath += ".json";
-		}
-
-		saveToFile(filePath);
-	}
-
-	void menuScreenshot()
-	{
-		QString filePath = QFileDialog::getSaveFileName(nullptr,
-		                                                ("Save screenshot"),
-		                                                QDir::homePath(),
-		                                                ("PNG (*.png)"));
-
-		if (filePath.isEmpty())
-		{
-			return;
-		}
-
-		scene->clearSelection();
-		scene->setSceneRect(scene->itemsBoundingRect());
-		QImage image(scene->sceneRect().size().toSize(), QImage::Format_ARGB32);
-		image.fill(Qt::transparent);
-
-		QPainter painter(&image);
-		scene->render(&painter);
-		image.save(filePath);
-	}
-
-	void menuExport()
-	{
-		QString filePath = QFileDialog::getSaveFileName(nullptr,
-		                                                ("Export Scheme"),
-		                                                QDir::homePath(),
-		                                                ("TFVM Files (*.tfvm)"));
-
-		if (filePath.isEmpty())
-		{
-			return;
-		}
-
-		if (!filePath.endsWith("tfvm", Qt::CaseInsensitive))
-		{
-			filePath += ".tfvm";
-		}
-
-		QFile file(filePath);
-		if (!file.open(QIODevice::WriteOnly))
-		{
-			printf("error: file.open()\n");
-			return;
-		}
-
-		std::vector<uint8_t> buffer = cGui::exportToMemory(scene);
-
-		file.write((char*)&buffer[0], buffer.size());
-		file.flush();
+		saveProject(filePath);
 	}
 
 private:
