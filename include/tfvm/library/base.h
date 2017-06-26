@@ -21,11 +21,17 @@ namespace nLibrary
 class cBase : public cLibrary
 {
 public:
-	using tBoolean = bool;
+	using tBoolean = cVirtualMachine::tBoolean;
+	const tMemoryTypeName memoryBooleanTypeName = "boolean";
+
+	using tInteger = cVirtualMachine::tInteger;
+	const tMemoryTypeName memoryIntegerTypeName = "integer";
+
+	using tBuffer = cVirtualMachine::tBuffer;
+	const tMemoryTypeName memoryBufferTypeName = "buffer";
+
 	using tByte = uint8_t;
 	using tString = std::string;
-	using tInteger = int64_t;
-	using tBuffer = std::vector<uint8_t>;
 
 public:
 	cBase()
@@ -58,34 +64,34 @@ public:
 	{
 		setLibraryName("base");
 
-		if (!registerMemory<tBoolean>("boolean",
+		if (!registerMemory<tBoolean>(memoryBooleanTypeName,
 		                              false))
 		{
 			return false;
 		}
 
-		if (!registerMemoryModule("boolean",
-		                          new cLogicCopy<tBoolean>("boolean")))
+		if (!registerMemoryModule(memoryBooleanTypeName,
+		                          new cLogicCopy<tBoolean>(memoryBooleanTypeName)))
 		{
 			return false;
 		}
 
-		if (!registerMemoryModule("boolean",
-		                          new cLogicIf<tBoolean>("boolean")))
+		if (!registerMemoryModule(memoryBooleanTypeName,
+		                          new cLogicIf<tBoolean>(memoryBooleanTypeName)))
 		{
 			return false;
 		}
 
-		if (!registerMemoryModule("boolean",
+		if (!registerMemoryModule(memoryBooleanTypeName,
 		                          new cLogicBooleanSwitch()))
 		{
 			return false;
 		}
 
-		if (!registerMemoryModule("boolean",
+		if (!registerMemoryModule(memoryBooleanTypeName,
 		                          new cLogicConvert<tBoolean,
 		                                            tString>("toString",
-		                                                     "boolean",
+		                                                     memoryBooleanTypeName,
 		                                                     "string",
 			[](tBoolean* from, tString* to)
 			{
@@ -95,10 +101,8 @@ public:
 			return false;
 		}
 
-		if (!registerMemoryStandart<tByte,
-		                            tBoolean>("byte",
-		                                      "boolean",
-		                                      0))
+		if (!registerMemoryStandart<tByte>("byte",
+		                                   0))
 		{
 			return false;
 		}
@@ -117,7 +121,7 @@ public:
 		if (!registerMemoryModule("string",
 		                          new cLogicIsEmpty<tString,
 		                                            tBoolean>("string",
-		                                                      "boolean")))
+		                                                      memoryBooleanTypeName)))
 		{
 			return false;
 		}
@@ -137,7 +141,7 @@ public:
 		if (!registerMemoryModule("string",
 		                          new cLogicIfEqual<tString,
 		                                            tBoolean>("string",
-		                                                    "boolean")))
+		                                                    memoryBooleanTypeName)))
 		{
 			return false;
 		}
@@ -146,49 +150,39 @@ public:
 		                          new cLogicSize<tString,
 		                                         tInteger>("getLength",
 		                                                   "string",
-		                                                   "integer")))
+		                                                   memoryIntegerTypeName)))
 		{
 			return false;
 		}
 
-		if (!registerMemoryStandart<tInteger,
-		                            tBoolean>("integer",
-		                                      "boolean",
+		if (!registerMemoryStandart<tInteger>(memoryIntegerTypeName,
 		                                      0))
 		{
 			return false;
 		}
 
-		if (!registerMemoryVector<tString,
-		                          tInteger,
-		                          tBoolean>("string",
-		                                    "integer",
-		                                    "boolean"))
+		if (!registerMemoryVector<tString>("string"))
 		{
 			return false;
 		}
 
 		if (!registerMemoryMap<tString,
-		                       tString,
-		                       tInteger,
-		                       tBoolean>("string",
-		                                 "string",
-		                                 "integer",
-		                                 "boolean"))
+		                       tString>("string",
+		                                "string"))
 		{
 			return false;
 		}
 
-		if (!registerMemory<tBuffer>("buffer"))
+		if (!registerMemory<tBuffer>(memoryBufferTypeName))
 		{
 			return false;
 		}
 
 		/*
-		if (!registerMemoryModule("buffer",
+		if (!registerMemoryModule(memoryBufferTypeName,
 		                          new cLogicConvert<tBuffer,
 		                                            tString>("toString",
-		                                                     "buffer",
+		                                                     memoryBufferTypeName,
 		                                                     "string",
 			[](tBuffer* from, tString* to)
 			{
@@ -201,19 +195,19 @@ public:
 		}
 		*/
 
-		if (!registerMemoryModule("buffer",
+		if (!registerMemoryModule(memoryBufferTypeName,
 		                          new cLogicSize<tBuffer,
 		                                         tInteger>("getSize",
-		                                                   "buffer",
-		                                                   "integer")))
+		                                                   memoryBufferTypeName,
+		                                                   memoryIntegerTypeName)))
 		{
 			return false;
 		}
 
-		if (!registerMemoryModule("integer",
+		if (!registerMemoryModule(memoryIntegerTypeName,
 		                          new cLogicConvert<tInteger,
 		                                            tString>("toString",
-		                                                     "integer",
+		                                                     memoryIntegerTypeName,
 		                                                     "string",
 			[](tInteger* from, tString* to)
 			{

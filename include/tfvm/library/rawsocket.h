@@ -54,49 +54,33 @@ public:
 	{
 		setLibraryName("rawSocket");
 
-		if (!registerMemoryStandart<tPortId,
-		                            tBoolean>("portId",
-		                                      "boolean",
-		                                      0))
+		if (!registerMemoryStandart<tPortId>("portId",
+		                                     0))
 		{
 			return false;
 		}
 
 		if (!registerMemoryArray<uint8_t,
-		                         6,
-		                         tInteger,
-		                         tBoolean>("ethernetAddress",
-		                                   "byte",
-		                                   "integer",
-		                                   "boolean"))
+		                         6>("ethernetAddress",
+		                            "byte"))
 		{
 			return false;
 		}
 
-		if (!registerMemoryStandart<tEthernetType,
-		                            tBoolean>("ethernetType",
-		                                      "boolean",
-		                                      0))
+		if (!registerMemoryStandart<tEthernetType>("ethernetType",
+		                                           0))
 		{
 			return false;
 		}
 
-		if (!registerMemoryVector<tPortId,
-		                          tInteger,
-		                          tBoolean>("portId",
-		                                    "integer",
-		                                    "boolean"))
+		if (!registerMemoryVector<tPortId>("portId"))
 		{
 			return false;
 		}
 
 		if (!registerMemoryMap<tPortId,
-		                       tString,
-		                       tInteger,
-		                       tBoolean>("portId",
-		                                 "string",
-		                                 "integer",
-		                                 "boolean"))
+		                       tString>("portId",
+		                                "string"))
 		{
 			return false;
 		}
@@ -123,9 +107,7 @@ public:
 		}
 
 		if (!registerMemoryTuple<tBoolean,
-		                         tBoolean,
 		                         tString>("interfaceInformation",
-		                                  "boolean",
 		                                  {"state", "name"},
 		                                  {"boolean", "string"}))
 		{
@@ -133,12 +115,8 @@ public:
 		}
 
 		if (!registerMemoryMap<tPortId,
-		                       tInterfaceInformation,
-		                       tInteger,
-		                       tBoolean>("portId",
-		                                 "interfaceInformation",
-		                                 "integer",
-		                                 "boolean"))
+		                       tInterfaceInformation>("portId",
+		                                              "interfaceInformation"))
 		{
 			return false;
 		}

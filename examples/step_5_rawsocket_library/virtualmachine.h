@@ -13,9 +13,6 @@ static bool registerVirtualMachine(nVirtualMachine::cVirtualMachine& virtualMach
 {
 	using namespace nVirtualMachine::nLibrary;
 
-	using tBoolean = bool;
-	using tInteger = int64_t;
-
 	if (!virtualMachine.registerLibraries(new cBase(argc,
 	                                                argv,
 	                                                envp),
@@ -27,12 +24,8 @@ static bool registerVirtualMachine(nVirtualMachine::cVirtualMachine& virtualMach
 	}
 
 	if (!virtualMachine.registerMemoryMap<cRawSocket::tEthernetAddress,
-	                                      cRawSocket::tPortId,
-	                                      tInteger,
-	                                      tBoolean>("ethernetAddress",
-	                                                "portId",
-	                                                "integer",
-	                                                "boolean"))
+	                                      cRawSocket::tPortId>("ethernetAddress",
+	                                                           "portId"))
 	{
 		return false;
 	}

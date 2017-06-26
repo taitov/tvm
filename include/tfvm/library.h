@@ -40,46 +40,28 @@ protected:
 	bool registerMemoryModule(const tMemoryTypeName& memoryTypeName,
 	                          cModule* module);
 
-	template<typename TType,
-	         typename TBooleanType>
-	bool registerMemoryStandart(const tMemoryTypeName& memoryTypeName,
-	                            const tMemoryTypeName& memoryBooleanTypeName);
+	template<typename TType>
+	bool registerMemoryStandart(const tMemoryTypeName& memoryTypeName);
 
-	template<typename TType,
-	         typename TBooleanType>
+	template<typename TType>
 	bool registerMemoryStandart(const tMemoryTypeName& memoryTypeName,
-	                            const tMemoryTypeName& memoryBooleanTypeName,
 	                            const TType& value);
 
 	template<typename TType,
-	         std::size_t TSize,
-	         typename TIntegerType,
-	         typename TBooleanType>
+	         std::size_t TSize>
 	bool registerMemoryArray(tMemoryTypeName memoryTypeNameArray,
-	                         const tMemoryTypeName& memoryTypeName,
-	                         const tMemoryTypeName& memoryIntegerTypeName,
-	                         const tMemoryTypeName& memoryBooleanTypeName);
+	                         const tMemoryTypeName& memoryTypeName);
 
-	template<typename TType,
-	         typename TIntegerType,
-	         typename TBooleanType>
-	bool registerMemoryVector(const tMemoryTypeName& memoryTypeName,
-	                          const tMemoryTypeName& memoryIntegerTypeName,
-	                          const tMemoryTypeName& memoryBooleanTypeName);
+	template<typename TType>
+	bool registerMemoryVector(const tMemoryTypeName& memoryTypeName);
 
 	template<typename TKeyType,
-	         typename TValueType,
-	         typename TIntegerType,
-	         typename TBooleanType>
+	         typename TValueType>
 	bool registerMemoryMap(const tMemoryTypeName& memoryKeyTypeName,
-	                       const tMemoryTypeName& memoryValueTypeName,
-	                       const tMemoryTypeName& memoryIntegerTypeName,
-	                       const tMemoryTypeName& memoryBooleanTypeName);
+	                       const tMemoryTypeName& memoryValueTypeName);
 
-	template<typename TBooleanType,
-	         typename ... TTypes>
+	template<typename ... TTypes>
 	bool registerMemoryTuple(tMemoryTypeName memoryTypeNameTuple,
-	                         const tMemoryTypeName& memoryBooleanTypeName,
 	                         const std::vector<tMemoryName>& memoryNames,
 	                         const std::vector<tMemoryTypeName>& memoryTypeNames);
 
