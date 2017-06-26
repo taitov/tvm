@@ -122,7 +122,7 @@ public:
 		return guiModuleIds;
 	}
 
-	static std::vector<char> exportToMemory(const FlowScene* flowScene)
+	static std::vector<uint8_t> exportToMemory(const FlowScene* flowScene)
 	{
 		tGuiModuleIds moduleIds = getModuleIds(flowScene);
 
@@ -413,7 +413,7 @@ public:
 		}
 	}
 
-	static void exportElementWidget(std::vector<char>& buffer,
+	static void exportElementWidget(std::vector<uint8_t>& buffer,
 	                                const std::type_index& type,
 	                                const QWidget* widget)
 	{
@@ -519,7 +519,7 @@ private:
 			}
 		}
 
-		void exportVariables(std::vector<char>& buffer)
+		void exportVariables(std::vector<uint8_t>& buffer)
 		{
 			for (const auto& widget : widgets)
 			{
@@ -1455,9 +1455,9 @@ private slots:
 			return;
 		}
 
-		std::vector<char> buffer = cGui::exportToMemory(scene);
+		std::vector<uint8_t> buffer = cGui::exportToMemory(scene);
 
-		file.write(&buffer[0], buffer.size());
+		file.write((char*)&buffer[0], buffer.size());
 		file.flush();
 	}
 

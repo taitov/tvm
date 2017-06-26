@@ -91,7 +91,7 @@ public:
 	const tMemoryExits& getMemoryExits() const;
 	const tVariables& getVariables() const;
 
-	bool setVariables(const std::vector<char>& buffer);
+	bool setVariables(const std::vector<uint8_t>& buffer);
 
 protected:
 	void setModuleName(const tModuleName& moduleName);

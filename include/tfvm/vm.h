@@ -64,7 +64,7 @@ public:
 	bool init();
 
 	bool loadFromFile(const std::string& filePath);
-	bool loadFromMemory(const std::vector<char>& buffer);
+	bool loadFromMemory(const std::vector<uint8_t>& buffer);
 	bool reload();
 	void unload();
 
@@ -332,6 +332,22 @@ public:
 		{
 			return false;
 		}
+
+		/*
+		if (!registerMemoryModule(memoryTypeNameVector, new cLogicConvert<tVector,
+		                                                                  TBufferType>("toBuffer",
+		                                                                               memoryTypeNameVector,
+		                                                                               memoryBufferTypeName,
+			[](tVector* from, TBufferType* to)
+			{
+				cStreamOut stream;
+				stream.push(*from);
+				*to = stream.getBuffer();
+			})))
+		{
+			return false;
+		}
+		*/
 
 		memoryTypes[memoryTypeNameVector] = new cMemoryVariable<tVector>();
 		return true;
@@ -746,13 +762,13 @@ bool cVirtualMachine::loadFromFile(const std::string& filePath)
 		return false;
 	}
 
-	std::vector<char> buffer((std::istreambuf_iterator<char>(fileStream)),
-	                          std::istreambuf_iterator<char>());
+	std::vector<uint8_t> buffer((std::istreambuf_iterator<char>(fileStream)),
+	                            std::istreambuf_iterator<char>());
 
 	return loadFromMemory(buffer);
 }
 
-bool cVirtualMachine::loadFromMemory(const std::vector<char>& buffer)
+bool cVirtualMachine::loadFromMemory(const std::vector<uint8_t>& buffer)
 {
 	unload();
 
@@ -1478,7 +1494,7 @@ do { \
 #undef CHECK_MAP
 }
 
-bool cModule::setVariables(const std::vector<char>& buffer)
+bool cModule::setVariables(const std::vector<uint8_t>& buffer)
 {
 	cStreamIn stream(buffer);
 

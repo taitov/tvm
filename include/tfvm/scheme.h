@@ -51,7 +51,7 @@ public:
 	                                      tModuleId>;
 
 	using tLoadMemoryModuleVariables = std::map<tModuleId,
-	                                            std::vector<char>>;
+	                                            std::vector<uint8_t>>;
 
 public:
 	cScheme(cVirtualMachine* virtualMachine);

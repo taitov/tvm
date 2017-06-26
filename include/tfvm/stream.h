@@ -15,7 +15,7 @@ namespace nVirtualMachine
 class cStreamIn
 {
 public:
-	cStreamIn(const std::vector<char>& buffer)
+	cStreamIn(const std::vector<uint8_t>& buffer)
 	{
 		this->in.buffer = buffer;
 		this->in.position = 0;
@@ -176,13 +176,13 @@ public:
 		pop(&value[0], size);
 		value[size] = 0;
 	}
-	inline void pop(std::vector<char>& value)
+	inline void pop(std::vector<uint8_t>& value)
 	{
 		uint32_t size;
 		pop(size);
 		value.reserve(size);
 		value.resize(size);
-		pop(&value[0], size);
+		pop((char*)&value[0], size);
 	}
 
 	template<typename TFirstType, typename TSecondType>
@@ -247,10 +247,6 @@ public:
 		popTuple<0, TArgs ...>(tuple);
 	}
 
-	inline void pop(...)
-	{
-	}
-
 	bool isFailed()
 	{
 		return failed;
@@ -259,7 +255,7 @@ public:
 private:
 	struct
 	{
-		std::vector<char> buffer;
+		std::vector<uint8_t> buffer;
 		uint64_t position;
 	} in;
 
@@ -371,11 +367,11 @@ public:
 		push(size);
 		push(value.c_str(), size);
 	}
-	inline void push(const std::vector<char>& value)
+	inline void push(const std::vector<uint8_t>& value)
 	{
 		uint32_t size = value.size();
 		push(size);
-		push(value.data(), size);
+		push((char*)value.data(), size);
 	}
 
 	template<typename TFirstType, typename TSecondType>
@@ -435,11 +431,7 @@ public:
 		pushTuple<0, TArgs ...>(tuple);
 	}
 
-	inline void push(...)
-	{
-	}
-
-	const std::vector<char>& getBuffer()
+	const std::vector<uint8_t>& getBuffer()
 	{
 		return out.buffer;
 	}
@@ -449,7 +441,7 @@ private:
 
 	struct
 	{
-		std::vector<char> buffer;
+		std::vector<uint8_t> buffer;
 	} out;
 };
 

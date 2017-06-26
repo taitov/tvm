@@ -184,6 +184,23 @@ public:
 			return false;
 		}
 
+		/*
+		if (!registerMemoryModule("buffer",
+		                          new cLogicConvert<tBuffer,
+		                                            tString>("toString",
+		                                                     "buffer",
+		                                                     "string",
+			[](tBuffer* from, tString* to)
+			{
+				to->resize(from->size());
+				memcpy(&(*to)[0], &(*from)[0], from->size());
+				to->resize(strnlen(to->c_str(), to->size()));
+			})))
+		{
+			return false;
+		}
+		*/
+
 		if (!registerMemoryModule("buffer",
 		                          new cLogicSize<tBuffer,
 		                                         tInteger>("getSize",

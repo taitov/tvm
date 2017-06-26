@@ -22,7 +22,7 @@ public:
 	virtual void* getValue() = 0;
 	const tVariables& getVariables() const;
 
-	virtual bool setVariables(const std::vector<char>& buffer) = 0;
+	virtual bool setVariables(const std::vector<uint8_t>& buffer) = 0;
 
 protected:
 	template<typename TType>
@@ -64,7 +64,7 @@ public:
 
 	void* getValue() override;
 
-	bool setVariables(const std::vector<char>& buffer) override;
+	bool setVariables(const std::vector<uint8_t>& buffer) override;
 
 private:
 	TType value;
@@ -101,7 +101,7 @@ void* cMemoryVariable<TType>::getValue()
 }
 
 template<typename TType>
-bool cMemoryVariable<TType>::setVariables(const std::vector<char>& buffer)
+bool cMemoryVariable<TType>::setVariables(const std::vector<uint8_t>& buffer)
 {
 	if (!buffer.size())
 	{
