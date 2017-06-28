@@ -229,7 +229,7 @@ const cModule::tMemoryExits& cModule::getMemoryExits() const
 	return memoryExits;
 }
 
-const cModule::tVariables&cModule::getVariables() const
+const cModule::tVariables& cModule::getVariables() const
 {
 	return variables;
 }

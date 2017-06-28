@@ -26,6 +26,9 @@ public:
 	                              std::tuple<tLibraryName,
 	                                         tModuleName>>;
 
+	using tLoadCustomModules = std::map<tModuleId,
+	                                    tCustomModuleName>;
+
 	using tLoadRootSignalFlows = std::map<std::tuple<tLibraryName,
 	                                                 tRootModuleName,
 	                                                 tSignalExitName>,

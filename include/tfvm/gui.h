@@ -20,6 +20,7 @@
 #include <QtWidgets/QSplitter>
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QTextEdit>
+#include <QtWidgets/QInputDialog>
 
 #include <QtGui/QIntValidator>
 
@@ -52,13 +53,15 @@ namespace nGui
 
 class cGui
 {
+	friend class cIde;
+
 public:
 	using tGuiRootSignalExits = std::vector<tSignalExitName>;
 
 	using tGuiRootMemoryExits = std::vector<std::tuple<tMemoryExitName,
 	                                                   tMemoryTypeName>>;
 
-	using tGuiModuleIds = std::map<QUuid,
+	using tGuiModuleIds = std::map<QString,
 	                               tModuleId>;
 
 	static std::shared_ptr<QtNodes::DataModelRegistry> makeDataModelRegistry(const cVirtualMachine* virtualMachine)
@@ -100,45 +103,165 @@ public:
 		return dataModelRegistry;
 	}
 
-	static tGuiModuleIds getModuleIds(const FlowScene* flowScene)
+	static tGuiModuleIds getModuleIds(const QJsonObject& jsonObject)
 	{
 		tGuiModuleIds guiModuleIds;
 
-		for (const auto& iter : flowScene->nodes())
+		QJsonArray connectionJsonArray = jsonObject["nodes"].toArray();
+		for (int i = 0; i < connectionJsonArray.size(); ++i)
 		{
-			const auto& node = iter.second;
-			const NodeDataModel* nodeDataModel = node->nodeDataModel();
-
-			cModelData* data = (cModelData*)nodeDataModel->getData();
-			if (!data)
+			QJsonObject nodeJson = connectionJsonArray[i].toObject();
+			if (nodeJson.find("id") != nodeJson.end())
 			{
-				continue;
+				tModuleId moduleId = guiModuleIds.size() + 1;
+				guiModuleIds[nodeJson["id"].toString()] = moduleId;
 			}
-
-			tModuleId moduleId = guiModuleIds.size() + 1;
-			guiModuleIds[iter.first] = moduleId;
 		}
 
 		return guiModuleIds;
 	}
 
-	static std::vector<uint8_t> exportToMemory(const FlowScene* flowScene)
+	static std::string getFilePathOfScheme(const std::vector<std::string>& customsLibraries,
+	                                       const tSchemeName& schemeName)
 	{
-		tGuiModuleIds moduleIds = getModuleIds(flowScene);
+		/** @todo */
+		return QDir::homePath().toStdString() + "/.config/" + schemeName.value + ".json";
+	}
 
+	static void readSchemes(std::map<tSchemeName, QJsonObject>& schemes,
+	                        const QJsonObject& jsonObject)
+	{
+		QJsonArray connectionJsonArray = jsonObject["nodes"].toArray();
+		for (int i = 0; i < connectionJsonArray.size(); ++i)
+		{
+			QJsonObject nodeJson = connectionJsonArray[i].toObject();
+			if (nodeJson.find("model") != nodeJson.end())
+			{
+				QJsonObject modelJson = nodeJson["model"].toObject();
+				if (modelJson.find("name") != modelJson.end())
+				{
+					if (modelJson["name"].toString().startsWith(":custom:"))
+					{
+						tSchemeName schemeName = modelJson["name"].toString().mid(8).toStdString();
+						if (schemes.find(schemeName) != schemes.end())
+						{
+							continue;
+						}
+
+						std::string filePath = getFilePathOfScheme(std::vector<std::string>(),
+						                                                 schemeName);
+
+						if (!QFileInfo::exists(QString::fromUtf8(filePath.c_str())))
+						{
+							printf("error: QFileInfo::exists()\n");
+							continue;
+						}
+
+						QFile file(QString::fromUtf8(filePath.c_str()));
+						if (!file.open(QIODevice::ReadOnly))
+						{
+							printf("error: file.open()\n");
+							continue;
+						}
+
+						QByteArray wholeFile = file.readAll();
+
+						schemes[schemeName] = QJsonDocument::fromJson(wholeFile).object();
+						readSchemes(schemes, schemes[schemeName]);
+					}
+				}
+			}
+		}
+	}
+
+	static std::vector<uint8_t> exportMemoryModuleVariables(QJsonObject jsonObject)
+	{
 		cStreamOut stream;
 
+		QString type = jsonObject["value"].toObject()["type"].toString();
+		auto valueJson = jsonObject["value"].toObject()["value"];
+
+		if (type == "std::string")
+		{
+			std::string value = valueJson.toString().toStdString();
+			stream.push(value);
+		}
+		else if (type == "uint64_t")
+		{
+			uint64_t value = valueJson.toString().toULongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == "uint32_t")
+		{
+			uint32_t value = valueJson.toString().toULongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == "uint16_t")
+		{
+			uint16_t value = valueJson.toString().toULongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == "uint8_t")
+		{
+			uint8_t value = valueJson.toString().toULongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == "int64_t")
+		{
+			int64_t value = valueJson.toString().toLongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == "int32_t")
+		{
+			int32_t value = valueJson.toString().toLongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == "int16_t")
+		{
+			int16_t value = valueJson.toString().toLongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == "int8_t")
+		{
+			int8_t value = valueJson.toString().toLongLong(nullptr, 0);
+			stream.push(value);
+		}
+		else if (type == "bool")
+		{
+			bool value = valueJson.toBool();
+			stream.push(value);
+		}
+
+		return stream.getBuffer();
+	}
+
+	static std::vector<uint8_t> exportToMemory(QJsonObject& jsonObject)
+	{
+		cStreamOut stream;
 		stream.push(fileHeaderMagic);
 
-		uint32_t schemesCount = 1; /**< @todo */
+		std::map<tSchemeName,
+		         QJsonObject> schemes;
+
+		schemes["main"] = jsonObject;
+		readSchemes(schemes, schemes["main"]);
+
+		uint32_t schemesCount = schemes.size();
 		stream.push(schemesCount);
 
+		for (const auto& iter : schemes)
 		{
-			std::string schemeName = "main"; /**< @todo */
+			tGuiModuleIds moduleIds = getModuleIds(iter.second);
+
+			std::map<QString,
+			         QJsonObject> moduleJsons;
+
+			std::string schemeName = iter.first;
 			stream.push(schemeName);
 
 			cScheme::tLoadMemories memories;
 			cScheme::tLoadModules modules;
+			cScheme::tLoadCustomModules customModules;
 			cScheme::tLoadRootSignalFlows rootSignalFlows;
 			cScheme::tLoadRootMemoryExitFlows rootMemoryExitFlows;
 			cScheme::tLoadSignalFlows signalFlows;
@@ -146,91 +269,91 @@ public:
 			cScheme::tLoadMemoryExitFlows memoryExitFlows;
 			cScheme::tLoadMemoryModuleVariables memoryModuleVariables;
 
-			for (const auto& iter : flowScene->nodes())
+			QJsonArray nodesJsonArray = iter.second["nodes"].toArray();
+			for (int i = 0; i < nodesJsonArray.size(); ++i)
 			{
-				const auto& node = iter.second;
-				const NodeDataModel* nodeDataModel = node->nodeDataModel();
-
-				cModelData* data = (cModelData*)nodeDataModel->getData();
-				if (!data)
+				QJsonObject nodeJson = nodesJsonArray[i].toObject();
+				moduleJsons[nodeJson["id"].toString()] = nodesJsonArray[i].toObject();
+				if (nodeJson.find("model") != nodeJson.end())
 				{
-					continue;
-				}
-
-				if (data->moduleTypeName.value == "memory")
-				{
-					memories[moduleIds[iter.first]] = data->memoryTypeName;
-					data->exportVariables(memoryModuleVariables[moduleIds[iter.first]]);
-				}
-				else if (data->moduleTypeName.value == "logic" ||
-				         data->moduleTypeName.value == "convert")
-				{
-					modules[moduleIds[iter.first]] = std::make_tuple(data->libraryName,
-					                                                 data->moduleName);
+					QJsonObject modelJson = nodeJson["model"].toObject();
+					if (modelJson.find("moduleTypeName") != modelJson.end())
+					{
+						if (modelJson["moduleTypeName"].toString() == "memory")
+						{
+							auto key = moduleIds[nodeJson["id"].toString()];
+							auto value = modelJson["memoryTypeName"].toString().toStdString();
+							memories[key] = value;
+							memoryModuleVariables[key] = exportMemoryModuleVariables(modelJson["variables"].toObject());
+						}
+						else if (modelJson["moduleTypeName"].toString() == "logic" ||
+						         modelJson["moduleTypeName"].toString() == "convert")
+						{
+							auto key = moduleIds[nodeJson["id"].toString()];
+							auto value = std::make_tuple(modelJson["libraryName"].toString().toStdString(),
+							                             modelJson["moduleName"].toString().toStdString());
+							modules[key] = value;
+						}
+						else if (modelJson["moduleTypeName"].toString() == "custom")
+						{
+							auto key = moduleIds[nodeJson["id"].toString()];
+							auto value = modelJson["schemeName"].toString().toStdString();
+							customModules[key] = value;
+						}
+					}
 				}
 			}
 
-			for (const auto& iter : flowScene->connections())
+			QJsonArray connectionsJsonArray = iter.second["connections"].toArray();
+			for (int i = 0; i < connectionsJsonArray.size(); ++i)
 			{
-				const auto& connection = iter.second;
-
-				NodeDataModel* from = connection->getNode(PortType::Out)->nodeDataModel();
-				cModelData* fromData = (cModelData*)from->getData();
-				std::string fromConnectionName = from->dataType(PortType::Out, connection->getPortIndex(PortType::Out)).name.toUtf8().constData();
-				NodeDataModel* to = connection->getNode(PortType::In)->nodeDataModel();
-				cModelData* toData = (cModelData*)to->getData();
-				std::string toConnectionName = to->dataType(PortType::In, connection->getPortIndex(PortType::In)).name.toUtf8().constData();
-				std::string connectionType = to->dataType(PortType::In, connection->getPortIndex(PortType::In)).id.toUtf8().constData();
-
-				if (!fromData || !toData)
+				QJsonObject connectionJson = connectionsJsonArray[i].toObject();
+				QJsonObject outModuleJson = moduleJsons[connectionJson["out_id"].toString()]["model"].toObject();
+				QJsonObject inModuleJson = moduleJsons[connectionJson["in_id"].toString()]["model"].toObject();
+				if (connectionJson["in_portType"].toString() == "signal")
 				{
-					continue;
-				}
-
-				if (connectionType == "signal")
-				{
-					if (fromData->moduleTypeName.value == "root")
+					if (outModuleJson["moduleTypeName"].toString() == "root")
 					{
-						auto key = std::make_tuple(fromData->libraryName,
-						                           fromData->rootModuleName,
-						                           fromConnectionName);
-						auto value = std::make_tuple(moduleIds[connection->getNode(PortType::In)->id()],
-						                             toConnectionName);
+						auto key = std::make_tuple(outModuleJson["libraryName"].toString().toStdString(),
+						                           outModuleJson["rootModuleName"].toString().toStdString(),
+						                           connectionJson["out_portName"].toString().toStdString());
+						auto value = std::make_tuple(moduleIds[connectionJson["in_id"].toString()],
+						                             connectionJson["in_portName"].toString().toStdString());
 						rootSignalFlows[key] = value;
 					}
 					else
 					{
-						auto key = std::make_tuple(moduleIds[connection->getNode(PortType::Out)->id()],
-						                           fromConnectionName);
-						auto value = std::make_tuple(moduleIds[connection->getNode(PortType::In)->id()],
-						                             toConnectionName);
+						auto key = std::make_tuple(moduleIds[connectionJson["out_id"].toString()],
+						                           connectionJson["out_portName"].toString().toStdString());
+						auto value = std::make_tuple(moduleIds[connectionJson["in_id"].toString()],
+						                             connectionJson["in_portName"].toString().toStdString());
 						signalFlows[key] = value;
 					}
 				}
 				else
 				{
-					if (fromData->moduleTypeName.value == "root")
+					if (outModuleJson["moduleTypeName"].toString() == "root")
 					{
-						auto key = std::make_tuple(fromData->libraryName,
-						                           fromData->rootModuleName,
-						                           fromConnectionName);
-						auto value = moduleIds[connection->getNode(PortType::In)->id()];
+						auto key = std::make_tuple(outModuleJson["libraryName"].toString().toStdString(),
+						                           outModuleJson["rootModuleName"].toString().toStdString(),
+						                           connectionJson["out_portName"].toString().toStdString());
+						auto value = moduleIds[connectionJson["in_id"].toString()];
 						rootMemoryExitFlows[key] = value;
 					}
-					else if (fromData->moduleTypeName.value == "memory" &&
-					    toData->moduleTypeName.value != "memory")
+					else if (outModuleJson["moduleTypeName"].toString() == "memory" &&
+					         inModuleJson["moduleTypeName"].toString() != "memory")
 					{
-						auto key = std::make_tuple(moduleIds[connection->getNode(PortType::In)->id()],
-						                           toConnectionName);
-						auto value = moduleIds[connection->getNode(PortType::Out)->id()];
+						auto key = std::make_tuple(moduleIds[connectionJson["in_id"].toString()],
+						                           connectionJson["in_portName"].toString().toStdString());
+						auto value = moduleIds[connectionJson["out_id"].toString()];
 						memoryEntryFlows[key] = value;
 					}
-					else if (fromData->moduleTypeName.value != "memory" &&
-					         toData->moduleTypeName.value == "memory")
+					else if (outModuleJson["moduleTypeName"].toString() != "memory" &&
+					         inModuleJson["moduleTypeName"].toString() == "memory")
 					{
-						auto key = std::make_tuple(moduleIds[connection->getNode(PortType::Out)->id()],
-						                           fromConnectionName);
-						auto value = moduleIds[connection->getNode(PortType::In)->id()];
+						auto key = std::make_tuple(moduleIds[connectionJson["out_id"].toString()],
+						                           connectionJson["out_portName"].toString().toStdString());
+						auto value = moduleIds[connectionJson["in_id"].toString()];
 						memoryExitFlows[key] = value;
 					}
 				}
@@ -238,6 +361,7 @@ public:
 
 			stream.push(memories);
 			stream.push(modules);
+//			stream.push(customModules);
 			stream.push(rootSignalFlows);
 			stream.push(rootMemoryExitFlows);
 			stream.push(signalFlows);
@@ -356,43 +480,101 @@ public:
 		return nullptr;
 	}
 
-	static QJsonValue saveElementWidget(const std::type_index& type,
-	                                    const QWidget* widget)
+	static QJsonObject saveElementWidget(const std::type_index& type,
+	                                     const QWidget* widget)
 	{
 		if (type == typeid(std::string))
 		{
+			QJsonObject json;
+			json["type"] = "std::string";
 			QTextEditSizeHint* textEdit = (QTextEditSizeHint*)widget;
-			return QJsonValue(textEdit->toPlainText());
+			json["value"] = QJsonValue(textEdit->toPlainText());
+			return json;
 		}
-		else if (type == typeid(uint64_t) ||
-		         type == typeid(uint32_t) ||
-		         type == typeid(uint16_t) ||
-		         type == typeid(uint8_t) ||
-		         type == typeid(int64_t) ||
-		         type == typeid(int32_t) ||
-		         type == typeid(int16_t) ||
-		         type == typeid(int8_t))
+		else if (type == typeid(uint64_t))
 		{
+			QJsonObject json;
+			json["type"] = "uint64_t";
 			QLineEdit* lineEdit = (QLineEdit*)widget;
-			return QJsonValue(lineEdit->text());
+			json["value"] = QJsonValue(lineEdit->text());
+			return json;
+		}
+		else if (type == typeid(uint32_t))
+		{
+			QJsonObject json;
+			json["type"] = "uint32_t";
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			json["value"] = QJsonValue(lineEdit->text());
+			return json;
+		}
+		else if (type == typeid(uint16_t))
+		{
+			QJsonObject json;
+			json["type"] = "uint16_t";
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			json["value"] = QJsonValue(lineEdit->text());
+			return json;
+		}
+		else if (type == typeid(uint8_t))
+		{
+			QJsonObject json;
+			json["type"] = "uint8_t";
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			json["value"] = QJsonValue(lineEdit->text());
+			return json;
+		}
+		else if (type == typeid(int64_t))
+		{
+			QJsonObject json;
+			json["type"] = "int64_t";
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			json["value"] = QJsonValue(lineEdit->text());
+			return json;
+		}
+		else if (type == typeid(int32_t))
+		{
+			QJsonObject json;
+			json["type"] = "int32_t";
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			json["value"] = QJsonValue(lineEdit->text());
+			return json;
+		}
+		else if (type == typeid(int16_t))
+		{
+			QJsonObject json;
+			json["type"] = "int16_t";
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			json["value"] = QJsonValue(lineEdit->text());
+			return json;
+		}
+		else if (type == typeid(int8_t))
+		{
+			QJsonObject json;
+			json["type"] = "int8_t";
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			json["value"] = QJsonValue(lineEdit->text());
+			return json;
 		}
 		else if (type == typeid(bool))
 		{
+			QJsonObject json;
+			json["type"] = "bool";
 			QCheckBox* checkBox = (QCheckBox*)widget;
-			return QJsonValue(checkBox->isChecked());
+			json["value"] = QJsonValue(checkBox->isChecked());
+			return json;
 		}
 
-		return QJsonValue();
+		return QJsonObject();
 	}
 
 	static void restoreElementWidget(const std::type_index& type,
 	                                 const QWidget* widget,
-	                                 QJsonValue jsonValue)
+	                                 QJsonObject jsonObject)
 	{
 		if (type == typeid(std::string))
 		{
 			QTextEditSizeHint* textEdit = (QTextEditSizeHint*)widget;
-			textEdit->setPlainText(jsonValue.toString());
+			textEdit->setPlainText(jsonObject["value"].toString());
 		}
 		else if (type == typeid(uint64_t) ||
 		         type == typeid(uint32_t) ||
@@ -404,82 +586,13 @@ public:
 		         type == typeid(int8_t))
 		{
 			QLineEdit* lineEdit = (QLineEdit*)widget;
-			lineEdit->setText(jsonValue.toString());
+			lineEdit->setText(jsonObject["value"].toString());
 		}
 		else if (type == typeid(bool))
 		{
 			QCheckBox* checkBox = (QCheckBox*)widget;
-			checkBox->setChecked(jsonValue.toBool());
+			checkBox->setChecked(jsonObject["value"].toBool());
 		}
-	}
-
-	static void exportElementWidget(std::vector<uint8_t>& buffer,
-	                                const std::type_index& type,
-	                                const QWidget* widget)
-	{
-		cStreamOut stream;
-
-		if (type == typeid(std::string))
-		{
-			QTextEditSizeHint* textEdit = (QTextEditSizeHint*)widget;
-			stream.push(textEdit->toPlainText().toStdString());
-		}
-		else if (type == typeid(uint64_t))
-		{
-			QLineEdit* lineEdit = (QLineEdit*)widget;
-			uint64_t value = lineEdit->text().toULongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == typeid(uint32_t))
-		{
-			QLineEdit* lineEdit = (QLineEdit*)widget;
-			uint32_t value = lineEdit->text().toULongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == typeid(uint16_t))
-		{
-			QLineEdit* lineEdit = (QLineEdit*)widget;
-			uint16_t value = lineEdit->text().toULongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == typeid(uint8_t))
-		{
-			QLineEdit* lineEdit = (QLineEdit*)widget;
-			uint8_t value = lineEdit->text().toULongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == typeid(int64_t))
-		{
-			QLineEdit* lineEdit = (QLineEdit*)widget;
-			int64_t value = lineEdit->text().toLongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == typeid(int32_t))
-		{
-			QLineEdit* lineEdit = (QLineEdit*)widget;
-			int32_t value = lineEdit->text().toLongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == typeid(int16_t))
-		{
-			QLineEdit* lineEdit = (QLineEdit*)widget;
-			int16_t value = lineEdit->text().toLongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == typeid(int8_t))
-		{
-			QLineEdit* lineEdit = (QLineEdit*)widget;
-			int8_t value = lineEdit->text().toLongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == typeid(bool))
-		{
-			QCheckBox* checkBox = (QCheckBox*)widget;
-			bool value = checkBox->isChecked();
-			stream.push(value);
-		}
-
-		buffer.insert(buffer.end(), stream.getBuffer().begin(), stream.getBuffer().end());
 	}
 
 private:
@@ -508,7 +621,7 @@ private:
 		{
 			for (QString& key : jsonValue.toObject().keys())
 			{
-				const QJsonValue& jsonItem = jsonValue.toObject()[key];
+				const QJsonObject& jsonItem = jsonValue.toObject()[key].toObject();
 				tVariableName variableName = key.toStdString();
 				if (widgets.find(variableName) != widgets.end())
 				{
@@ -519,22 +632,13 @@ private:
 			}
 		}
 
-		void exportVariables(std::vector<uint8_t>& buffer)
-		{
-			for (const auto& widget : widgets)
-			{
-				exportElementWidget(buffer,
-				                    std::get<0>(widget.second),
-				                    std::get<1>(widget.second));
-			}
-		}
-
 	public:
 		bool makeWidget(const cModule::tVariables& variables)
 		{
 			mainWidget = new QWidget();
 			mainWidget->setAttribute(Qt::WA_NoSystemBackground, true);
 			QVBoxLayout* layout = new QVBoxLayout();
+			layout->setContentsMargins(0, 0, 0, 0);
 
 			for (const auto& variable : variables)
 			{
@@ -560,6 +664,7 @@ private:
 		tModuleName moduleName;
 		tMemoryTypeName memoryTypeName;
 		tRootModuleName rootModuleName;
+		tSchemeName schemeName;
 
 		QWidget* mainWidget;
 		std::map<tVariableName, std::tuple<std::type_index, QWidget*>> widgets;
@@ -591,6 +696,16 @@ private:
 
 		~cRootModuleDataModel()
 		{
+		}
+
+		QJsonObject save() const override
+		{
+			QJsonObject jsonObject = NodeDataModel::save();
+			jsonObject["variables"] = modelData.save();
+			jsonObject["moduleTypeName"] = QString::fromUtf8(modelData.moduleTypeName.value.c_str());
+			jsonObject["libraryName"] = QString::fromUtf8(modelData.libraryName.value.c_str());
+			jsonObject["rootModuleName"] = QString::fromUtf8(modelData.rootModuleName.value.c_str());
+			return jsonObject;
 		}
 
 	public:
@@ -724,6 +839,9 @@ private:
 		{
 			QJsonObject jsonObject = NodeDataModel::save();
 			jsonObject["variables"] = modelData.save();
+			jsonObject["moduleTypeName"] = QString::fromUtf8(modelData.moduleTypeName.value.c_str());
+			jsonObject["libraryName"] = QString::fromUtf8(modelData.libraryName.value.c_str());
+			jsonObject["moduleName"] = QString::fromUtf8(modelData.moduleName.value.c_str());
 			return jsonObject;
 		}
 
@@ -765,11 +883,18 @@ private:
 		                      NodeDataType nodeDataType) const override
 		{
 			cModelData* data = (cModelData*)model->getData();
+
+			if (data->moduleTypeName.value == "scheme")
+			{
+				return true;
+			}
+
 			if (nodeDataType.id != "signal" &&
 			    data->moduleTypeName.value != "memory")
 			{
 				return false;
 			}
+
 			return true;
 		}
 
@@ -892,6 +1017,8 @@ private:
 		{
 			QJsonObject jsonObject = NodeDataModel::save();
 			jsonObject["variables"] = modelData.save();
+			jsonObject["moduleTypeName"] = QString::fromUtf8(modelData.moduleTypeName.value.c_str());
+			jsonObject["memoryTypeName"] = QString::fromUtf8(modelData.memoryTypeName.value.c_str());
 			return jsonObject;
 		}
 
@@ -1005,6 +1132,535 @@ private:
 		const tMemoryTypeName memoryTypeName;
 		const cMemory* memory;
 	};
+
+	class cSchemeSignalModuleDataModel : public NodeDataModel
+	{
+	public:
+		cSchemeSignalModuleDataModel(const QString& moduleName,
+		                             const PortType& direction) :
+		        moduleName(moduleName),
+		        direction(direction)
+		{
+			modelData.moduleTypeName = "scheme";
+
+			NodeStyle style = nodeStyle();
+			style.GradientColor0 = QColor(0xefbbff);
+			style.GradientColor1 = QColor(0x800080);
+			style.GradientColor2 = QColor(0x800080);
+			style.GradientColor3 = QColor(0x800080);
+			setNodeStyle(style);
+
+			lineEdit = new QLineEdit();
+			lineEdit->setPlaceholderText("signalName");
+		}
+
+		~cSchemeSignalModuleDataModel()
+		{
+		}
+
+		QJsonObject save() const override
+		{
+			QJsonObject jsonObject = NodeDataModel::save();
+			jsonObject["portName"] = lineEdit->text();
+			return jsonObject;
+		}
+
+		void restore(const QJsonObject& jsonObject) override
+		{
+			lineEdit->setText(jsonObject["portName"].toString());
+		}
+
+	public:
+		QString caption() const override
+		{
+			if (direction == PortType::Out)
+			{
+				return "inSignal";
+			}
+			return "outSignal";
+		}
+
+		QString name() const override
+		{
+			return moduleName;
+		}
+
+		std::unique_ptr<NodeDataModel> clone() const override
+		{
+			return std::make_unique<cSchemeSignalModuleDataModel>(moduleName,
+			                                                      direction);
+		}
+
+		const void* getData() const override
+		{
+			return &modelData;
+		}
+
+	public:
+		unsigned int nPorts(PortType portType) const override
+		{
+			if (portType == direction)
+			{
+				return 1;
+			}
+
+			return 0;
+		}
+
+		NodeDataType dataType(PortType portType, PortIndex portIndex) const override
+		{
+			if (portType == direction)
+			{
+				if (portIndex == 0)
+				{
+					if (lineEdit->text().isEmpty())
+					{
+						return NodeDataType {"signal", "signal"};
+					}
+
+					return NodeDataType {"signal",
+					                     lineEdit->text()};
+				}
+			}
+
+			return NodeDataType();
+		}
+
+		ConnectionPolicy portInConnectionPolicy(PortIndex portIndex) const override
+		{
+			return ConnectionPolicy::Many;
+		}
+
+		ConnectionPolicy portOutConnectionPolicy(PortIndex) const override
+		{
+			return ConnectionPolicy::One;
+		}
+
+		bool portCaptionVisible(PortType, PortIndex) const override
+		{
+			return true;
+		}
+
+		std::shared_ptr<NodeData> outData(PortIndex) override
+		{
+			return nullptr;
+		}
+
+		void setInData(std::shared_ptr<NodeData>, int) override
+		{
+		}
+
+		QWidget* embeddedWidget() override
+		{
+			return lineEdit;
+		}
+
+	private:
+		cModelData modelData;
+		QLineEdit* lineEdit;
+		const QString moduleName;
+		const PortType direction;
+	};
+
+	class cSchemeMemoryModuleDataModel : public NodeDataModel
+	{
+	public:
+		cSchemeMemoryModuleDataModel(const QString& moduleName,
+		                             const PortType& direction) :
+		        moduleName(moduleName),
+		        direction(direction)
+		{
+			modelData.moduleTypeName = "scheme";
+
+			NodeStyle style = nodeStyle();
+			style.GradientColor0 = QColor(0xefbbff);
+			style.GradientColor1 = QColor(0x800080);
+			style.GradientColor2 = QColor(0x800080);
+			style.GradientColor3 = QColor(0x800080);
+			setNodeStyle(style);
+
+			lineEditName = new QLineEdit();
+			lineEditName->setPlaceholderText("memoryName");
+
+			lineEditType = new QLineEdit();
+			lineEditType->setPlaceholderText("memoryType");
+
+			mainWidget = new QWidget();
+			mainWidget->setAttribute(Qt::WA_NoSystemBackground, true);
+
+			QVBoxLayout* layout = new QVBoxLayout(mainWidget);
+			layout->setContentsMargins(0, 0, 0, 0);
+			layout->addWidget(lineEditName);
+			layout->addWidget(lineEditType);
+		}
+
+		~cSchemeMemoryModuleDataModel()
+		{
+		}
+
+		QJsonObject save() const override
+		{
+			QJsonObject jsonObject = NodeDataModel::save();
+			jsonObject["portName"] = lineEditName->text();
+			jsonObject["portType"] = lineEditType->text();
+			return jsonObject;
+		}
+
+		void restore(const QJsonObject& jsonObject) override
+		{
+			lineEditName->setText(jsonObject["portName"].toString());
+			lineEditType->setText(jsonObject["portType"].toString());
+		}
+
+	public:
+		QString caption() const override
+		{
+			if (direction == PortType::Out)
+			{
+				return "inMemory";
+			}
+			return "outMemory";
+		}
+
+		QString name() const override
+		{
+			return moduleName;
+		}
+
+		std::unique_ptr<NodeDataModel> clone() const override
+		{
+			return std::make_unique<cSchemeMemoryModuleDataModel>(moduleName,
+			                                                      direction);
+		}
+
+		const void* getData() const override
+		{
+			return &modelData;
+		}
+
+	public:
+		unsigned int nPorts(PortType portType) const override
+		{
+			if (portType == direction)
+			{
+				return 1;
+			}
+
+			return 0;
+		}
+
+		NodeDataType dataType(PortType portType, PortIndex portIndex) const override
+		{
+			if (portType == direction)
+			{
+				if (portIndex == 0)
+				{
+					if (lineEditName->text().isEmpty())
+					{
+						return NodeDataType {lineEditType->text(), lineEditType->text()};
+					}
+
+					return NodeDataType {lineEditType->text(),
+					                     lineEditName->text()};
+				}
+			}
+
+			return NodeDataType();
+		}
+
+		ConnectionPolicy portInConnectionPolicy(PortIndex portIndex) const override
+		{
+			return ConnectionPolicy::Many;
+		}
+
+		ConnectionPolicy portOutConnectionPolicy(PortIndex) const override
+		{
+			return ConnectionPolicy::Many;
+		}
+
+		bool portCaptionVisible(PortType, PortIndex) const override
+		{
+			return true;
+		}
+
+		std::shared_ptr<NodeData> outData(PortIndex) override
+		{
+			return nullptr;
+		}
+
+		void setInData(std::shared_ptr<NodeData>, int) override
+		{
+		}
+
+		QWidget* embeddedWidget() override
+		{
+			return mainWidget;
+		}
+
+	private:
+		cModelData modelData;
+		QWidget* mainWidget;
+		QLineEdit* lineEditName;
+		QLineEdit* lineEditType;
+		const QString moduleName;
+		const PortType direction;
+	};
+
+	class cCustomModuleDataModel : public NodeDataModel
+	{
+	public:
+		cCustomModuleDataModel(const tModuleName& moduleName,
+		                       const tSchemeName& schemeName) :
+		        moduleName(moduleName),
+		        schemeName(schemeName)
+		{
+			modelData.moduleTypeName = "custom";
+			modelData.moduleName = moduleName;
+			modelData.schemeName = schemeName;
+
+			NodeStyle style = nodeStyle();
+			style.GradientColor0 = QColor(0xefbbff);
+			style.GradientColor1 = QColor(0x800080);
+			style.GradientColor2 = QColor(0x800080);
+			style.GradientColor3 = QColor(0x800080);
+			setNodeStyle(style);
+
+			update();
+		}
+
+		~cCustomModuleDataModel()
+		{
+		}
+
+		QJsonObject save() const override
+		{
+			QJsonObject jsonObject = NodeDataModel::save();
+			jsonObject["variables"] = modelData.save();
+			jsonObject["moduleTypeName"] = QString::fromUtf8(modelData.moduleTypeName.value.c_str());
+			jsonObject["moduleName"] = QString::fromUtf8(modelData.moduleName.value.c_str());
+			jsonObject["schemeName"] = QString::fromUtf8(modelData.schemeName.value.c_str());
+			return jsonObject;
+		}
+
+		void restore(const QJsonObject& jsonObject) override
+		{
+			modelData.restore(jsonObject["variables"]);
+		}
+
+	public:
+		QString caption() const override
+		{
+			return QString::fromUtf8((schemeName.value).c_str());
+		}
+
+		QString name() const override
+		{
+			return QString::fromUtf8((moduleName.value).c_str());
+		}
+
+		std::unique_ptr<NodeDataModel> clone() const override
+		{
+			return std::make_unique<cCustomModuleDataModel>(moduleName,
+			                                                schemeName);
+		}
+
+		const void* getData() const override
+		{
+			return &modelData;
+		}
+
+		const bool canConnect(PortType portType,
+		                      NodeDataModel* model,
+		                      NodeDataType nodeDataType) const override
+		{
+			/** @todo */
+			return true;
+		}
+
+	public:
+		unsigned int nPorts(PortType portType) const override
+		{
+			if (portType == PortType::In)
+			{
+				return signalEntries.size() + memoryEntries.size();
+			}
+			else if (portType == PortType::Out)
+			{
+				return signalExits.size() + memoryExits.size();
+			}
+
+			return 0;
+		}
+
+		NodeDataType dataType(PortType portType, PortIndex portIndex) const override
+		{
+			if (portType == PortType::In)
+			{
+				if (portIndex < signalEntries.size())
+				{
+					auto iter = signalEntries.begin();
+					std::advance(iter, portIndex);
+					return NodeDataType {"signal",
+					                     QString::fromUtf8(iter->first.value.c_str())};
+				}
+				else if (portIndex < signalEntries.size() + memoryEntries.size())
+				{
+					auto iter = memoryEntries.begin();
+					std::advance(iter, portIndex - signalEntries.size());
+					return NodeDataType {QString::fromUtf8((std::get<0>(iter->second)).value.c_str()),
+					                     QString::fromUtf8((iter->first).value.c_str())};
+				}
+			}
+			else if (portType == PortType::Out)
+			{
+				if (portIndex < signalExits.size())
+				{
+					auto iter = signalExits.begin();
+					std::advance(iter, portIndex);
+					return NodeDataType {"signal",
+					                     QString::fromUtf8(iter->first.value.c_str())};
+				}
+				else if (portIndex < signalExits.size() + memoryExits.size())
+				{
+					auto iter = memoryExits.begin();
+					std::advance(iter, portIndex - signalExits.size());
+					return NodeDataType {QString::fromUtf8((std::get<0>(iter->second)).value.c_str()),
+					                     QString::fromUtf8((iter->first).value.c_str())};
+				}
+			}
+
+			return NodeDataType();
+		}
+
+		ConnectionPolicy portInConnectionPolicy(PortIndex portIndex) const override
+		{
+			if (portIndex < signalEntries.size())
+			{
+				return ConnectionPolicy::Many;
+			}
+			return ConnectionPolicy::One;
+		}
+
+		ConnectionPolicy portOutConnectionPolicy(PortIndex) const override
+		{
+			return ConnectionPolicy::One;
+		}
+
+		std::shared_ptr<NodeData> outData(PortIndex) override
+		{
+			return nullptr;
+		}
+
+		void setInData(std::shared_ptr<NodeData>, int) override
+		{
+		}
+
+		QWidget* embeddedWidget() override
+		{
+			return modelData.mainWidget;
+		}
+
+	private:
+		void update()
+		{
+			std::string filePath = getFilePathOfScheme(std::vector<std::string>(), schemeName);
+			if (!QFileInfo::exists(QString::fromUtf8(filePath.c_str())))
+			{
+				printf("error: QFileInfo::exists()\n");
+				return;
+			}
+
+			QFile file(QString::fromUtf8(filePath.c_str()));
+			if (!file.open(QIODevice::ReadOnly))
+			{
+				printf("error: file.open()\n");
+				return;
+			}
+
+			QByteArray wholeFile = file.readAll();
+
+			QJsonObject const jsonDocument = QJsonDocument::fromJson(wholeFile).object();
+
+			QJsonArray connectionJsonArray = jsonDocument["nodes"].toArray();
+			for (int i = 0; i < connectionJsonArray.size(); ++i)
+			{
+				QJsonObject nodeJson = connectionJsonArray[i].toObject();
+				if (nodeJson.find("model") != nodeJson.end())
+				{
+					QJsonObject modelJson = nodeJson["model"].toObject();
+					if (modelJson.find("name") != modelJson.end())
+					{
+						if (modelJson["name"].toString() == ":scheme:inSignal")
+						{
+							QString portName = modelJson["portName"].toString();
+							if (portName.isEmpty())
+							{
+								portName = "signal";
+							}
+
+							const auto value = std::make_tuple(signalEntries.size(),
+							                                   nullptr);
+							signalEntries[portName.toStdString()] = value;
+						}
+						else if (modelJson["name"].toString() == ":scheme:outSignal")
+						{
+							QString portName = modelJson["portName"].toString();
+							if (portName.isEmpty())
+							{
+								portName = "signal";
+							}
+
+							const auto value = signalExits.size();
+							signalExits[portName.toStdString()] = value;
+						}
+						else if (modelJson["name"].toString() == ":scheme:inMemory")
+						{
+							QString portName = modelJson["portName"].toString();
+							QString portType = modelJson["portType"].toString();
+
+							if (!portType.isEmpty())
+							{
+								if (portName.isEmpty())
+								{
+									portName = portType;
+								}
+
+								const auto value = std::make_tuple(portType.toStdString(),
+								                                   0);
+								memoryEntries[portName.toStdString()] = value;
+							}
+						}
+						else if (modelJson["name"].toString() == ":scheme:outMemory")
+						{
+							QString portName = modelJson["portName"].toString();
+							QString portType = modelJson["portType"].toString();
+
+							if (!portType.isEmpty())
+							{
+								if (portName.isEmpty())
+								{
+									portName = portType;
+								}
+
+								const auto value = std::make_tuple(portType.toStdString(),
+								                                   0);
+								memoryExits[portName.toStdString()] = value;
+							}
+						}
+					}
+				}
+			}
+		}
+
+	private:
+		cModelData modelData;
+		const tModuleName moduleName;
+		const tSchemeName schemeName;
+		cModule::tSignalEntries signalEntries;
+		cModule::tMemoryEntries memoryEntries;
+		cModule::tSignalExits signalExits;
+		cModule::tMemoryExits memoryExits;
+	};
 };
 
 class cIde : public QObject
@@ -1017,27 +1673,27 @@ public:
 	{
 		mainWidget = new QWidget();
 
-		scene = new FlowScene(cGui::makeDataModelRegistry(virtualMachine));
-
-		flowView = new FlowView(scene);
-		flowView->setSceneRect(-20000, -20000, 40000, 40000);
-
 		QVBoxLayout* layout = new QVBoxLayout(mainWidget);
 
 		{
 			auto menuBar = new QMenuBar();
+
 			auto fileMenu = menuBar->addMenu("&File");
-			auto newAction = fileMenu->addAction("&New"); /**< @todo */
+			auto newAction = fileMenu->addAction("&New");
 			fileMenu->addSeparator();
 			auto openAction = fileMenu->addAction("&Open");
 			fileMenu->addSeparator();
 			auto saveAction = fileMenu->addAction("&Save");
 			auto saveAsAction = fileMenu->addAction("Save &As");
 
+			auto modulesMenu = menuBar->addMenu("&Modules");
+			auto newCustomModuleAction = modulesMenu->addAction("&New custom module");
+
 			QObject::connect(newAction, &QAction::triggered, this, &cIde::menuNew);
 			QObject::connect(openAction, &QAction::triggered, this, &cIde::menuOpen);
 			QObject::connect(saveAction, &QAction::triggered, this, &cIde::menuSave);
 			QObject::connect(saveAsAction, &QAction::triggered, this, &cIde::menuSaveAs);
+			QObject::connect(newCustomModuleAction, &QAction::triggered, this, &cIde::menuNewCustomModule);
 
 			openAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
 			saveAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
@@ -1045,269 +1701,12 @@ public:
 			layout->addWidget(menuBar);
 		}
 
-		{
-			QSplitter* splitter = new QSplitter();
-			splitter->setOrientation(Qt::Horizontal);
+		tabWidget = new QTabWidget();
 
-			{
-				QVBoxLayout* layout = new QVBoxLayout();
+		createSchemeEditor("main");
+		tabWidget->setTabText(getMainIndex(), "untitled");
 
-				treeView = new QTreeWidget();
-				treeView->header()->close();
-
-				{
-					const auto memoryTypes = virtualMachine->getGuiMemoryTypes();
-					if (memoryTypes.size())
-					{
-						QTreeWidgetItem* libraryItem = new QTreeWidgetItem(treeView);
-						libraryItem->setText(0, "memory");
-						libraryItem->setData(0, Qt::UserRole, "");
-						libraryLevelItems["memory"] = libraryItem;
-
-						for (const auto& memoryType : memoryTypes)
-						{
-							QString memoryTypeName = QString::fromUtf8(memoryType.first.value.c_str());
-
-							QTreeWidgetItem* memoryItem = new QTreeWidgetItem(libraryItem);
-
-							memoryItem->setText(0, memoryTypeName);
-							memoryItem->setData(0, Qt::UserRole, "");
-
-							{
-								QTreeWidgetItem* valueItem = new QTreeWidgetItem(memoryItem);
-
-								valueItem->setText(0, "value");
-								valueItem->setData(0, Qt::UserRole, ":memory:" + memoryTypeName);
-							}
-
-							QMap<tModuleTypeName, QTreeWidgetItem*> moduleTypeLevelItems;
-
-							const auto memoryModules = virtualMachine->getGuiMemoryModules();
-							for (const auto& memoryModule : memoryModules)
-							{
-								tMemoryTypeName iterMemoryTypeName = std::get<0>(memoryModule.first);
-								tModuleTypeName moduleTypeName = memoryModule.second->getModuleTypeName();
-
-								if (QString::fromUtf8(iterMemoryTypeName.value.c_str()) == memoryTypeName)
-								{
-									if (moduleTypeLevelItems.find(moduleTypeName) == moduleTypeLevelItems.end())
-									{
-										QTreeWidgetItem* moduleTypeItem = new QTreeWidgetItem(memoryItem);
-
-										moduleTypeItem->setText(0, QString::fromUtf8(moduleTypeName.value.c_str()));
-										moduleTypeItem->setData(0, Qt::UserRole, "");
-
-										moduleTypeLevelItems[moduleTypeName] = moduleTypeItem;
-									}
-
-									QTreeWidgetItem* moduleItem = new QTreeWidgetItem(moduleTypeLevelItems[moduleTypeName]);
-
-									QString moduleName = QString::fromUtf8(std::get<1>(memoryModule.first).value.c_str());
-
-									moduleItem->setText(0, moduleName);
-									moduleItem->setData(0, Qt::UserRole, ":memory:" + memoryTypeName + ":" + moduleName);
-								}
-							}
-						}
-
-						treeView->expandItem(libraryItem);
-					}
-				}
-
-				const auto rootModules = virtualMachine->getGuiRootModules();
-				QMap<tLibraryName, QTreeWidgetItem*> rootLevelItems;
-				for (const auto& rootModule : rootModules)
-				{
-					tLibraryName libraryName = std::get<0>(rootModule.first);
-					tRootModuleName rootModuleName = std::get<1>(rootModule.first);
-
-					if (libraryLevelItems.find(libraryName) == libraryLevelItems.end())
-					{
-						QTreeWidgetItem* item = new QTreeWidgetItem(treeView);
-
-						item->setText(0, QString::fromUtf8(libraryName.value.c_str()));
-						item->setData(0, Qt::UserRole, "");
-
-						libraryLevelItems[libraryName] = item;
-
-						treeView->expandItem(item);
-					}
-
-					if (rootLevelItems.find(libraryName) == rootLevelItems.end())
-					{
-						QTreeWidgetItem* item = new QTreeWidgetItem(libraryLevelItems[libraryName]);
-
-						item->setText(0, "root");
-						item->setData(0, Qt::UserRole, "");
-
-						rootLevelItems[libraryName] = item;
-					}
-
-					QTreeWidgetItem* item = new QTreeWidgetItem(rootLevelItems[libraryName]);
-
-					item->setText(0, QString::fromUtf8(rootModuleName.value.c_str()));
-					item->setData(0, Qt::UserRole, QString::fromUtf8((libraryName.value + ":root:" + rootModuleName.value).c_str()));
-				}
-
-				QMap<std::tuple<tLibraryName,
-				                tModuleTypeName>,
-				     QTreeWidgetItem*> moduleTypeLevelItems;
-
-				const auto modules = virtualMachine->getGuiModules();
-				for (const auto& module : modules)
-				{
-					tLibraryName libraryName = std::get<0>(module.first);
-					tModuleName moduleName = std::get<1>(module.first);
-					tModuleTypeName moduleTypeName = module.second->getModuleTypeName();
-
-					if (libraryLevelItems.find(libraryName) == libraryLevelItems.end())
-					{
-						QTreeWidgetItem* item = new QTreeWidgetItem(treeView);
-
-						item->setText(0, QString::fromUtf8(libraryName.value.c_str()));
-						item->setData(0, Qt::UserRole, "");
-
-						libraryLevelItems[libraryName] = item;
-
-						treeView->expandItem(item);
-					}
-
-					const auto key = std::make_tuple(libraryName,
-					                                 moduleTypeName);
-					if (moduleTypeLevelItems.find(key) == moduleTypeLevelItems.end())
-					{
-						QTreeWidgetItem* moduleTypeItem = new QTreeWidgetItem(libraryLevelItems[libraryName]);
-
-						moduleTypeItem->setText(0, QString::fromUtf8(moduleTypeName.value.c_str()));
-						moduleTypeItem->setData(0, Qt::UserRole, "");
-
-						moduleTypeLevelItems[key] = moduleTypeItem;
-					}
-
-					QTreeWidgetItem* item = new QTreeWidgetItem(moduleTypeLevelItems[key]);
-
-					item->setText(0, QString::fromUtf8(moduleName.value.c_str()));
-					item->setData(0, Qt::UserRole, QString::fromUtf8((libraryName.value + ":" + moduleName.value).c_str()));
-				}
-
-				connect(treeView, &QTreeWidget::itemDoubleClicked, [&](QTreeWidgetItem* item, int column)
-				{
-					QString modelName = item->data(0, Qt::UserRole).toString();
-
-					if (modelName == "")
-					{
-						return;
-					}
-
-					auto type = scene->registry().create(modelName);
-					if (type)
-					{
-						auto* node = scene->createNode(std::move(type));
-						if (node)
-						{
-							QPoint pos = flowView->rect().center();
-							QPointF posView = flowView->mapToScene(pos);
-							node->nodeGraphicsObject().setPos(posView);
-						}
-					}
-					else
-					{
-						std::cerr << "Model not found" << std::endl;
-					}
-				});
-
-				QLineEdit *filterEdit = new QLineEdit();
-
-				filterEdit->setPlaceholderText(QStringLiteral("Filter"));
-				filterEdit->setClearButtonEnabled(true);
-
-				connect(filterEdit, &QLineEdit::textChanged, [&](const QString& text)
-				{
-					std::function<bool(const QString&, QTreeWidgetItem*)> checkItems;
-					checkItems = [&](const QString& text, QTreeWidgetItem* item) -> bool
-					{
-						if (item->childCount())
-						{
-							bool rc = false;
-
-							for (int child_i = 0; child_i < item->childCount(); child_i++)
-							{
-								rc |= checkItems(text, item->child(child_i));
-							}
-
-							if (rc)
-							{
-								treeView->expandItem(item);
-								item->setHidden(false);
-							}
-							else
-							{
-								item->setHidden(true);
-							}
-
-							return rc;
-						}
-
-						auto modelName = item->data(0, Qt::UserRole).toString();
-						if (modelName.contains(text, Qt::CaseInsensitive))
-						{
-							item->setHidden(false);
-							return true;
-						}
-
-						item->setHidden(true);
-						return false;
-					};
-
-					if (text.isEmpty())
-					{
-						for (auto& libraryLevelItem : libraryLevelItems)
-						{
-							checkItems(text, libraryLevelItem); /**< show all items */
-						}
-						for (auto& libraryLevelItem : libraryLevelItems)
-						{
-							for (int child_i = 0; child_i < libraryLevelItem->childCount(); child_i++)
-							{
-								treeView->collapseItem(libraryLevelItem->child(child_i));
-							}
-						}
-						return;
-					}
-
-					for (auto& libraryLevelItem : libraryLevelItems)
-					{
-						if (checkItems(text, libraryLevelItem))
-						{
-							libraryLevelItem->setHidden(false);
-						}
-						else
-						{
-							libraryLevelItem->setHidden(true);
-						}
-					}
-				});
-
-				layout->addWidget(filterEdit);
-				layout->addWidget(treeView);
-
-				layout->setContentsMargins(0, 0, 0, 0);
-				layout->setSpacing(0);
-
-				QWidget* widget = new QWidget();
-				widget->setLayout(layout);
-
-				splitter->addWidget(widget);
-			}
-
-			{
-				splitter->addWidget(flowView);
-			}
-
-			splitter->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-
-			layout->addWidget(splitter);
-		}
+		layout->addWidget(tabWidget);
 
 		layout->setContentsMargins(0, 0, 0, 0);
 		layout->setSpacing(0);
@@ -1328,6 +1727,348 @@ public:
 	}
 
 private:
+	void updateCustoms(const QString& schemeName)
+	{
+		QTreeWidget* treeView = std::get<2>(schemes[schemeName]);
+		QMap<tLibraryName, QTreeWidgetItem*>& libraryLevelItems = std::get<3>(schemes[schemeName]);
+
+		customsLibraries.push_back(QDir::homePath().toStdString() + "/.config"); /**< @todo */
+
+		QTreeWidgetItem* libraryItem = libraryLevelItems["custom"];
+
+		for (const std::string& libraryPath : customsLibraries)
+		{
+			QDir dir(QString::fromUtf8(libraryPath.c_str()));
+			QStringList filePaths = dir.entryList(QDir::NoDotAndDotDot | QDir::Files);
+			for (const QString& filePath : filePaths)
+			{
+				if (!filePath.endsWith(".json"))
+				{
+					continue;
+				}
+
+				QFileInfo fileInfo(filePath);
+
+				FlowScene* scene = std::get<4>(schemes[schemeName]);
+				DataModelRegistry& dataModelRegistry = scene->registry();
+				dataModelRegistry.registerModel<cGui::cCustomModuleDataModel>(std::make_unique<cGui::cCustomModuleDataModel>(":custom:" + fileInfo.completeBaseName().toStdString(),
+				                                                                                                             fileInfo.completeBaseName().toStdString()));
+
+				QTreeWidgetItem* customModuleItem = new QTreeWidgetItem(libraryItem);
+				customModuleItem->setText(0, fileInfo.completeBaseName());
+				customModuleItem->setData(0, Qt::UserRole, ":custom:" + fileInfo.completeBaseName());
+			}
+		}
+	}
+
+	QWidget* createSchemeEditor(const QString& schemeName)
+	{
+		QSplitter* splitter = new QSplitter();
+		std::get<1>(schemes[schemeName]) = splitter;
+
+		QTreeWidget* treeView = new QTreeWidget();
+		std::get<2>(schemes[schemeName]) = treeView;
+
+		QMap<tLibraryName, QTreeWidgetItem*>& libraryLevelItems = std::get<3>(schemes[schemeName]);
+
+		FlowScene* scene = new FlowScene(cGui::makeDataModelRegistry(virtualMachine));
+		std::get<4>(schemes[schemeName]) = scene;
+
+		FlowView* flowView = new FlowView(scene);
+		std::get<5>(schemes[schemeName]) = flowView;
+
+		QLineEdit* filterEdit = new QLineEdit();
+		std::get<6>(schemes[schemeName]) = filterEdit;
+
+		splitter->setOrientation(Qt::Horizontal);
+
+		flowView->setSceneRect(-20000, -20000, 40000, 40000);
+
+		{
+			QVBoxLayout* layout = new QVBoxLayout();
+
+			treeView->header()->close();
+
+			{
+				const auto memoryTypes = virtualMachine->getGuiMemoryTypes();
+				if (memoryTypes.size())
+				{
+					QTreeWidgetItem* libraryItem = new QTreeWidgetItem(treeView);
+					libraryItem->setText(0, "memory");
+					libraryItem->setData(0, Qt::UserRole, "");
+					libraryLevelItems["memory"] = libraryItem;
+
+					for (const auto& memoryType : memoryTypes)
+					{
+						QString memoryTypeName = QString::fromUtf8(memoryType.first.value.c_str());
+
+						QTreeWidgetItem* memoryItem = new QTreeWidgetItem(libraryItem);
+
+						memoryItem->setText(0, memoryTypeName);
+						memoryItem->setData(0, Qt::UserRole, "");
+
+						{
+							QTreeWidgetItem* valueItem = new QTreeWidgetItem(memoryItem);
+
+							valueItem->setText(0, "value");
+							valueItem->setData(0, Qt::UserRole, ":memory:" + memoryTypeName);
+						}
+
+						QMap<tModuleTypeName, QTreeWidgetItem*> moduleTypeLevelItems;
+
+						const auto memoryModules = virtualMachine->getGuiMemoryModules();
+						for (const auto& memoryModule : memoryModules)
+						{
+							tMemoryTypeName iterMemoryTypeName = std::get<0>(memoryModule.first);
+							tModuleTypeName moduleTypeName = memoryModule.second->getModuleTypeName();
+
+							if (QString::fromUtf8(iterMemoryTypeName.value.c_str()) == memoryTypeName)
+							{
+								if (moduleTypeLevelItems.find(moduleTypeName) == moduleTypeLevelItems.end())
+								{
+									QTreeWidgetItem* moduleTypeItem = new QTreeWidgetItem(memoryItem);
+
+									moduleTypeItem->setText(0, QString::fromUtf8(moduleTypeName.value.c_str()));
+									moduleTypeItem->setData(0, Qt::UserRole, "");
+
+									moduleTypeLevelItems[moduleTypeName] = moduleTypeItem;
+								}
+
+								QTreeWidgetItem* moduleItem = new QTreeWidgetItem(moduleTypeLevelItems[moduleTypeName]);
+
+								QString moduleName = QString::fromUtf8(std::get<1>(memoryModule.first).value.c_str());
+
+								moduleItem->setText(0, moduleName);
+								moduleItem->setData(0, Qt::UserRole, ":memory:" + memoryTypeName + ":" + moduleName);
+							}
+						}
+					}
+
+					treeView->expandItem(libraryItem);
+				}
+			}
+
+			{
+				QTreeWidgetItem* customItem = new QTreeWidgetItem(treeView);
+				customItem->setText(0, "custom");
+				customItem->setData(0, Qt::UserRole, "");
+				libraryLevelItems["custom"] = customItem;
+				updateCustoms(schemeName);
+				treeView->expandItem(customItem);
+			}
+
+			const auto rootModules = virtualMachine->getGuiRootModules();
+			QMap<tLibraryName, QTreeWidgetItem*> rootLevelItems;
+			for (const auto& rootModule : rootModules)
+			{
+				tLibraryName libraryName = std::get<0>(rootModule.first);
+				tRootModuleName rootModuleName = std::get<1>(rootModule.first);
+
+				if (libraryLevelItems.find(libraryName) == libraryLevelItems.end())
+				{
+					QTreeWidgetItem* item = new QTreeWidgetItem(treeView);
+
+					item->setText(0, QString::fromUtf8(libraryName.value.c_str()));
+					item->setData(0, Qt::UserRole, "");
+
+					libraryLevelItems[libraryName] = item;
+
+					treeView->expandItem(item);
+				}
+
+				if (rootLevelItems.find(libraryName) == rootLevelItems.end())
+				{
+					QTreeWidgetItem* item = new QTreeWidgetItem(libraryLevelItems[libraryName]);
+
+					item->setText(0, "root");
+					item->setData(0, Qt::UserRole, "");
+
+					rootLevelItems[libraryName] = item;
+				}
+
+				QTreeWidgetItem* item = new QTreeWidgetItem(rootLevelItems[libraryName]);
+
+				item->setText(0, QString::fromUtf8(rootModuleName.value.c_str()));
+				item->setData(0, Qt::UserRole, QString::fromUtf8((libraryName.value + ":root:" + rootModuleName.value).c_str()));
+			}
+
+			QMap<std::tuple<tLibraryName,
+			                tModuleTypeName>,
+			     QTreeWidgetItem*> moduleTypeLevelItems;
+
+			const auto modules = virtualMachine->getGuiModules();
+			for (const auto& module : modules)
+			{
+				tLibraryName libraryName = std::get<0>(module.first);
+				tModuleName moduleName = std::get<1>(module.first);
+				tModuleTypeName moduleTypeName = module.second->getModuleTypeName();
+
+				if (libraryLevelItems.find(libraryName) == libraryLevelItems.end())
+				{
+					QTreeWidgetItem* item = new QTreeWidgetItem(treeView);
+
+					item->setText(0, QString::fromUtf8(libraryName.value.c_str()));
+					item->setData(0, Qt::UserRole, "");
+
+					libraryLevelItems[libraryName] = item;
+
+					treeView->expandItem(item);
+				}
+
+				const auto key = std::make_tuple(libraryName,
+				                                 moduleTypeName);
+				if (moduleTypeLevelItems.find(key) == moduleTypeLevelItems.end())
+				{
+					QTreeWidgetItem* moduleTypeItem = new QTreeWidgetItem(libraryLevelItems[libraryName]);
+
+					moduleTypeItem->setText(0, QString::fromUtf8(moduleTypeName.value.c_str()));
+					moduleTypeItem->setData(0, Qt::UserRole, "");
+
+					moduleTypeLevelItems[key] = moduleTypeItem;
+				}
+
+				QTreeWidgetItem* item = new QTreeWidgetItem(moduleTypeLevelItems[key]);
+
+				item->setText(0, QString::fromUtf8(moduleName.value.c_str()));
+				item->setData(0, Qt::UserRole, QString::fromUtf8((libraryName.value + ":" + moduleName.value).c_str()));
+			}
+
+			filterEdit->setPlaceholderText(QStringLiteral("Filter"));
+			filterEdit->setClearButtonEnabled(true);
+
+			layout->addWidget(filterEdit);
+			layout->addWidget(treeView);
+
+			layout->setContentsMargins(0, 0, 0, 0);
+			layout->setSpacing(0);
+
+			QWidget* widget = new QWidget();
+			widget->setLayout(layout);
+
+			splitter->addWidget(widget);
+		}
+
+		connect(treeView, &QTreeWidget::itemDoubleClicked, [scene, flowView](QTreeWidgetItem* item, int column)
+		{
+			QString modelName = item->data(0, Qt::UserRole).toString();
+
+			if (modelName == "")
+			{
+				return;
+			}
+
+			auto type = scene->registry().create(modelName);
+			if (type)
+			{
+				auto* node = scene->createNode(std::move(type));
+				if (node)
+				{
+					QPoint pos = flowView->rect().center();
+					QPointF posView = flowView->mapToScene(pos);
+					node->nodeGraphicsObject().setPos(posView);
+				}
+			}
+			else
+			{
+				std::cerr << "Model not found" << std::endl;
+			}
+		});
+
+		connect(filterEdit, &QLineEdit::textChanged, [treeView, &libraryLevelItems](const QString& text)
+		{
+			std::function<bool(const QString&, QTreeWidgetItem*)> checkItems;
+			checkItems = [&](const QString& text, QTreeWidgetItem* item) -> bool
+			{
+				if (item->childCount())
+				{
+					bool rc = false;
+
+					for (int child_i = 0; child_i < item->childCount(); child_i++)
+					{
+						rc |= checkItems(text, item->child(child_i));
+					}
+
+					if (rc)
+					{
+						treeView->expandItem(item);
+						item->setHidden(false);
+					}
+					else
+					{
+						item->setHidden(true);
+					}
+
+					return rc;
+				}
+
+				auto modelName = item->data(0, Qt::UserRole).toString();
+				if (modelName.contains(text, Qt::CaseInsensitive))
+				{
+					item->setHidden(false);
+					return true;
+				}
+
+				item->setHidden(true);
+				return false;
+			};
+
+			if (text.isEmpty())
+			{
+				for (auto& libraryLevelItem : libraryLevelItems)
+				{
+					checkItems(text, libraryLevelItem); /**< show all items */
+				}
+				for (auto& libraryLevelItem : libraryLevelItems)
+				{
+					for (int child_i = 0; child_i < libraryLevelItem->childCount(); child_i++)
+					{
+						treeView->collapseItem(libraryLevelItem->child(child_i));
+					}
+				}
+				return;
+			}
+
+			for (auto& libraryLevelItem : libraryLevelItems)
+			{
+				if (checkItems(text, libraryLevelItem))
+				{
+					libraryLevelItem->setHidden(false);
+				}
+				else
+				{
+					libraryLevelItem->setHidden(true);
+				}
+			}
+		});
+
+		splitter->addWidget(flowView);
+
+		splitter->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+		tabWidget->addTab(splitter, schemeName);
+		return splitter;
+	}
+
+	int getMainIndex()
+	{
+		return tabWidget->indexOf(std::get<1>(schemes["main"]));
+	}
+
+	int getSchemeIndex(const QString& schemeName)
+	{
+		if (schemes.find(schemeName) == schemes.end())
+		{
+			return -1;
+		}
+
+		return tabWidget->indexOf(std::get<1>(schemes[schemeName]));
+	}
+
+	FlowScene* getMainFlowScene()
+	{
+		return std::get<4>(schemes["main"]);
+	}
+
+private:
 	void saveProject(const QString& filePath)
 	{
 		if (filePath.isEmpty())
@@ -1339,24 +2080,42 @@ private:
 
 		QFileInfo fileInfo(filePath);
 		mainWidget->setWindowTitle(fileInfo.completeBaseName() + " - " + titleName);
+		tabWidget->setTabText(getMainIndex(), fileInfo.completeBaseName());
 
 		saveProjectConfig(filePath);
 		QString baseFilePath = fileInfo.path() + "/" + fileInfo.completeBaseName();
-		saveToFile(baseFilePath + ".json");
-		exportToFile(baseFilePath + ".tfvm");
-		saveScreenshot(baseFilePath + ".png");
+
+		std::get<0>(schemes["main"]) = baseFilePath;
+
+		for (const auto& iter : schemes)
+		{
+			saveToFile(std::get<4>(iter.second),
+			           std::get<0>(iter.second) + ".json");
+			saveScreenshot(std::get<4>(iter.second),
+			               std::get<0>(iter.second) + ".png");
+		}
+
+		exportToFile(getMainFlowScene(),
+		             baseFilePath + ".tfvm");
 	}
 
 	void openProject(const QString& filePath)
 	{
+		if (!openProjectConfig(filePath))
+		{
+			return;
+		}
+
 		currentFilePath = filePath;
 
 		QFileInfo fileInfo(filePath);
 		mainWidget->setWindowTitle(fileInfo.completeBaseName() + " - " + titleName);
+		tabWidget->setTabText(getMainIndex(), fileInfo.completeBaseName());
 
 		QString baseFilePath = fileInfo.path() + "/" + fileInfo.completeBaseName();
 
-		openFromFile(baseFilePath + ".json");
+		openFromFile(getMainFlowScene(),
+		             baseFilePath + ".json");
 	}
 
 	void saveProjectConfig(const QString& filePath)
@@ -1369,7 +2128,8 @@ private:
 		}
 	}
 
-	void saveToFile(const QString& filePath)
+	void saveToFile(const FlowScene* scene,
+	                const QString& filePath)
 	{
 		QFile file(filePath);
 		if (!file.open(QIODevice::WriteOnly))
@@ -1381,7 +2141,8 @@ private:
 		file.write(scene->saveToMemory());
 	}
 
-	void saveScreenshot(const QString& filePath)
+	void saveScreenshot(FlowScene* scene,
+	                    const QString& filePath)
 	{
 		scene->clearSelection();
 		scene->setSceneRect(scene->itemsBoundingRect());
@@ -1393,7 +2154,8 @@ private:
 		image.save(filePath);
 	}
 
-	void exportToFile(const QString& filePath)
+	void exportToFile(const FlowScene* scene,
+	                  const QString& filePath)
 	{
 		QFile file(filePath);
 		if (!file.open(QIODevice::WriteOnly))
@@ -1402,13 +2164,26 @@ private:
 			return;
 		}
 
-		std::vector<uint8_t> buffer = cGui::exportToMemory(scene);
+		QJsonObject jsonObject = QJsonDocument::fromJson(scene->saveToMemory()).object();
+		std::vector<uint8_t> buffer = cGui::exportToMemory(jsonObject);
 
 		file.write((char*)&buffer[0], buffer.size());
 		file.flush();
 	}
 
-	void openFromFile(const QString& filePath)
+	bool openProjectConfig(const QString& filePath)
+	{
+		std::ifstream fileStream(filePath.toStdString(), std::ifstream::binary);
+		if (!fileStream.is_open())
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	void openFromFile(FlowScene* scene,
+	                  const QString& filePath)
 	{
 		if (!QFileInfo::exists(filePath))
 		{
@@ -1429,22 +2204,90 @@ private:
 		scene->loadFromMemory(wholeFile);
 	}
 
+	void createCustomModule(const QString& moduleName,
+	                        const QString& filePath)
+	{
+		if (schemes.find(moduleName) != schemes.end())
+		{
+			return;
+		}
+
+		createSchemeEditor(moduleName);
+
+		std::get<0>(schemes[moduleName]) = filePath;
+
+		FlowScene* scene = std::get<4>(schemes[moduleName]);
+		DataModelRegistry& dataModelRegistry = scene->registry();
+		dataModelRegistry.registerModel<cGui::cSchemeSignalModuleDataModel>(std::make_unique<cGui::cSchemeSignalModuleDataModel>(":scheme:inSignal",
+		                                                                                                                         PortType::Out));
+		dataModelRegistry.registerModel<cGui::cSchemeSignalModuleDataModel>(std::make_unique<cGui::cSchemeSignalModuleDataModel>(":scheme:outSignal",
+		                                                                                                                         PortType::In));
+		dataModelRegistry.registerModel<cGui::cSchemeMemoryModuleDataModel>(std::make_unique<cGui::cSchemeMemoryModuleDataModel>(":scheme:inMemory",
+		                                                                                                                         PortType::Out));
+		dataModelRegistry.registerModel<cGui::cSchemeMemoryModuleDataModel>(std::make_unique<cGui::cSchemeMemoryModuleDataModel>(":scheme:outMemory",
+		                                                                                                                         PortType::In));
+
+		{
+			QTreeWidget* treeView = std::get<2>(schemes[moduleName]);
+			QTreeWidgetItem* schemeItem = new QTreeWidgetItem(treeView);
+
+			schemeItem->setText(0, "scheme");
+			schemeItem->setData(0, Qt::UserRole, "");
+
+			{
+				QTreeWidgetItem* signalItem = new QTreeWidgetItem(schemeItem);
+
+				signalItem->setText(0, "inSignal");
+				signalItem->setData(0, Qt::UserRole, ":scheme:inSignal");
+			}
+
+			{
+				QTreeWidgetItem* signalItem = new QTreeWidgetItem(schemeItem);
+
+				signalItem->setText(0, "outSignal");
+				signalItem->setData(0, Qt::UserRole, ":scheme:outSignal");
+			}
+
+			{
+				QTreeWidgetItem* memoryItem = new QTreeWidgetItem(schemeItem);
+
+				memoryItem->setText(0, "inMemory");
+				memoryItem->setData(0, Qt::UserRole, ":scheme:inMemory");
+			}
+
+			{
+				QTreeWidgetItem* memoryItem = new QTreeWidgetItem(schemeItem);
+
+				memoryItem->setText(0, "outMemory");
+				memoryItem->setData(0, Qt::UserRole, ":scheme:outMemory");
+			}
+
+			treeView->expandItem(schemeItem);
+		}
+	}
+
 private slots:
 	void menuNew()
 	{
 		currentFilePath = "";
 		mainWidget->setWindowTitle(this->titleName);
-		scene->clearScene();
+		tabWidget->setTabText(getMainIndex(), "untitled");
+		getMainFlowScene()->clearScene();
 	}
 
 	void menuOpen()
 	{
-		QString fileName = QFileDialog::getOpenFileName(nullptr,
+		QString filePath = QFileDialog::getOpenFileName(nullptr,
 		                                                ("Open Project"),
 		                                                QDir::homePath(),
 		                                                ("TFVM Project (*.tfvmproject)"));
 
-		openProject(fileName);
+		if (filePath.isEmpty())
+		{
+			return;
+		}
+
+		openProject(filePath);
 	}
 
 	void menuSave()
@@ -1476,15 +2319,38 @@ private slots:
 		saveProject(filePath);
 	}
 
+	void menuNewCustomModule()
+	{
+		QString moduleName = QInputDialog::getText(nullptr,
+		                                         "New custom module",
+		                                         "Module name:");
+
+		if (moduleName.isEmpty())
+		{
+			return;
+		}
+
+		QString filePath = QDir::homePath() + "/.config/" + moduleName; /**< @todo */
+		createCustomModule(moduleName, filePath);
+		tabWidget->setCurrentIndex(getSchemeIndex(moduleName));
+	}
+
 private:
 	const cVirtualMachine* virtualMachine;
 	QString titleName;
 	QWidget* mainWidget;
-	FlowScene* scene;
-	FlowView* flowView;
 	QString currentFilePath;
-	QMap<tLibraryName, QTreeWidgetItem*> libraryLevelItems;
-	QTreeWidget* treeView;
+	QTabWidget* tabWidget;
+	std::map<QString, /**< schemeName */
+	         std::tuple<QString, /**< filePath */
+	                    QSplitter*,
+	                    QTreeWidget*, /**< treeView */
+	                    QMap<tLibraryName, QTreeWidgetItem*>, /**< libraryLevelItems */
+	                    FlowScene*,
+	                    FlowView*,
+	                    QLineEdit* /**< filterEdit */
+	                    >> schemes;
+	std::vector<std::string> customsLibraries;
 };
 
 }
