@@ -925,6 +925,11 @@ private:
 			{
 				return true;
 			}
+			else if (data->moduleTypeName.value == "custom")
+			{
+				/** @todo */
+				return true;
+			}
 
 			if (nodeDataType.id != "signal" &&
 			    data->moduleTypeName.value != "memory")

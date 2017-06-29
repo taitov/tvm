@@ -1592,8 +1592,8 @@ do { \
 
 			void* pointer;
 			if (!findMemoryExitPath(toModuleId,
-			                         toMemoryExitName,
-			                         pointer))
+			                        toMemoryExitName,
+			                        pointer))
 			{
 				return false;
 			}
@@ -1840,7 +1840,7 @@ do { \
 		                                  toMemoryExitName,
 		                                  pointer);
 	}
-	else if (loadSchemeMemoryExitModules.find(moduleId) != loadSchemeMemoryExitModules.end())
+	else if (loadSchemeMemoryEntryModules.find(moduleId) != loadSchemeMemoryEntryModules.end())
 	{
 		if (!parentScheme)
 		{
