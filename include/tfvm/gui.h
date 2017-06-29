@@ -1595,16 +1595,16 @@ private:
 
 		ConnectionPolicy portInConnectionPolicy(PortIndex portIndex) const override
 		{
-			if (portIndex < signalEntries.size())
-			{
-				return ConnectionPolicy::Many;
-			}
-			return ConnectionPolicy::One;
+			return ConnectionPolicy::Many;
 		}
 
-		ConnectionPolicy portOutConnectionPolicy(PortIndex) const override
+		ConnectionPolicy portOutConnectionPolicy(PortIndex portIndex) const override
 		{
-			return ConnectionPolicy::One;
+			if (portIndex < signalExits.size())
+			{
+				return ConnectionPolicy::One;
+			}
+			return ConnectionPolicy::Many;
 		}
 
 		std::shared_ptr<NodeData> outData(PortIndex) override
