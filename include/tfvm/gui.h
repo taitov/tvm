@@ -262,11 +262,14 @@ public:
 			cScheme::tLoadMemories memories;
 			cScheme::tLoadModules modules;
 			cScheme::tLoadCustomModules customModules;
+			cScheme::tLoadSchemeSignalEntryModules schemeSignalEntryModules;
+			cScheme::tLoadSchemeSignalExitModules schemeSignalExitModules;
+			cScheme::tLoadSchemeMemoryEntryModules schemeMemoryEntryModules;
+			cScheme::tLoadSchemeMemoryExitModules schemeMemoryExitModules;
 			cScheme::tLoadRootSignalFlows rootSignalFlows;
 			cScheme::tLoadRootMemoryExitFlows rootMemoryExitFlows;
 			cScheme::tLoadSignalFlows signalFlows;
-			cScheme::tLoadMemoryEntryFlows memoryEntryFlows;
-			cScheme::tLoadMemoryExitFlows memoryExitFlows;
+			cScheme::tLoadMemoryFlows memoryFlows;
 			cScheme::tLoadMemoryModuleVariables memoryModuleVariables;
 
 			QJsonArray nodesJsonArray = iter.second["nodes"].toArray();
@@ -299,6 +302,45 @@ public:
 							auto key = moduleIds[nodeJson["id"].toString()];
 							auto value = modelJson["schemeName"].toString().toStdString();
 							customModules[key] = value;
+						}
+						else if (modelJson["moduleTypeName"].toString() == "scheme")
+						{
+							auto key = moduleIds[nodeJson["id"].toString()];
+							auto value = modelJson["portName"].toString().toStdString();
+							if (modelJson["direction"].toString() == "inSignal")
+							{
+								if (value.empty())
+								{
+									value = "signal";
+								}
+								schemeSignalEntryModules[key] = value;
+							}
+							else if (modelJson["direction"].toString() == "outSignal")
+							{
+								if (value.empty())
+								{
+									value = "signal";
+								}
+								schemeSignalExitModules[key] = value;
+							}
+							else if (modelJson["direction"].toString() == "inMemory")
+							{
+								auto portType = modelJson["portType"].toString().toStdString();
+								if (value.empty())
+								{
+									value = portType;
+								}
+								schemeMemoryEntryModules[key] = value;
+							}
+							else if (modelJson["direction"].toString() == "outMemory")
+							{
+								auto portType = modelJson["portType"].toString().toStdString();
+								if (value.empty())
+								{
+									value = portType;
+								}
+								schemeMemoryExitModules[key] = value;
+							}
 						}
 					}
 				}
@@ -337,36 +379,31 @@ public:
 						auto key = std::make_tuple(outModuleJson["libraryName"].toString().toStdString(),
 						                           outModuleJson["rootModuleName"].toString().toStdString(),
 						                           connectionJson["out_portName"].toString().toStdString());
-						auto value = moduleIds[connectionJson["in_id"].toString()];
+						auto value = std::make_tuple(moduleIds[connectionJson["in_id"].toString()],
+						                             connectionJson["in_portName"].toString().toStdString());
 						rootMemoryExitFlows[key] = value;
 					}
-					else if (outModuleJson["moduleTypeName"].toString() == "memory" &&
-					         inModuleJson["moduleTypeName"].toString() != "memory")
+					else
 					{
-						auto key = std::make_tuple(moduleIds[connectionJson["in_id"].toString()],
-						                           connectionJson["in_portName"].toString().toStdString());
-						auto value = moduleIds[connectionJson["out_id"].toString()];
-						memoryEntryFlows[key] = value;
-					}
-					else if (outModuleJson["moduleTypeName"].toString() != "memory" &&
-					         inModuleJson["moduleTypeName"].toString() == "memory")
-					{
-						auto key = std::make_tuple(moduleIds[connectionJson["out_id"].toString()],
-						                           connectionJson["out_portName"].toString().toStdString());
-						auto value = moduleIds[connectionJson["in_id"].toString()];
-						memoryExitFlows[key] = value;
+						memoryFlows.emplace_back(std::make_tuple(moduleIds[connectionJson["out_id"].toString()],
+						                         connectionJson["out_portName"].toString().toStdString(),
+						                         moduleIds[connectionJson["in_id"].toString()],
+						                         connectionJson["in_portName"].toString().toStdString()));
 					}
 				}
 			}
 
 			stream.push(memories);
 			stream.push(modules);
-//			stream.push(customModules);
+			stream.push(customModules);
+			stream.push(schemeSignalEntryModules);
+			stream.push(schemeSignalExitModules);
+			stream.push(schemeMemoryEntryModules);
+			stream.push(schemeMemoryExitModules);
 			stream.push(rootSignalFlows);
 			stream.push(rootMemoryExitFlows);
 			stream.push(signalFlows);
-			stream.push(memoryEntryFlows);
-			stream.push(memoryExitFlows);
+			stream.push(memoryFlows);
 			stream.push(memoryModuleVariables);
 		}
 
@@ -1161,7 +1198,9 @@ private:
 		QJsonObject save() const override
 		{
 			QJsonObject jsonObject = NodeDataModel::save();
+			jsonObject["moduleTypeName"] = QString::fromUtf8(modelData.moduleTypeName.value.c_str());
 			jsonObject["portName"] = lineEdit->text();
+			jsonObject["direction"] = (direction == PortType::Out ? "inSignal" : "outSignal");
 			return jsonObject;
 		}
 
@@ -1194,6 +1233,13 @@ private:
 		const void* getData() const override
 		{
 			return &modelData;
+		}
+
+		const bool canConnect(PortType portType,
+		                      NodeDataModel* model,
+		                      NodeDataType nodeDataType) const override
+		{
+			return true;
 		}
 
 	public:
@@ -1301,8 +1347,10 @@ private:
 		QJsonObject save() const override
 		{
 			QJsonObject jsonObject = NodeDataModel::save();
+			jsonObject["moduleTypeName"] = QString::fromUtf8(modelData.moduleTypeName.value.c_str());
 			jsonObject["portName"] = lineEditName->text();
 			jsonObject["portType"] = lineEditType->text();
+			jsonObject["direction"] = (direction == PortType::Out ? "inMemory" : "outMemory");
 			return jsonObject;
 		}
 
@@ -1336,6 +1384,14 @@ private:
 		const void* getData() const override
 		{
 			return &modelData;
+		}
+
+		const bool canConnect(PortType portType,
+		                      NodeDataModel* model,
+		                      NodeDataType nodeDataType) const override
+		{
+			/** @todo */
+			return true;
 		}
 
 	public:

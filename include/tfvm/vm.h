@@ -779,6 +779,9 @@ private:
 	                                     tModuleName>,
 	                          cModule*>;
 
+	using tSchemes = std::map<tSchemeName,
+	                          cScheme*>;
+
 	using tRootSignalExits = std::map<std::tuple<tLibraryName,
 	                                             tRootModuleName,
 	                                             tSignalExitName>,
@@ -792,6 +795,7 @@ private:
 
 	const tMemoryTypes getMemoryTypes() const;
 	const tModules getModules() const;
+	const tSchemes getSchemes() const;
 	const tRootSignalExits getRootSignalExits() const;
 	const tRootMemoryExits getRootMemoryExits() const;
 
@@ -810,9 +814,6 @@ private:
 	tRootMemoryExits rootMemoryExits;
 
 private: /** load */
-	using tSchemes = std::map<tSchemeName,
-	                          cScheme*>;
-
 	tSchemes schemes;
 
 private: /** exec */
@@ -924,7 +925,7 @@ bool cVirtualMachine::loadFromMemory(const std::vector<uint8_t>& buffer)
 	{
 		std::lock_guard<std::mutex> guard(mutex);
 		currentScheme = schemes["main"]->clone();
-		if (!currentScheme->init(nullptr))
+		if (!currentScheme->init(nullptr, 0))
 		{
 			delete currentScheme;
 			currentScheme = nullptr;
@@ -955,7 +956,7 @@ bool cVirtualMachine::reload()
 	}
 
 	currentScheme = schemes["main"]->clone();
-	if (!currentScheme->init(nullptr))
+	if (!currentScheme->init(nullptr, 0))
 	{
 		delete currentScheme;
 		currentScheme = nullptr;
@@ -1253,6 +1254,11 @@ const cVirtualMachine::tModules cVirtualMachine::getModules() const
 	return modules;
 }
 
+const cVirtualMachine::tSchemes cVirtualMachine::getSchemes() const
+{
+	return schemes;
+}
+
 const cVirtualMachine::tRootSignalExits cVirtualMachine::getRootSignalExits() const
 {
 	return rootSignalExits;
@@ -1369,7 +1375,7 @@ inline bool cLibrary::isStopped() const
 	return virtualMachine->isStopped();
 }
 
-bool cScheme::init(cScheme* parentScheme)
+bool cScheme::init(cScheme* parentScheme, tModuleId parentModuleId)
 {
 #define CHECK_MAP(map, key) \
 do { \
@@ -1380,8 +1386,10 @@ do { \
 } while (0)
 
 	this->parentScheme = parentScheme;
+	this->parentModuleId = parentModuleId;
 
 	const auto virtualMachineModules = virtualMachine->getModules();
+	const auto virtualMachineSchemes = virtualMachine->getSchemes();
 
 	for (const auto& iter : loadMemories)
 	{
@@ -1425,132 +1433,183 @@ do { \
 		modules[iter.first] = module;
 	}
 
+	for (const auto& iter : loadCustomModules)
+	{
+		const tModuleId moduleId = iter.first;
+		const tSchemeName& schemeName = iter.second;
+		CHECK_MAP(virtualMachineSchemes, schemeName);
+
+		cScheme* scheme = virtualMachineSchemes.find(schemeName)->second->clone();
+		if (!scheme->init(this, moduleId))
+		{
+			delete scheme;
+			return false;
+		}
+
+		customModules[moduleId] = scheme;
+	}
+
 	for (const auto& iter : loadRootSignalFlows)
 	{
 		const auto& map = virtualMachine->getRootSignalExits();
 		auto key = iter.first;
 		CHECK_MAP(map, key);
 
-		tModuleId entryModuleId = std::get<0>(iter.second);
-		CHECK_MAP(loadModules, entryModuleId);
+		const tModuleId entryModuleId = std::get<0>(iter.second);
+		const tSignalEntryName& signalEntryName = std::get<1>(iter.second);
 
-		tSignalEntryName signalEntryName = std::get<1>(iter.second);
+		cModule* registerModule;
+		cModule* clonedModule;
+		if (!findEntryPathModule(entryModuleId,
+		                         signalEntryName,
+		                         registerModule,
+		                         clonedModule))
+		{
+			return false;
+		}
 
-		const auto& modules = virtualMachineModules;
-		auto moduleKey = loadModules.find(entryModuleId)->second;
-		CHECK_MAP(modules, moduleKey);
+		if ((!registerModule) ||
+		    (!clonedModule))
+		{
+			continue;
+		}
 
-		const auto entryModuleSignalEntries = modules.find(moduleKey)->second->getSignalEntries();
-		CHECK_MAP(entryModuleSignalEntries, signalEntryName);
-
-		const tModules& schemeModules = this->modules;
-		CHECK_MAP(schemeModules, entryModuleId);
-
-		cModule* entryModule = schemeModules.find(entryModuleId)->second;
-
-		auto rootSignalFlowValue = std::make_tuple(std::get<1>(entryModuleSignalEntries.find(signalEntryName)->second),
-		                                           entryModule);
+		auto rootSignalFlowValue = std::make_tuple(std::get<1>(registerModule->getSignalEntries().find(signalEntryName)->second),
+		                                           clonedModule);
 		rootSignalFlows[map.find(key)->second] = rootSignalFlowValue;
 	}
 
 	for (const auto& iter : loadRootMemoryExitFlows)
 	{
-		const auto rootMemoryExitKey = iter.first;
-		const tModuleId entryModuleId = iter.second;
+		CHECK_MAP(virtualMachine->getRootMemoryExits(), iter.first);
 
-		CHECK_MAP(loadMemories, entryModuleId);
-
-		CHECK_MAP(virtualMachine->getRootMemoryExits(), rootMemoryExitKey);
-		CHECK_MAP(virtualMachine->getMemoryTypes(), loadMemories.find(entryModuleId)->second);
-
-		CHECK_MAP(memories, entryModuleId);
-
-		const auto rootMemoryFlowKey = std::get<1>(virtualMachine->getRootMemoryExits().find(rootMemoryExitKey)->second);
-		const auto rootMemoryFlowValue = memories.find(entryModuleId)->second->getValue();
-
-		rootMemoryFlows[rootMemoryFlowKey] = rootMemoryFlowValue;
-	}
-
-	for (const auto& iter : loadSignalFlows)
-	{
-		const tModuleId exitModuleId = std::get<0>(iter.first);
 		const tModuleId entryModuleId = std::get<0>(iter.second);
+		const tMemoryEntryName& memoryEntryName = std::get<1>(iter.second);
 
-		CHECK_MAP(loadModules, exitModuleId);
-		CHECK_MAP(loadModules, entryModuleId);
+		void* pointer;
+		if (!findMemoryEntryPath(entryModuleId,
+		                         memoryEntryName,
+		                         pointer))
+		{
+			return false;
+		}
 
-		CHECK_MAP(virtualMachineModules, loadModules.find(exitModuleId)->second);
-		CHECK_MAP(virtualMachineModules, loadModules.find(entryModuleId)->second);
+		if (!pointer)
+		{
+			continue;
+		}
 
-		const auto& signalExits = virtualMachineModules.find(loadModules.find(exitModuleId)->second)->second->getSignalExits();
-		const auto& signalEntries = virtualMachineModules.find(loadModules.find(entryModuleId)->second)->second->getSignalEntries();
-
-		CHECK_MAP(signalExits, std::get<1>(iter.first));
-		CHECK_MAP(signalEntries, std::get<1>(iter.second));
-
-		const tSignalExitId signalExitId = signalExits.find(std::get<1>(iter.first))->second;
-		const std::tuple<tSignalEntryId,
-		                 cSignalEntry*> signalEntry = signalEntries.find(std::get<1>(iter.second))->second;
-
-		CHECK_MAP(modules, exitModuleId);
-		CHECK_MAP(modules, entryModuleId);
-
-		const auto signalFlowKey = std::make_tuple(modules.find(exitModuleId)->second, signalExitId);
-		const auto signalFlowValue = std::make_tuple(std::get<1>(signalEntry), modules.find(entryModuleId)->second);
-
-		signalFlows[signalFlowKey] = signalFlowValue;
+		const auto rootMemoryFlowsKey = std::get<1>(virtualMachine->getRootMemoryExits().find(iter.first)->second);
+		rootMemoryFlows[rootMemoryFlowsKey] = pointer;
 	}
 
-	for (const auto& iter : loadMemoryEntryFlows)
+	for (const auto& iter : loadModules)
 	{
-		const tModuleId exitModuleId = std::get<0>(iter.first);
-		const tModuleId entryModuleId = iter.second;
+		CHECK_MAP(virtualMachineModules, iter.second);
 
-		CHECK_MAP(loadModules, exitModuleId);
-		CHECK_MAP(loadMemories, entryModuleId);
+		const cModule* exitRegisterModule = virtualMachineModules.find(iter.second)->second;
 
-		CHECK_MAP(virtualMachineModules, loadModules.find(exitModuleId)->second);
-		CHECK_MAP(virtualMachine->getMemoryTypes(), loadMemories.find(entryModuleId)->second);
+		for (const auto& signalExit : exitRegisterModule->getSignalExits())
+		{
+			const auto loadSignalFlowsKey = std::make_tuple(iter.first,
+			                                                signalExit.first);
+			if (loadSignalFlows.find(loadSignalFlowsKey) == loadSignalFlows.end())
+			{
+				continue;
+			}
 
-		const auto& memoryEntries = virtualMachineModules.find(loadModules.find(exitModuleId)->second)->second->getMemoryEntries();
+			const tModuleId entryModuleId = std::get<0>(loadSignalFlows.find(loadSignalFlowsKey)->second);
+			const tSignalEntryName& signalEntryName = std::get<1>(loadSignalFlows.find(loadSignalFlowsKey)->second);
 
-		CHECK_MAP(memoryEntries, std::get<1>(iter.first));
+			cModule* entryRegisterModule;
+			cModule* entryClonedModule;
+			if (!findEntryPathModule(entryModuleId,
+			                         signalEntryName,
+			                         entryRegisterModule,
+			                         entryClonedModule))
+			{
+				return false;
+			}
 
-		const std::ptrdiff_t memoryOffset = std::get<1>(memoryEntries.find(std::get<1>(iter.first))->second);
+			if ((!entryRegisterModule) ||
+			    (!entryClonedModule))
+			{
+				continue;
+			}
 
-		CHECK_MAP(modules, exitModuleId);
-		CHECK_MAP(memories, entryModuleId);
+			CHECK_MAP(modules, iter.first);
+			CHECK_MAP(entryRegisterModule->getSignalEntries(), signalEntryName);
 
-		std::ptrdiff_t moduleMemoryPointer = (std::ptrdiff_t)modules.find(exitModuleId)->second;
-		moduleMemoryPointer += memoryOffset;
+			const auto signalFlowKey = std::make_tuple(modules.find(iter.first)->second,
+			                                           signalExit.second);
+			const auto signalFlowValue = std::make_tuple(std::get<1>(entryRegisterModule->getSignalEntries().find(signalEntryName)->second),
+			                                             entryClonedModule);
+			signalFlows[signalFlowKey] = signalFlowValue;
+		}
 
-		*(void**)moduleMemoryPointer = memories.find(entryModuleId)->second->getValue();
-	}
+		for (const auto& memoryExit : exitRegisterModule->getMemoryExits())
+		{
+			tModuleId toModuleId;
+			tMemoryEntryName toMemoryEntryName;
 
-	for (const auto& iter : loadMemoryExitFlows)
-	{
-		const tModuleId exitModuleId = std::get<0>(iter.first);
-		const tModuleId entryModuleId = iter.second;
+			if (!getMemoryModule(iter.first, memoryExit.first,
+			                     toModuleId, toMemoryEntryName))
+			{
+				continue;
+			}
 
-		CHECK_MAP(loadModules, exitModuleId);
-		CHECK_MAP(loadMemories, entryModuleId);
+			void* pointer;
+			if (!findMemoryEntryPath(toModuleId,
+			                         toMemoryEntryName,
+			                         pointer))
+			{
+				return false;
+			}
 
-		CHECK_MAP(virtualMachineModules, loadModules.find(exitModuleId)->second);
-		CHECK_MAP(virtualMachine->getMemoryTypes(), loadMemories.find(entryModuleId)->second);
+			if (!pointer)
+			{
+				continue;
+			}
 
-		const auto& memoryExits = virtualMachineModules.find(loadModules.find(exitModuleId)->second)->second->getMemoryExits();
+			CHECK_MAP(modules, iter.first);
 
-		CHECK_MAP(memoryExits, std::get<1>(iter.first));
+			std::ptrdiff_t moduleMemoryPointer = (std::ptrdiff_t)modules.find(iter.first)->second;
+			moduleMemoryPointer += std::get<1>(memoryExit.second);
 
-		const std::ptrdiff_t memoryOffset = std::get<1>(memoryExits.find(std::get<1>(iter.first))->second);
+			*(void**)moduleMemoryPointer = pointer;
+		}
 
-		CHECK_MAP(modules, exitModuleId);
-		CHECK_MAP(memories, entryModuleId);
+		for (const auto& memoryEntry : exitRegisterModule->getMemoryEntries())
+		{
+			tModuleId toModuleId;
+			tMemoryExitName toMemoryExitName;
 
-		std::ptrdiff_t moduleMemoryPointer = (std::ptrdiff_t)modules.find(exitModuleId)->second;
-		moduleMemoryPointer += memoryOffset;
+			if (!getMemoryModule(iter.first, memoryEntry.first,
+			                     toModuleId, toMemoryExitName))
+			{
+				continue;
+			}
 
-		*(void**)moduleMemoryPointer = memories.find(entryModuleId)->second->getValue();
+			void* pointer;
+			if (!findMemoryExitPath(toModuleId,
+			                         toMemoryExitName,
+			                         pointer))
+			{
+				return false;
+			}
+
+			if (!pointer)
+			{
+				continue;
+			}
+
+			CHECK_MAP(modules, iter.first);
+
+			std::ptrdiff_t moduleMemoryPointer = (std::ptrdiff_t)modules.find(iter.first)->second;
+			moduleMemoryPointer += std::get<1>(memoryEntry.second);
+
+			*(void**)moduleMemoryPointer = pointer;
+		}
 	}
 
 	for (const auto& iter : loadMemoryModuleVariables)
@@ -1574,6 +1633,235 @@ do { \
 	}
 
 	return true;
+
+#undef CHECK_MAP
+}
+
+bool cScheme::findEntryPathModule(const tModuleId entryModuleId,
+                                  const tSignalEntryName& signalEntryName,
+                                  cModule*& registerModule,
+                                  cModule*& clonedModule) const
+{
+#define CHECK_MAP(map, key) \
+do { \
+	if ((map).find(key) == (map).end()) \
+	{ \
+		return false; \
+	} \
+} while (0)
+
+	if (loadModules.find(entryModuleId) != loadModules.end())
+	{
+		CHECK_MAP(modules, entryModuleId);
+
+		const auto virtualMachineModules = virtualMachine->getModules();
+		CHECK_MAP(virtualMachineModules, loadModules.find(entryModuleId)->second);
+
+		registerModule = virtualMachineModules.find(loadModules.find(entryModuleId)->second)->second;
+		clonedModule = modules.find(entryModuleId)->second;
+
+		const auto& entryModuleSignalEntries = registerModule->getSignalEntries();
+		CHECK_MAP(entryModuleSignalEntries, signalEntryName);
+
+		return true;
+	}
+	else if (loadCustomModules.find(entryModuleId) != loadCustomModules.end())
+	{
+		CHECK_MAP(customModules, entryModuleId);
+
+		const cScheme* scheme = customModules.find(entryModuleId)->second;
+
+		tModuleId schemeEntryModuleId = scheme->findSchemeSignalEntryModule(signalEntryName.value);
+		if (!schemeEntryModuleId)
+		{
+			return false;
+		}
+
+		const tLoadSignalFlows& signalFlows = scheme->loadSignalFlows;
+		const auto signalFlowsKey = std::make_tuple(schemeEntryModuleId,
+		                                            signalEntryName.value);
+
+		if (signalFlows.find(signalFlowsKey) == signalFlows.end())
+		{
+			registerModule = nullptr;
+			clonedModule = nullptr;
+			return true;
+		}
+
+		return scheme->findEntryPathModule(std::get<0>(signalFlows.find(signalFlowsKey)->second),
+		                                   std::get<1>(signalFlows.find(signalFlowsKey)->second),
+		                                   registerModule,
+		                                   clonedModule);
+	}
+	else if (loadSchemeSignalExitModules.find(entryModuleId) != loadSchemeSignalExitModules.end())
+	{
+		if (!parentScheme)
+		{
+			return false;
+		}
+
+		const tLoadSignalFlows& signalFlows = parentScheme->loadSignalFlows;
+		const auto signalFlowsKey = std::make_tuple(parentModuleId,
+		                                            signalEntryName.value);
+
+		if (signalFlows.find(signalFlowsKey) == signalFlows.end())
+		{
+			registerModule = nullptr;
+			clonedModule = nullptr;
+			return true;
+		}
+
+		return parentScheme->findEntryPathModule(std::get<0>(signalFlows.find(signalFlowsKey)->second),
+		                                         std::get<1>(signalFlows.find(signalFlowsKey)->second),
+		                                         registerModule,
+		                                         clonedModule);
+	}
+
+	return false;
+
+#undef CHECK_MAP
+}
+
+bool cScheme::findMemoryEntryPath(const tModuleId entryModuleId,
+                                  const tMemoryEntryName& memoryEntryName,
+                                  void*& pointer) const
+{
+#define CHECK_MAP(map, key) \
+do { \
+	if ((map).find(key) == (map).end()) \
+	{ \
+		return false; \
+	} \
+} while (0)
+
+	if (loadMemories.find(entryModuleId) != loadMemories.end())
+	{
+		CHECK_MAP(memories, entryModuleId);
+
+		pointer = memories.find(entryModuleId)->second->getValue();
+
+		return true;
+	}
+	else if (loadCustomModules.find(entryModuleId) != loadCustomModules.end())
+	{
+		CHECK_MAP(customModules, entryModuleId);
+
+		const cScheme* scheme = customModules.find(entryModuleId)->second;
+
+		tModuleId schemeEntryModuleId = scheme->findSchemeMemoryEntryModule(memoryEntryName.value);
+		if (!schemeEntryModuleId)
+		{
+			return false;
+		}
+
+		tModuleId toModuleId;
+		tMemoryEntryName toMemoryEntryName;
+
+		if (!scheme->getMemoryModule(schemeEntryModuleId, memoryEntryName.value,
+		                             toModuleId, toMemoryEntryName))
+		{
+			pointer = nullptr;
+			return true;
+		}
+
+		return scheme->findMemoryEntryPath(toModuleId,
+		                                   toMemoryEntryName,
+		                                   pointer);
+	}
+	else if (loadSchemeMemoryExitModules.find(entryModuleId) != loadSchemeMemoryExitModules.end())
+	{
+		if (!parentScheme)
+		{
+			return false;
+		}
+
+		tModuleId toModuleId;
+		tMemoryEntryName toMemoryEntryName;
+
+		if (!parentScheme->getMemoryModule(parentModuleId, memoryEntryName.value,
+		                                   toModuleId, toMemoryEntryName))
+		{
+			pointer = nullptr;
+			return true;
+		}
+
+		return parentScheme->findMemoryEntryPath(toModuleId,
+		                                         toMemoryEntryName,
+		                                         pointer);
+	}
+
+	return false;
+
+#undef CHECK_MAP
+}
+
+bool cScheme::findMemoryExitPath(const tModuleId moduleId,
+                                 const tMemoryExitName& memoryExitName,
+                                 void*& pointer) const
+{
+#define CHECK_MAP(map, key) \
+do { \
+	if ((map).find(key) == (map).end()) \
+	{ \
+		return false; \
+	} \
+} while (0)
+
+	if (loadMemories.find(moduleId) != loadMemories.end())
+	{
+		CHECK_MAP(memories, moduleId);
+
+		pointer = memories.find(moduleId)->second->getValue();
+
+		return true;
+	}
+	else if (loadCustomModules.find(moduleId) != loadCustomModules.end())
+	{
+		CHECK_MAP(customModules, moduleId);
+
+		const cScheme* scheme = customModules.find(moduleId)->second;
+
+		tModuleId schemeModuleId = scheme->findSchemeMemoryExitModule(memoryExitName.value);
+		if (!schemeModuleId)
+		{
+			return false;
+		}
+
+		tModuleId toModuleId;
+		tMemoryExitName toMemoryExitName;
+		if (!scheme->getMemoryModule(schemeModuleId, memoryExitName.value,
+		                             toModuleId, toMemoryExitName))
+		{
+			pointer = nullptr;
+			return true;
+		}
+
+		return scheme->findMemoryExitPath(toModuleId,
+		                                  toMemoryExitName,
+		                                  pointer);
+	}
+	else if (loadSchemeMemoryExitModules.find(moduleId) != loadSchemeMemoryExitModules.end())
+	{
+		if (!parentScheme)
+		{
+			return false;
+		}
+
+		tModuleId toModuleId;
+		tMemoryExitName toMemoryExitName;
+		if (!parentScheme->getMemoryModule(parentModuleId, memoryExitName.value,
+		                                   toModuleId, toMemoryExitName))
+		{
+			pointer = nullptr;
+			return true;
+		}
+
+		return parentScheme->findMemoryExitPath(toModuleId,
+		                                        toMemoryExitName,
+		                                        pointer);
+	}
+
+	return false;
 
 #undef CHECK_MAP
 }

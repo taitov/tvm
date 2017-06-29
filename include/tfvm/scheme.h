@@ -27,7 +27,19 @@ public:
 	                                         tModuleName>>;
 
 	using tLoadCustomModules = std::map<tModuleId,
-	                                    tCustomModuleName>;
+	                                    tSchemeName>;
+
+	using tLoadSchemeSignalEntryModules = std::map<tModuleId,
+	                                         tSignalExitName>;
+
+	using tLoadSchemeSignalExitModules = std::map<tModuleId,
+	                                         tSignalEntryName>;
+
+	using tLoadSchemeMemoryEntryModules = std::map<tModuleId,
+	                                               tMemoryExitName>;
+
+	using tLoadSchemeMemoryExitModules = std::map<tModuleId,
+	                                              tMemoryEntryName>;
 
 	using tLoadRootSignalFlows = std::map<std::tuple<tLibraryName,
 	                                                 tRootModuleName,
@@ -38,20 +50,18 @@ public:
 	using tLoadRootMemoryExitFlows = std::map<std::tuple<tLibraryName,
 	                                                     tRootModuleName,
 	                                                     tMemoryExitName>,
-	                                          tModuleId>;
+	                                          std::tuple<tModuleId,
+	                                                     tMemoryEntryName>>;
 
 	using tLoadSignalFlows = std::map<std::tuple<tModuleId,
 	                                             tSignalExitName>,
 	                                  std::tuple<tModuleId,
 	                                             tSignalEntryName>>;
 
-	using tLoadMemoryEntryFlows = std::map<std::tuple<tModuleId,
-	                                                  tMemoryEntryName>,
-	                                       tModuleId>;
-
-	using tLoadMemoryExitFlows = std::map<std::tuple<tModuleId,
-	                                                 tMemoryExitName>,
-	                                      tModuleId>;
+	using tLoadMemoryFlows = std::vector<std::tuple<tModuleId,
+	                                                tMemoryExitName,
+	                                                tModuleId,
+	                                                tMemoryEntryName>>;
 
 	using tLoadMemoryModuleVariables = std::map<tModuleId,
 	                                            std::vector<uint8_t>>;
@@ -64,8 +74,29 @@ public:
 
 	bool read(cStreamIn& stream);
 
-	bool init(cScheme* parentScheme);
+	bool init(cScheme* parentScheme, tModuleId parentModuleId);
 
+private:
+	bool findEntryPathModule(const tModuleId entryModuleId,
+	                         const tSignalEntryName& signalEntryName,
+	                         cModule*& registerModule,
+	                         cModule*& clonedModule) const;
+
+	bool findMemoryEntryPath(const tModuleId entryModuleId,
+	                         const tMemoryEntryName& memoryEntryName,
+	                         void*& pointer) const;
+
+	bool findMemoryExitPath(const tModuleId moduleId,
+	                        const tMemoryExitName& memoryExitName,
+	                        void*& pointer) const;
+
+	tModuleId findSchemeSignalEntryModule(const tSignalExitName& signalExitName) const;
+	tModuleId findSchemeMemoryEntryModule(const tMemoryExitName& memoryExitName) const;
+	tModuleId findSchemeMemoryExitModule(const tMemoryEntryName& memoryEntryName) const;
+	bool getMemoryModule(tModuleId fromModuleId, const tMemoryEntryName& memoryEntryName,
+	                     tModuleId& toModuleId, tMemoryExitName& memoryExitName) const;
+	bool getMemoryModule(tModuleId fromModuleId, const tMemoryExitName& memoryExitName,
+	                     tModuleId& toModuleId, tMemoryEntryName& memoryEntryName) const;
 private: /** exec */
 	inline bool rootSignalFlow(tRootSignalExitId rootSignalExitId);
 
@@ -89,15 +120,20 @@ private: /** exec */
 private:
 	cVirtualMachine* virtualMachine;
 	cScheme* parentScheme;
+	tModuleId parentModuleId;
 
 private: /** load */
 	tLoadMemories loadMemories;
 	tLoadModules loadModules;
+	tLoadCustomModules loadCustomModules;
+	tLoadSchemeSignalEntryModules loadSchemeSignalEntryModules;
+	tLoadSchemeSignalExitModules loadSchemeSignalExitModules;
+	tLoadSchemeMemoryEntryModules loadSchemeMemoryEntryModules;
+	tLoadSchemeMemoryExitModules loadSchemeMemoryExitModules;
 	tLoadRootSignalFlows loadRootSignalFlows;
 	tLoadRootMemoryExitFlows loadRootMemoryExitFlows;
 	tLoadSignalFlows loadSignalFlows;
-	tLoadMemoryEntryFlows loadMemoryEntryFlows;
-	tLoadMemoryExitFlows loadMemoryExitFlows;
+	tLoadMemoryFlows loadMemoryFlows;
 	tLoadMemoryModuleVariables loadMemoryModuleVariables;
 
 private: /** init */
@@ -107,8 +143,12 @@ private: /** init */
 	using tModules = std::map<tModuleId,
 	                          cModule*>;
 
+	using tCustomModules = std::map<tModuleId,
+	                                cScheme*>;
+
 	tMemories memories;
 	tModules modules;
+	tCustomModules customModules;
 
 private: /** exec */
 	using tRootSignalFlows = std::map<tRootSignalExitId,
@@ -145,19 +185,29 @@ cScheme::~cScheme()
 	{
 		delete iter.second;
 	}
+
+	for (auto& iter : customModules)
+	{
+		delete iter.second;
+	}
 }
 
 cScheme* cScheme::clone() const
 {
 	cScheme* newScheme = new cScheme(virtualMachine);
 
+	/** @todo: delete */
 	newScheme->loadMemories = loadMemories;
 	newScheme->loadModules = loadModules;
+	newScheme->loadCustomModules = loadCustomModules;
+	newScheme->loadSchemeSignalEntryModules = loadSchemeSignalEntryModules;
+	newScheme->loadSchemeSignalExitModules = loadSchemeSignalExitModules;
+	newScheme->loadSchemeMemoryEntryModules = loadSchemeMemoryEntryModules;
+	newScheme->loadSchemeMemoryExitModules = loadSchemeMemoryExitModules;
 	newScheme->loadRootSignalFlows = loadRootSignalFlows;
 	newScheme->loadRootMemoryExitFlows = loadRootMemoryExitFlows;
 	newScheme->loadSignalFlows = loadSignalFlows;
-	newScheme->loadMemoryEntryFlows = loadMemoryEntryFlows;
-	newScheme->loadMemoryExitFlows = loadMemoryExitFlows;
+	newScheme->loadMemoryFlows = loadMemoryFlows;
 	newScheme->loadMemoryModuleVariables = loadMemoryModuleVariables;
 
 	return newScheme;
@@ -167,11 +217,15 @@ bool cScheme::read(cStreamIn& stream)
 {
 	stream.pop(loadMemories);
 	stream.pop(loadModules);
+	stream.pop(loadCustomModules);
+	stream.pop(loadSchemeSignalEntryModules);
+	stream.pop(loadSchemeSignalExitModules);
+	stream.pop(loadSchemeMemoryEntryModules);
+	stream.pop(loadSchemeMemoryExitModules);
 	stream.pop(loadRootSignalFlows);
 	stream.pop(loadRootMemoryExitFlows);
 	stream.pop(loadSignalFlows);
-	stream.pop(loadMemoryEntryFlows);
-	stream.pop(loadMemoryExitFlows);
+	stream.pop(loadMemoryFlows);
 	stream.pop(loadMemoryModuleVariables);
 
 	if (stream.isFailed())
@@ -180,6 +234,74 @@ bool cScheme::read(cStreamIn& stream)
 	}
 
 	return true;
+}
+
+tModuleId cScheme::findSchemeSignalEntryModule(const tSignalExitName& signalExitName) const
+{
+	for (const auto& iter : loadSchemeSignalEntryModules)
+	{
+		if (iter.second == signalExitName)
+		{
+			return iter.first;
+		}
+	}
+	return 0;
+}
+
+tModuleId cScheme::findSchemeMemoryEntryModule(const tMemoryExitName& memoryExitName) const
+{
+	for (const auto& iter : loadSchemeMemoryEntryModules)
+	{
+		if (iter.second == memoryExitName)
+		{
+			return iter.first;
+		}
+	}
+	return 0;
+}
+
+tModuleId cScheme::findSchemeMemoryExitModule(const tMemoryEntryName& memoryEntryName) const
+{
+	for (const auto& iter : loadSchemeMemoryExitModules)
+	{
+		if (iter.second == memoryEntryName)
+		{
+			return iter.first;
+		}
+	}
+	return 0;
+}
+
+bool cScheme::getMemoryModule(tModuleId fromModuleId, const tMemoryEntryName& memoryEntryName,
+                              tModuleId& toModuleId, tMemoryExitName& memoryExitName) const
+{
+	for (const auto& iter : loadMemoryFlows)
+	{
+		if (std::get<2>(iter) == fromModuleId &&
+		    std::get<3>(iter) == memoryEntryName)
+		{
+			toModuleId = std::get<0>(iter);
+			memoryExitName = std::get<1>(iter);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool cScheme::getMemoryModule(tModuleId fromModuleId, const tMemoryExitName& memoryExitName,
+                              tModuleId& toModuleId, tMemoryEntryName& memoryEntryName) const
+{
+	for (const auto& iter : loadMemoryFlows)
+	{
+		if (std::get<0>(iter) == fromModuleId &&
+		    std::get<1>(iter) == memoryExitName)
+		{
+			toModuleId = std::get<2>(iter);
+			memoryEntryName = std::get<3>(iter);
+			return true;
+		}
+	}
+	return false;
 }
 
 inline bool cScheme::rootSignalFlow(tRootSignalExitId rootSignalExitId)

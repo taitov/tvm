@@ -1697,12 +1697,10 @@ private: /** signalEntries */
 	{
 		if (from)
 		{
-			if (!(*from))
+			if (!!(*from))
 			{
-				return signalFlow(signalExitFalse);
+				return signalFlow(signalExitTrue);
 			}
-
-			return signalFlow(signalExitTrue);
 		}
 		return signalFlow(signalExitFalse);
 	}
