@@ -415,7 +415,7 @@
                 "variables": {
                     "value": {
                         "type": "std::string",
-                        "value": ""
+                        "value": "Your address: "
                     }
                 }
             },
@@ -484,7 +484,7 @@
                 "variables": {
                     "value": {
                         "type": "std::string",
-                        "value": ""
+                        "value": ": GET "
                     }
                 }
             },

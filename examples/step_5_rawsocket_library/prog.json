@@ -942,7 +942,7 @@
                 "variables": {
                     "value": {
                         "type": "std::string",
-                        "value": ""
+                        "value": "unknown"
                     }
                 }
             },
@@ -1004,7 +1004,7 @@
                 "variables": {
                     "value": {
                         "type": "std::string",
-                        "value": ""
+                        "value": "<br>\n"
                     }
                 }
             },
@@ -1220,7 +1220,7 @@
                 "variables": {
                     "value": {
                         "type": "std::string",
-                        "value": ""
+                        "value": " -> "
                     }
                 }
             },
@@ -1407,7 +1407,7 @@
                 "variables": {
                     "value": {
                         "type": "std::string",
-                        "value": ""
+                        "value": "interfaces:"
                     }
                 }
             },
