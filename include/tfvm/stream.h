@@ -22,38 +22,6 @@ public:
 		failed = false;
 	}
 
-	inline void pop(uint8_t& value)
-	{
-		using tType = uint8_t;
-
-		if (in.buffer.size() - in.position < sizeof(tType))
-		{
-			in.buffer.clear();
-			value = 0;
-			failed = true;
-			return;
-		}
-
-		value = *(tType*)&in.buffer[in.position];
-
-		in.position += sizeof(tType);
-	}
-	inline void pop(uint16_t& value)
-	{
-		using tType = uint16_t;
-
-		if (in.buffer.size() - in.position < sizeof(tType))
-		{
-			in.buffer.clear();
-			value = 0;
-			failed = true;
-			return;
-		}
-
-		value = *(tType*)&in.buffer[in.position];
-
-		in.position += sizeof(tType);
-	}
 	inline void pop(uint32_t& value)
 	{
 		using tType = uint32_t;
@@ -69,90 +37,6 @@ public:
 		value = *(tType*)&in.buffer[in.position];
 
 		in.position += sizeof(tType);
-	}
-	inline void pop(uint64_t& value)
-	{
-		using tType = uint64_t;
-
-		if (in.buffer.size() - in.position < sizeof(tType))
-		{
-			in.buffer.clear();
-			value = 0;
-			failed = true;
-			return;
-		}
-
-		value = *(tType*)&in.buffer[in.position];
-
-		in.position += sizeof(tType);
-	}
-	inline void pop(int8_t& value)
-	{
-		using tType = int8_t;
-
-		if (in.buffer.size() - in.position < sizeof(tType))
-		{
-			in.buffer.clear();
-			value = 0;
-			failed = true;
-			return;
-		}
-
-		value = *(tType*)&in.buffer[in.position];
-
-		in.position += sizeof(tType);
-	}
-	inline void pop(int16_t& value)
-	{
-		using tType = int16_t;
-
-		if (in.buffer.size() - in.position < sizeof(tType))
-		{
-			in.buffer.clear();
-			value = 0;
-			failed = true;
-			return;
-		}
-
-		value = *(tType*)&in.buffer[in.position];
-
-		in.position += sizeof(tType);
-	}
-	inline void pop(int32_t& value)
-	{
-		using tType = int32_t;
-
-		if (in.buffer.size() - in.position < sizeof(tType))
-		{
-			in.buffer.clear();
-			value = 0;
-			failed = true;
-			return;
-		}
-
-		value = *(tType*)&in.buffer[in.position];
-
-		in.position += sizeof(tType);
-	}
-	inline void pop(int64_t& value)
-	{
-		using tType = int64_t;
-
-		if (in.buffer.size() - in.position < sizeof(tType))
-		{
-			in.buffer.clear();
-			value = 0;
-			failed = true;
-			return;
-		}
-
-		value = *(tType*)&in.buffer[in.position];
-
-		in.position += sizeof(tType);
-	}
-	inline void pop(bool& value)
-	{
-		pop((uint8_t&)value);
 	}
 	inline void pop(char* buffer, uint64_t bufferSize)
 	{
@@ -183,6 +67,23 @@ public:
 		value.reserve(size);
 		value.resize(size);
 		pop((char*)&value[0], size);
+	}
+
+	template<typename TType>
+	inline typename std::enable_if<std::is_pod<TType>::value, void>::type
+	pop(TType& value)
+	{
+		if (in.buffer.size() - in.position < sizeof(TType))
+		{
+			in.buffer.clear();
+			value = 0;
+			failed = true;
+			return;
+		}
+
+		value = *(TType*)&in.buffer[in.position];
+
+		in.position += sizeof(TType);
 	}
 
 	template<typename TFirstType, typename TSecondType>
@@ -269,26 +170,6 @@ public:
 	{
 	}
 
-	inline void push(const uint8_t& value)
-	{
-		using tType = uint8_t;
-
-		uint64_t size = out.buffer.size();
-
-		out.buffer.resize(size + sizeof(tType));
-
-		*(tType*)(&out.buffer[size]) = value;
-	}
-	inline void push(const uint16_t& value)
-	{
-		using tType = uint16_t;
-
-		uint64_t size = out.buffer.size();
-
-		out.buffer.resize(size + sizeof(tType));
-
-		*(tType*)(&out.buffer[size]) = value;
-	}
 	inline void push(const uint32_t& value)
 	{
 		using tType = uint32_t;
@@ -298,60 +179,6 @@ public:
 		out.buffer.resize(size + sizeof(tType));
 
 		*(tType*)(&out.buffer[size]) = value;
-	}
-	inline void push(const uint64_t& value)
-	{
-		using tType = uint64_t;
-
-		uint64_t size = out.buffer.size();
-
-		out.buffer.resize(size + sizeof(tType));
-
-		*(tType*)(&out.buffer[size]) = value;
-	}
-	inline void push(const int8_t& value)
-	{
-		using tType = int8_t;
-
-		uint64_t size = out.buffer.size();
-
-		out.buffer.resize(size + sizeof(tType));
-
-		*(tType*)(&out.buffer[size]) = value;
-	}
-	inline void push(const int16_t& value)
-	{
-		using tType = int16_t;
-
-		uint64_t size = out.buffer.size();
-
-		out.buffer.resize(size + sizeof(tType));
-
-		*(tType*)(&out.buffer[size]) = value;
-	}
-	inline void push(const int32_t& value)
-	{
-		using tType = int32_t;
-
-		uint64_t size = out.buffer.size();
-
-		out.buffer.resize(size + sizeof(tType));
-
-		*(tType*)(&out.buffer[size]) = value;
-	}
-	inline void push(const int64_t& value)
-	{
-		using tType = int64_t;
-
-		uint64_t size = out.buffer.size();
-
-		out.buffer.resize(size + sizeof(tType));
-
-		*(tType*)(&out.buffer[size]) = value;
-	}
-	inline void push(const bool& value)
-	{
-		push((const uint8_t&)value);
 	}
 	inline void push(const char* buffer, uint64_t bufferSize)
 	{
@@ -372,6 +199,17 @@ public:
 		uint32_t size = value.size();
 		push(size);
 		push((char*)value.data(), size);
+	}
+
+	template<typename TType>
+	inline typename std::enable_if<std::is_pod<TType>::value, void>::type
+	push(const TType& value)
+	{
+		uint64_t size = out.buffer.size();
+
+		out.buffer.resize(size + sizeof(TType));
+
+		*(TType*)(&out.buffer[size]) = value;
 	}
 
 	template<typename TFirstType, typename TSecondType>
@@ -437,8 +275,6 @@ public:
 	}
 
 private:
-	static constexpr uint32_t chunk = 8192;
-
 	struct
 	{
 		std::vector<uint8_t> buffer;
