@@ -1136,6 +1136,12 @@ bool cVirtualMachine::registerMemoryModule(const tMemoryTypeName& memoryTypeName
 		return false;
 	}
 
+	if (module->getModuleName().value == ":null")
+	{
+		delete module;
+		return true;
+	}
+
 	const auto key = std::make_tuple(memoryTypeName,
 	                                 module->getModuleName());
 	if (memoryModules.find(key) != memoryModules.end())

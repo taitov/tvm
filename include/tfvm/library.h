@@ -267,6 +267,12 @@ bool cLibrary::registerModule(cModule* module)
 		return false;
 	}
 
+	if (module->getModuleName().value == ":null")
+	{
+		delete module;
+		return true;
+	}
+
 	if (modules.find(module->getModuleName()) != modules.end())
 	{
 		delete module;

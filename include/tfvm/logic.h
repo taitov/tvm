@@ -11,12 +11,34 @@
 namespace nVirtualMachine
 {
 
+template<class ...>
+using void_t = void;
+
 class cLogicModule: public cModule
 {
 public:
 	const tModuleTypeName getModuleTypeName() const override
 	{
 		return "logic";
+	}
+};
+
+class cLogicNull : public cLogicModule
+{
+public:
+	cLogicNull(...)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return nullptr;
+	}
+
+	bool registerModule()
+	{
+		setModuleName(":null");
+		return true;
 	}
 };
 
