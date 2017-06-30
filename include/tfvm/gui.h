@@ -231,6 +231,11 @@ public:
 			bool value = valueJson.toBool();
 			stream.push(value);
 		}
+		else if (type == "double")
+		{
+			double value = valueJson.toString().toDouble();
+			stream.push(value);
+		}
 
 		return stream.getBuffer();
 	}
@@ -513,6 +518,15 @@ public:
 			checkBox->setChecked(*value);
 			return checkBox;
 		}
+		else if (type == typeid(double))
+		{
+			double* value = (double*)defaultValue;
+
+			QLineEdit* lineEdit = new QLineEdit(QString::number(*value));
+			lineEdit->setToolTip(QString::fromUtf8(variableName.value.c_str()));
+			/** @todo: add validator */
+			return lineEdit;
+		}
 
 		return nullptr;
 	}
@@ -600,6 +614,14 @@ public:
 			json["value"] = QJsonValue(checkBox->isChecked());
 			return json;
 		}
+		else if (type == typeid(double))
+		{
+			QJsonObject json;
+			json["type"] = "double";
+			QLineEdit* lineEdit = (QLineEdit*)widget;
+			json["value"] = QJsonValue(lineEdit->text());
+			return json;
+		}
 
 		return QJsonObject();
 	}
@@ -620,7 +642,8 @@ public:
 		         type == typeid(int64_t) ||
 		         type == typeid(int32_t) ||
 		         type == typeid(int16_t) ||
-		         type == typeid(int8_t))
+		         type == typeid(int8_t) ||
+		         type == typeid(double))
 		{
 			QLineEdit* lineEdit = (QLineEdit*)widget;
 			lineEdit->setText(jsonObject["value"].toString());

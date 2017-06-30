@@ -32,6 +32,7 @@ public:
 
 	using tByte = uint8_t;
 	using tString = std::string;
+	using tFloat = double;
 
 public:
 	cBase()
@@ -210,6 +211,25 @@ public:
 		                                                     memoryIntegerTypeName,
 		                                                     "string",
 			[](tInteger* from, tString* to)
+			{
+				*to = std::to_string(*from);
+			})))
+		{
+			return false;
+		}
+
+		if (!registerMemoryStandart<tFloat>("float",
+		                                    0.0))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule("float",
+		                          new cLogicConvert<tFloat,
+		                                            tString>("toString",
+		                                                     "float",
+		                                                     "string",
+			[](tFloat* from, tString* to)
 			{
 				*to = std::to_string(*from);
 			})))

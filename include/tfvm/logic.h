@@ -1558,8 +1558,18 @@ private:
 	TType* to;
 };
 
+template<typename TType, typename = void>
+class cLogicIncrement : public cLogicNull
+{
+public:
+	cLogicIncrement(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicIncrement : public cLogicModule
+class cLogicIncrement<TType,
+                      void_t<decltype(++std::declval<TType>())>>: public cLogicModule
 {
 public:
 	cLogicIncrement(const tMemoryTypeName& memoryTypeName) :
@@ -1615,8 +1625,18 @@ private:
 	TType* to;
 };
 
+template<typename TType, typename = void>
+class cLogicDecrement : public cLogicNull
+{
+public:
+	cLogicDecrement(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicDecrement : public cLogicModule
+class cLogicDecrement<TType,
+                      void_t<decltype(--std::declval<TType>())>> : public cLogicModule
 {
 public:
 	cLogicDecrement(const tMemoryTypeName& memoryTypeName) :
@@ -2344,8 +2364,18 @@ private:
 	TType* result;
 };
 
+template<typename TType, typename = void>
+class cLogicModulo : public cLogicNull
+{
+public:
+	cLogicModulo(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicModulo : public cLogicModule
+class cLogicModulo<TType,
+                   void_t<decltype(std::declval<TType>() % std::declval<TType>())>>: public cLogicModule
 {
 public:
 	cLogicModulo(const tMemoryTypeName& memoryTypeName) :
@@ -2413,8 +2443,18 @@ private:
 	TType* result;
 };
 
+template<typename TType, typename = void>
+class cLogicBitwiseNot : public cLogicNull
+{
+public:
+	cLogicBitwiseNot(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicBitwiseNot : public cLogicModule
+class cLogicBitwiseNot<TType,
+                       void_t<decltype(~std::declval<TType>())>>: public cLogicModule
 {
 public:
 	cLogicBitwiseNot(const tMemoryTypeName& memoryTypeName) :
@@ -2476,8 +2516,18 @@ private:
 	TType* result;
 };
 
+template<typename TType, typename = void>
+class cLogicBitwiseAnd : public cLogicNull
+{
+public:
+	cLogicBitwiseAnd(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicBitwiseAnd : public cLogicModule
+class cLogicBitwiseAnd<TType,
+                       void_t<decltype(std::declval<TType>() & std::declval<TType>())>> : public cLogicModule
 {
 public:
 	cLogicBitwiseAnd(const tMemoryTypeName& memoryTypeName) :
@@ -2545,8 +2595,18 @@ private:
 	TType* result;
 };
 
+template<typename TType, typename = void>
+class cLogicBitwiseOr : public cLogicNull
+{
+public:
+	cLogicBitwiseOr(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicBitwiseOr : public cLogicModule
+class cLogicBitwiseOr<TType,
+                      void_t<decltype(std::declval<TType>() | std::declval<TType>())>> : public cLogicModule
 {
 public:
 	cLogicBitwiseOr(const tMemoryTypeName& memoryTypeName) :
@@ -2614,8 +2674,18 @@ private:
 	TType* result;
 };
 
+template<typename TType, typename = void>
+class cLogicBitwiseXor : public cLogicNull
+{
+public:
+	cLogicBitwiseXor(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicBitwiseXor : public cLogicModule
+class cLogicBitwiseXor<TType,
+                       void_t<decltype(std::declval<TType>() ^ std::declval<TType>())>> : public cLogicModule
 {
 public:
 	cLogicBitwiseXor(const tMemoryTypeName& memoryTypeName) :
@@ -2683,8 +2753,18 @@ private:
 	TType* result;
 };
 
+template<typename TType, typename = void>
+class cLogicBitwiseLeftShift : public cLogicNull
+{
+public:
+	cLogicBitwiseLeftShift(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicBitwiseLeftShift : public cLogicModule
+class cLogicBitwiseLeftShift<TType,
+                             void_t<decltype(std::declval<TType>() << std::declval<TType>())>> : public cLogicModule
 {
 public:
 	cLogicBitwiseLeftShift(const tMemoryTypeName& memoryTypeName) :
@@ -2752,8 +2832,18 @@ private:
 	TType* result;
 };
 
+template<typename TType, typename = void>
+class cLogicBitwiseRightShift : public cLogicNull
+{
+public:
+	cLogicBitwiseRightShift(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicBitwiseRightShift : public cLogicModule
+class cLogicBitwiseRightShift<TType,
+                              void_t<decltype(std::declval<TType>() >> std::declval<TType>())>> : public cLogicModule
 {
 public:
 	cLogicBitwiseRightShift(const tMemoryTypeName& memoryTypeName) :
