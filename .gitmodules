@@ -1,0 +1,3 @@
+[submodule "gui/nodeeditor"]
+	path = gui/nodeeditor
+	url = https://github.com/timonbl4/nodeeditor.git
