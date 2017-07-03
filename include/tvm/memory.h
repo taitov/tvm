@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_MEMORY_H
-#define TFVM_MEMORY_H
+#ifndef TVM_MEMORY_H
+#define TVM_MEMORY_H
 
 #include "module.h"
 
@@ -123,4 +123,4 @@ bool cMemoryVariable<TType>::setVariables(const std::vector<uint8_t>& buffer)
 
 }
 
-#endif // TFVM_MEMORY_H
+#endif // TVM_MEMORY_H

@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_TYPE_H
-#define TFVM_TYPE_H
+#ifndef TVM_TYPE_H
+#define TVM_TYPE_H
 
 #include <map>
 #include <string>
@@ -120,4 +120,4 @@ MAKE_TYPE(uint32_t, tModuleId);
 
 }
 
-#endif // TFVM_TYPE_H
+#endif // TVM_TYPE_H

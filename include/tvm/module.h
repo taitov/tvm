@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_MODULE_H
-#define TFVM_MODULE_H
+#ifndef TVM_MODULE_H
+#define TVM_MODULE_H
 
 #include <string>
 #include <vector>
@@ -306,4 +306,4 @@ bool cModule::init()
 
 }
 
-#endif // TFVM_MODULE_H
+#endif // TVM_MODULE_H

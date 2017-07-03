@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_LIBRARY_HTTPSERVER_H
-#define TFVM_LIBRARY_HTTPSERVER_H
+#ifndef TVM_LIBRARY_HTTPSERVER_H
+#define TVM_LIBRARY_HTTPSERVER_H
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,7 +12,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include <tfvm/library.h>
+#include <tvm/library.h>
 
 namespace nVirtualMachine
 {
@@ -332,7 +332,7 @@ private: /** modules */
 		bool signalEntry()
 		{
 			std::string response;
-			response = "HTTP/1.1 200 OK\r\nServer: tfvm/library/httpserver\r\n\r\n";
+			response = "HTTP/1.1 200 OK\r\nServer: tvm/library/httpserver\r\n\r\n";
 
 			response += "<HTML>";
 			response += "<HEAD><TITLE>";
@@ -392,7 +392,7 @@ private: /** modules */
 		bool signalEntry()
 		{
 			std::string response;
-			response = "HTTP/1.1 404 Not Found\r\nServer: tfvm/library/httpserver\r\n\r\n";
+			response = "HTTP/1.1 404 Not Found\r\nServer: tvm/library/httpserver\r\n\r\n";
 
 			response += "<HTML>";
 			response += "<HEAD><TITLE>404 Not Found</TITLE></HEAD>";
@@ -413,4 +413,4 @@ private: /** modules */
 
 }
 
-#endif // TFVM_LIBRARY_HTTPSERVER_H
+#endif // TVM_LIBRARY_HTTPSERVER_H

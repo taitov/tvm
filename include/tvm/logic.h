@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_LOGIC_H
-#define TFVM_LOGIC_H
+#ifndef TVM_LOGIC_H
+#define TVM_LOGIC_H
 
 #include <functional>
 
@@ -3223,4 +3223,4 @@ private:
 
 }
 
-#endif // TFVM_LOGIC_H
+#endif // TVM_LOGIC_H

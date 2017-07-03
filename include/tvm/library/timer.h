@@ -1,12 +1,12 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_LIBRARY_TIMER_H
-#define TFVM_LIBRARY_TIMER_H
+#ifndef TVM_LIBRARY_TIMER_H
+#define TVM_LIBRARY_TIMER_H
 
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <tfvm/library.h>
+#include <tvm/library.h>
 
 namespace nVirtualMachine
 {
@@ -73,4 +73,4 @@ private:
 
 }
 
-#endif // TFVM_LIBRARY_TIMER_H
+#endif // TVM_LIBRARY_TIMER_H

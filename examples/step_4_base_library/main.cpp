@@ -1,6 +1,6 @@
-#include <tfvm/vm.h>
-#include <tfvm/library/base.h>
-#include <tfvm/library/console.h>
+#include <tvm/vm.h>
+#include <tvm/library/base.h>
+#include <tvm/library/console.h>
 
 using namespace nVirtualMachine;
 
@@ -21,7 +21,7 @@ int main(int argc, char** argv, char** envp)
 		return 2;
 	}
 
-	if (!virtualMachine.loadFromFile("prog.tfvm"))
+	if (!virtualMachine.loadFromFile("prog.tvm"))
 	{
 		return 3;
 	}

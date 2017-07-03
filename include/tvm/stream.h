@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_STREAM_H
-#define TFVM_STREAM_H
+#ifndef TVM_STREAM_H
+#define TVM_STREAM_H
 
 #include <string>
 #include <vector>
@@ -283,4 +283,4 @@ private:
 
 }
 
-#endif // TFVM_STREAM_H
+#endif // TVM_STREAM_H

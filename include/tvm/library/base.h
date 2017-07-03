@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_LIBRARY_BASE_H
-#define TFVM_LIBRARY_BASE_H
+#ifndef TVM_LIBRARY_BASE_H
+#define TVM_LIBRARY_BASE_H
 
 #include <vector>
 #include <map>
@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <tfvm/library.h>
+#include <tvm/library.h>
 
 namespace nVirtualMachine
 {
@@ -470,4 +470,4 @@ private: /** modules */
 
 }
 
-#endif // TFVM_LIBRARY_BASE_H
+#endif // TVM_LIBRARY_BASE_H

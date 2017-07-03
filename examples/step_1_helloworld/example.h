@@ -1,7 +1,7 @@
 #ifndef EXAMPLE_H
 #define EXAMPLE_H
 
-#include <tfvm/library.h>
+#include <tvm/library.h>
 
 namespace nVirtualMachine
 {

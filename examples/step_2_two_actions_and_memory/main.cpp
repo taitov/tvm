@@ -1,4 +1,4 @@
-#include <tfvm/vm.h>
+#include <tvm/vm.h>
 
 #include "example.h"
 
@@ -18,7 +18,7 @@ int main(int argc, char** argv, char** envp)
 		return 2;
 	}
 
-	if (!virtualMachine.loadFromFile("prog.tfvm"))
+	if (!virtualMachine.loadFromFile("prog.tvm"))
 	{
 		return 3;
 	}

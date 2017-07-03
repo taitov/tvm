@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_GUI_H
-#define TFVM_GUI_H
+#ifndef TVM_GUI_H
+#define TVM_GUI_H
 
 #include <QtCore/QObject>
 #include <QtCore/QFileInfo>
@@ -2180,7 +2180,7 @@ private:
 		}
 
 		exportToFile(getMainFlowScene(),
-		             baseFilePath + ".tfvm");
+		             baseFilePath + ".tvm");
 	}
 
 	void openProject(const QString& filePath)
@@ -2364,7 +2364,7 @@ private slots:
 		QString filePath = QFileDialog::getOpenFileName(nullptr,
 		                                                ("Open Project"),
 		                                                QDir::homePath(),
-		                                                ("TFVM Project (*.tfvmproject)"));
+		                                                ("TVM Project (*.tvmproject)"));
 
 		if (filePath.isEmpty())
 		{
@@ -2393,7 +2393,7 @@ private slots:
 		QString filePath = QFileDialog::getSaveFileName(nullptr,
 		                                                ("Save Project"),
 		                                                QDir::homePath(),
-		                                                ("TFVM Project (*.tfvmproject)"));
+		                                                ("TVM Project (*.tvmproject)"));
 
 		if (filePath.isEmpty())
 		{
@@ -2441,4 +2441,4 @@ private:
 
 }
 
-#endif // TFVM_GUI_H
+#endif // TVM_GUI_H

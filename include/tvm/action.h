@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_ACTION_H
-#define TFVM_ACTION_H
+#ifndef TVM_ACTION_H
+#define TVM_ACTION_H
 
 #include "module.h"
 #include "signal.h"
@@ -13,4 +13,4 @@ namespace nVirtualMachine
 
 }
 
-#endif // TFVM_ACTION_H
+#endif // TVM_ACTION_H

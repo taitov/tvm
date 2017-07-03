@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_SCHEME_H
-#define TFVM_SCHEME_H
+#ifndef TVM_SCHEME_H
+#define TVM_SCHEME_H
 
 #include <vector>
 
@@ -350,4 +350,4 @@ inline bool cModule::signalFlow(tSignalExitId signalExitId)
 
 }
 
-#endif // TFVM_SCHEME_H
+#endif // TVM_SCHEME_H

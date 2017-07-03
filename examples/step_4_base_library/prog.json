@@ -343,9 +343,9 @@
         {
             "id": "{b6d3bd99-d03b-43ba-a20b-69c8d8fdf397}",
             "model": {
-                "libraryName": "tfvm",
+                "libraryName": "tvm",
                 "moduleTypeName": "root",
-                "name": "tfvm:root:schemeLoaded",
+                "name": "tvm:root:schemeLoaded",
                 "rootModuleName": "schemeLoaded",
                 "variables": {
                 }

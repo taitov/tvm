@@ -1,10 +1,10 @@
 #ifndef VIRTUALMACHINE_H
 #define VIRTUALMACHINE_H
 
-#include <tfvm/library/base.h>
-#include <tfvm/library/console.h>
-#include <tfvm/library/rawsocket.h>
-#include <tfvm/library/httpserver.h>
+#include <tvm/library/base.h>
+#include <tvm/library/console.h>
+#include <tvm/library/rawsocket.h>
+#include <tvm/library/httpserver.h>
 
 static bool registerVirtualMachine(nVirtualMachine::cVirtualMachine& virtualMachine,
                                    int argc = 0,

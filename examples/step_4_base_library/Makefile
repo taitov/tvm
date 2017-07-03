@@ -3,8 +3,8 @@ TARGET = step_4_base_library
 CC = g++
 
 VPATH := .
-VPATH += ../../include/tfvm
-VPATH += ../../include/tfvm/library
+VPATH += ../../include/tvm
+VPATH += ../../include/tvm/library
 
 SRC := $(foreach sdir,$(VPATH),$(wildcard $(sdir)/*.cpp))
 HDR := $(foreach sdir,$(VPATH),$(wildcard $(sdir)/*.h))

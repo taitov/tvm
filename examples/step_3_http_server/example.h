@@ -10,7 +10,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include <tfvm/library.h>
+#include <tvm/library.h>
 
 namespace nVirtualMachine
 {

@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_ROOT_H
-#define TFVM_ROOT_H
+#ifndef TVM_ROOT_H
+#define TVM_ROOT_H
 
 #include "type.h"
 
@@ -80,4 +80,4 @@ bool cRootModule::doRegisterModule(cLibrary* library)
 
 }
 
-#endif // TFVM_ROOT_H
+#endif // TVM_ROOT_H

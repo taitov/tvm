@@ -1,7 +1,7 @@
 // Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TFVM_VM_H
-#define TFVM_VM_H
+#ifndef TVM_VM_H
+#define TVM_VM_H
 
 #include <string>
 #include <vector>
@@ -1195,8 +1195,8 @@ bool cVirtualMachine::registerRootMemoryExit(const tLibraryName& libraryName,
 
 void cVirtualMachine::registerBuildInLibrary()
 {
-	registerRootSignalExit("tfvm", "schemeLoaded", "signal", rootSignalSchemeLoaded);
-	registerRootSignalExit("tfvm", "schemeUnload", "signal", rootSignalSchemeUnload);
+	registerRootSignalExit("tvm", "schemeLoaded", "signal", rootSignalSchemeLoaded);
+	registerRootSignalExit("tvm", "schemeUnload", "signal", rootSignalSchemeUnload);
 }
 
 bool cVirtualMachine::readScheme(cStreamIn& stream)
@@ -1888,4 +1888,4 @@ bool cModule::setVariables(const std::vector<uint8_t>& buffer)
 
 }
 
-#endif // TFVM_VM_H
+#endif // TVM_VM_H
