@@ -70,7 +70,7 @@ private:
 	TType value;
 };
 
-const cMemory::tVariables& cMemory::getVariables() const
+inline const cMemory::tVariables& cMemory::getVariables() const
 {
 	return variables;
 }

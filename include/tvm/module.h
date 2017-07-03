@@ -99,19 +99,7 @@ protected:
 
 	template<typename TObject>
 	bool registerSignalEntry(const tSignalEntryName& signalEntryName,
-	                         bool (TObject::* callback)())
-	{
-		auto key = signalEntryName;
-		if (signalEntries.find(key) != signalEntries.end())
-		{
-			return false;
-		}
-
-		tSignalEntryId signalEntryId = signalEntries.size() + 1;
-		signalEntries[key] = std::make_tuple(signalEntryId,
-		                                     new cSignalEntryObject<TObject>(callback));
-		return true;
-	}
+	                         bool (TObject::* callback)());
 
 	template<typename TType>
 	bool registerMemoryEntry(const tMemoryEntryName& memoryEntryName,
@@ -128,30 +116,12 @@ protected:
 
 	template<typename TType>
 	bool registerVariable(const tVariableName& variableName,
-	                      TType& variable)
-	{
-		if (variables.find(variableName) != variables.end())
-		{
-			return false;
-		}
-
-		variables.insert(std::make_pair(variableName,
-		                                std::make_tuple(std::type_index(typeid(TType)),
-		                                                &variable)));
-		return true;
-	}
+	                      TType& variable);
 
 	template<typename TType, typename TDefaultType>
 	bool registerVariable(const tVariableName& variableName,
 	                      TType& variable,
-	                      const TDefaultType& defaultValue)
-	{
-		variable = defaultValue;
-		return registerVariable<TType>(variableName, variable);
-	}
-
-protected: /** exec */
-	inline bool signalFlow(tSignalExitId signalExitId);
+	                      const TDefaultType& defaultValue);
 
 private:
 	bool doRegisterModule(cVirtualMachine* virtualMachine);
@@ -171,17 +141,20 @@ private:
 	tMemoryExits memoryExits;
 	tVariables variables;
 
+protected: /** exec */
+	inline bool signalFlow(tSignalExitId signalExitId);
+
 private: /** exec */
 	cScheme* scheme;
 };
 
-cModule::cModule()
+inline cModule::cModule()
 {
 	virtualMachine = nullptr;
 	scheme = nullptr;
 }
 
-cModule::~cModule()
+inline cModule::~cModule()
 {
 	for (auto& iter : signalEntries)
 	{
@@ -189,47 +162,47 @@ cModule::~cModule()
 	}
 }
 
-void cModule::setModuleName(const tModuleName& moduleName)
+inline void cModule::setModuleName(const tModuleName& moduleName)
 {
 	this->moduleName = moduleName;
 }
 
-void cModule::setCaptionName(const tCaptionName& captionName)
+inline void cModule::setCaptionName(const tCaptionName& captionName)
 {
 	this->captionName = captionName;
 }
 
-const tModuleName& cModule::getModuleName() const
+inline const tModuleName& cModule::getModuleName() const
 {
 	return moduleName;
 }
 
-const tCaptionName& cModule::getCaptionName() const
+inline const tCaptionName& cModule::getCaptionName() const
 {
 	return captionName;
 }
 
-const cModule::tSignalEntries& cModule::getSignalEntries() const
+inline const cModule::tSignalEntries& cModule::getSignalEntries() const
 {
 	return signalEntries;
 }
 
-const cModule::tMemoryEntries& cModule::getMemoryEntries() const
+inline const cModule::tMemoryEntries& cModule::getMemoryEntries() const
 {
 	return memoryEntries;
 }
 
-const cModule::tSignalExits& cModule::getSignalExits() const
+inline const cModule::tSignalExits& cModule::getSignalExits() const
 {
 	return signalExits;
 }
 
-const cModule::tMemoryExits& cModule::getMemoryExits() const
+inline const cModule::tMemoryExits& cModule::getMemoryExits() const
 {
 	return memoryExits;
 }
 
-const cModule::tVariables& cModule::getVariables() const
+inline const cModule::tVariables& cModule::getVariables() const
 {
 	return variables;
 }
@@ -250,8 +223,8 @@ bool cModule::registerMemoryEntry(const tMemoryEntryName& memoryEntryName,
 	return true;
 }
 
-bool cModule::registerSignalExit(const tSignalExitName& signalExitName,
-                                 const tSignalExitId signalExitId)
+inline bool cModule::registerSignalExit(const tSignalExitName& signalExitName,
+                                        const tSignalExitId signalExitId)
 {
 	auto key = signalExitName;
 	if (signalExits.find(key) != signalExits.end())
@@ -287,21 +260,59 @@ bool cModule::registerMemoryExit(const tMemoryExitName& memoryExitName,
 	return true;
 }
 
-bool cModule::doRegisterModule(cVirtualMachine* virtualMachine)
+inline bool cModule::doRegisterModule(cVirtualMachine* virtualMachine)
 {
 	this->virtualMachine = virtualMachine;
 	return registerModule();
 }
 
-bool cModule::doInit(cScheme* scheme)
+inline bool cModule::doInit(cScheme* scheme)
 {
 	this->scheme = scheme;
 	return init();
 }
 
-bool cModule::init()
+inline bool cModule::init()
 {
 	return true;
+}
+
+template<typename TObject>
+bool cModule::registerSignalEntry(const tSignalEntryName& signalEntryName, bool (TObject::* callback)())
+{
+	auto key = signalEntryName;
+	if (signalEntries.find(key) != signalEntries.end())
+	{
+		return false;
+	}
+
+	tSignalEntryId signalEntryId = signalEntries.size() + 1;
+	signalEntries[key] = std::make_tuple(signalEntryId,
+	                                     new cSignalEntryObject<TObject>(callback));
+	return true;
+}
+
+template<typename TType>
+bool cModule::registerVariable(const tVariableName& variableName, TType& variable)
+{
+	if (variables.find(variableName) != variables.end())
+	{
+		return false;
+	}
+
+	variables.insert(std::make_pair(variableName,
+	                                std::make_tuple(std::type_index(typeid(TType)),
+	                                                &variable)));
+	return true;
+}
+
+template<typename TType, typename TDefaultType>
+bool cModule::registerVariable(const tVariableName& variableName,
+                               TType& variable,
+                               const TDefaultType& defaultValue)
+{
+	variable = defaultValue;
+	return registerVariable<TType>(variableName, variable);
 }
 
 }

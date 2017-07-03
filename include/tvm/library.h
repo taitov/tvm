@@ -206,12 +206,12 @@ private:
 	cSimpleThread thread;
 };
 
-cLibrary::cLibrary()
+inline cLibrary::cLibrary()
 {
 	virtualMachine = nullptr;
 }
 
-cLibrary::~cLibrary()
+inline cLibrary::~cLibrary()
 {
 	for (auto& iter : modules)
 	{
@@ -219,47 +219,47 @@ cLibrary::~cLibrary()
 	}
 }
 
-void cLibrary::setLibraryName(const tLibraryName& libraryName)
+inline void cLibrary::setLibraryName(const tLibraryName& libraryName)
 {
 	this->libraryName = libraryName;
 }
 
-const tLibraryName& cLibrary::getLibraryName() const
+inline const tLibraryName& cLibrary::getLibraryName() const
 {
 	return libraryName;
 }
 
-const cLibrary::tModules& cLibrary::getModules() const
+inline const cLibrary::tModules& cLibrary::getModules() const
 {
 	return modules;
 }
 
-bool cLibrary::init()
+inline bool cLibrary::init()
 {
 	return true;
 }
 
-void cLibrary::doRun()
+inline void cLibrary::doRun()
 {
 	thread.run(this);
 }
 
-void cLibrary::run()
+inline void cLibrary::run()
 {
 }
 
-void cLibrary::wait()
+inline void cLibrary::wait()
 {
 	thread.wait();
 }
 
-bool cLibrary::doRegisterLibrary(cVirtualMachine* virtualMachine)
+inline bool cLibrary::doRegisterLibrary(cVirtualMachine* virtualMachine)
 {
 	this->virtualMachine = virtualMachine;
 	return registerLibrary();
 }
 
-bool cLibrary::registerModule(cModule* module)
+inline bool cLibrary::registerModule(cModule* module)
 {
 	if (!module->doRegisterModule(virtualMachine))
 	{
@@ -284,7 +284,7 @@ bool cLibrary::registerModule(cModule* module)
 	return true;
 }
 
-bool cLibrary::registerRootModule(cRootModule& rootModule)
+inline bool cLibrary::registerRootModule(cRootModule& rootModule)
 {
 	if (!rootModule.doRegisterModule(this))
 	{
@@ -305,17 +305,17 @@ inline void cLibrary::stop()
 {
 }
 
-bool cRootModule::registerSignalExit(const tSignalExitName& signalExitName,
-                                     tRootSignalExitId& rootSignalExitId)
+inline bool cRootModule::registerSignalExit(const tSignalExitName& signalExitName,
+                                            tRootSignalExitId& rootSignalExitId)
 {
 	return library->registerRootSignalExit(getModuleName(),
 	                                       signalExitName,
 	                                       rootSignalExitId);
 }
 
-bool cRootModule::registerMemoryExit(const tMemoryExitName& memoryExitName,
-                                     const tMemoryTypeName& memoryTypeName,
-                                     tRootMemoryExitId& rootMemoryExitId)
+inline bool cRootModule::registerMemoryExit(const tMemoryExitName& memoryExitName,
+                                            const tMemoryTypeName& memoryTypeName,
+                                            tRootMemoryExitId& rootMemoryExitId)
 {
 	return library->registerRootMemoryExit(getModuleName(),
 	                                       memoryExitName,

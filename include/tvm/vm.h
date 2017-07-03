@@ -110,15 +110,7 @@ public: /** exec */
 	inline bool rootSignalFlow(tRootSignalExitId rootSignalExitId);
 
 	template<typename TType>
-	inline void rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TType& value)
-	{
-		std::lock_guard<std::mutex> guard(mutex);
-		if (!currentScheme)
-		{
-			return;
-		}
-		currentScheme->rootSetMemory(rootMemoryExitId, value);
-	}
+	inline void rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TType& value);
 
 	inline bool isStopped() const;
 
@@ -824,14 +816,14 @@ private: /** exec */
 	tRootSignalExitId rootSignalSchemeUnload;
 };
 
-cVirtualMachine::cVirtualMachine()
+inline cVirtualMachine::cVirtualMachine()
 {
 	stopped = false;
 	currentScheme = nullptr;
 	registerBuildInLibrary();
 }
 
-cVirtualMachine::~cVirtualMachine()
+inline cVirtualMachine::~cVirtualMachine()
 {
 	stop();
 	wait();
@@ -839,7 +831,7 @@ cVirtualMachine::~cVirtualMachine()
 	unregisterLibraries();
 }
 
-void cVirtualMachine::unregisterLibraries()
+inline void cVirtualMachine::unregisterLibraries()
 {
 	for (auto& iter : libraries)
 	{
@@ -862,7 +854,7 @@ void cVirtualMachine::unregisterLibraries()
 	registerBuildInLibrary();
 }
 
-bool cVirtualMachine::init()
+inline bool cVirtualMachine::init()
 {
 	for (auto& iter : libraries)
 	{
@@ -875,7 +867,7 @@ bool cVirtualMachine::init()
 	return true;
 }
 
-bool cVirtualMachine::loadFromFile(const std::string& filePath)
+inline bool cVirtualMachine::loadFromFile(const std::string& filePath)
 {
 	std::ifstream fileStream(filePath, std::ifstream::binary);
 	if (!fileStream.is_open())
@@ -889,7 +881,7 @@ bool cVirtualMachine::loadFromFile(const std::string& filePath)
 	return loadFromMemory(buffer);
 }
 
-bool cVirtualMachine::loadFromMemory(const std::vector<uint8_t>& buffer)
+inline bool cVirtualMachine::loadFromMemory(const std::vector<uint8_t>& buffer)
 {
 	unload();
 
@@ -938,7 +930,7 @@ bool cVirtualMachine::loadFromMemory(const std::vector<uint8_t>& buffer)
 	return true;
 }
 
-bool cVirtualMachine::reload()
+inline bool cVirtualMachine::reload()
 {
 	std::lock_guard<std::mutex> guard(mutex);
 
@@ -968,7 +960,7 @@ bool cVirtualMachine::reload()
 	return true;
 }
 
-void cVirtualMachine::unload()
+inline void cVirtualMachine::unload()
 {
 	std::lock_guard<std::mutex> guard(mutex);
 
@@ -987,7 +979,7 @@ void cVirtualMachine::unload()
 	schemes.clear();
 }
 
-void cVirtualMachine::run()
+inline void cVirtualMachine::run()
 {
 	stopped = false;
 
@@ -997,7 +989,7 @@ void cVirtualMachine::run()
 	}
 }
 
-void cVirtualMachine::wait()
+inline void cVirtualMachine::wait()
 {
 	for (auto& iter : libraries)
 	{
@@ -1005,7 +997,7 @@ void cVirtualMachine::wait()
 	}
 }
 
-void cVirtualMachine::stop()
+inline void cVirtualMachine::stop()
 {
 	if (!stopped)
 	{
@@ -1021,7 +1013,7 @@ void cVirtualMachine::stop()
 	}
 }
 
-const cVirtualMachine::tGuiMemoryTypes cVirtualMachine::getGuiMemoryTypes() const
+inline const cVirtualMachine::tGuiMemoryTypes cVirtualMachine::getGuiMemoryTypes() const
 {
 	tGuiMemoryTypes guiMemoryTypes;
 
@@ -1033,7 +1025,7 @@ const cVirtualMachine::tGuiMemoryTypes cVirtualMachine::getGuiMemoryTypes() cons
 	return guiMemoryTypes;
 }
 
-const cVirtualMachine::tGuiRootModules cVirtualMachine::getGuiRootModules() const
+inline const cVirtualMachine::tGuiRootModules cVirtualMachine::getGuiRootModules() const
 {
 	tGuiRootModules guiRootModules;
 
@@ -1056,7 +1048,7 @@ const cVirtualMachine::tGuiRootModules cVirtualMachine::getGuiRootModules() cons
 	return guiRootModules;
 }
 
-const cVirtualMachine::tGuiModules cVirtualMachine::getGuiModules() const
+inline const cVirtualMachine::tGuiModules cVirtualMachine::getGuiModules() const
 {
 	tGuiModules guiModules;
 
@@ -1073,7 +1065,7 @@ const cVirtualMachine::tGuiModules cVirtualMachine::getGuiModules() const
 	return guiModules;
 }
 
-const cVirtualMachine::tGuiMemoryModules cVirtualMachine::getGuiMemoryModules() const
+inline const cVirtualMachine::tGuiMemoryModules cVirtualMachine::getGuiMemoryModules() const
 {
 	tGuiMemoryModules guiMemoryModules;
 
@@ -1102,7 +1094,7 @@ inline bool cVirtualMachine::isStopped() const
 	return stopped;
 }
 
-bool cVirtualMachine::registerLibrary(cLibrary* library)
+inline bool cVirtualMachine::registerLibrary(cLibrary* library)
 {
 	if (!library->doRegisterLibrary(this))
 	{
@@ -1127,8 +1119,8 @@ bool cVirtualMachine::registerLibrary(cLibrary* library)
 	return true;
 }
 
-bool cVirtualMachine::registerMemoryModule(const tMemoryTypeName& memoryTypeName,
-                                           cModule* module)
+inline bool cVirtualMachine::registerMemoryModule(const tMemoryTypeName& memoryTypeName,
+                                                  cModule* module)
 {
 	if (!module->doRegisterModule(this))
 	{
@@ -1155,10 +1147,10 @@ bool cVirtualMachine::registerMemoryModule(const tMemoryTypeName& memoryTypeName
 	return true;
 }
 
-bool cVirtualMachine::registerRootSignalExit(const tLibraryName& libraryName,
-                                             const tRootModuleName& rootModuleName,
-                                             const tSignalExitName& signalExitName,
-                                             tRootSignalExitId& rootSignalExitId)
+inline bool cVirtualMachine::registerRootSignalExit(const tLibraryName& libraryName,
+                                                    const tRootModuleName& rootModuleName,
+                                                    const tSignalExitName& signalExitName,
+                                                    tRootSignalExitId& rootSignalExitId)
 {
 	auto key = std::make_tuple(libraryName,
 	                           rootModuleName,
@@ -1173,11 +1165,11 @@ bool cVirtualMachine::registerRootSignalExit(const tLibraryName& libraryName,
 	return true;
 }
 
-bool cVirtualMachine::registerRootMemoryExit(const tLibraryName& libraryName,
-                                             const tRootModuleName& rootModuleName,
-                                             const tMemoryExitName& memoryExitName,
-                                             const tMemoryTypeName& memoryTypeName,
-                                             tRootMemoryExitId& rootMemoryExitId)
+inline bool cVirtualMachine::registerRootMemoryExit(const tLibraryName& libraryName,
+                                                    const tRootModuleName& rootModuleName,
+                                                    const tMemoryExitName& memoryExitName,
+                                                    const tMemoryTypeName& memoryTypeName,
+                                                    tRootMemoryExitId& rootMemoryExitId)
 {
 	auto key = std::make_tuple(libraryName,
 	                           rootModuleName,
@@ -1193,13 +1185,13 @@ bool cVirtualMachine::registerRootMemoryExit(const tLibraryName& libraryName,
 	return true;
 }
 
-void cVirtualMachine::registerBuildInLibrary()
+inline void cVirtualMachine::registerBuildInLibrary()
 {
 	registerRootSignalExit("tvm", "schemeLoaded", "signal", rootSignalSchemeLoaded);
 	registerRootSignalExit("tvm", "schemeUnload", "signal", rootSignalSchemeUnload);
 }
 
-bool cVirtualMachine::readScheme(cStreamIn& stream)
+inline bool cVirtualMachine::readScheme(cStreamIn& stream)
 {
 	tSchemeName schemeName;
 	stream.pop(schemeName);
@@ -1231,12 +1223,12 @@ bool cVirtualMachine::readScheme(cStreamIn& stream)
 	return true;
 }
 
-const cVirtualMachine::tMemoryTypes cVirtualMachine::getMemoryTypes() const
+inline const cVirtualMachine::tMemoryTypes cVirtualMachine::getMemoryTypes() const
 {
 	return memoryTypes;
 }
 
-const cVirtualMachine::tModules cVirtualMachine::getModules() const
+inline const cVirtualMachine::tModules cVirtualMachine::getModules() const
 {
 	tModules modules;
 
@@ -1260,17 +1252,17 @@ const cVirtualMachine::tModules cVirtualMachine::getModules() const
 	return modules;
 }
 
-const cVirtualMachine::tSchemes cVirtualMachine::getSchemes() const
+inline const cVirtualMachine::tSchemes cVirtualMachine::getSchemes() const
 {
 	return schemes;
 }
 
-const cVirtualMachine::tRootSignalExits cVirtualMachine::getRootSignalExits() const
+inline const cVirtualMachine::tRootSignalExits cVirtualMachine::getRootSignalExits() const
 {
 	return rootSignalExits;
 }
 
-const cVirtualMachine::tRootMemoryExits cVirtualMachine::getRootMemoryExits() const
+inline const cVirtualMachine::tRootMemoryExits cVirtualMachine::getRootMemoryExits() const
 {
 	return rootMemoryExits;
 }
@@ -1287,7 +1279,7 @@ bool cLibrary::registerMemory(const tMemoryTypeName& memoryTypeName, const TType
 	return virtualMachine->registerMemory<TType>(memoryTypeName, value);
 }
 
-bool cLibrary::registerMemoryModule(const tMemoryTypeName& memoryTypeName, cModule* module)
+inline bool cLibrary::registerMemoryModule(const tMemoryTypeName& memoryTypeName, cModule* module)
 {
 	return virtualMachine->registerMemoryModule(memoryTypeName,
 	                                            module);
@@ -1343,9 +1335,9 @@ bool cLibrary::registerMemoryTuple(tMemoryTypeName memoryTypeNameTuple,
 	                                                       memoryTypeNames);
 }
 
-bool cLibrary::registerRootSignalExit(const tRootModuleName& rootModuleName,
-                                      const tSignalExitName& signalExitName,
-                                      tRootSignalExitId& rootSignalExitId)
+inline bool cLibrary::registerRootSignalExit(const tRootModuleName& rootModuleName,
+                                             const tSignalExitName& signalExitName,
+                                             tRootSignalExitId& rootSignalExitId)
 {
 	return virtualMachine->registerRootSignalExit(getLibraryName(),
 	                                              rootModuleName,
@@ -1353,10 +1345,10 @@ bool cLibrary::registerRootSignalExit(const tRootModuleName& rootModuleName,
 	                                              rootSignalExitId);
 }
 
-bool cLibrary::registerRootMemoryExit(const tRootModuleName& rootModuleName,
-                                      const tMemoryExitName& memoryExitName,
-                                      const tMemoryTypeName& memoryTypeName,
-                                      tRootMemoryExitId& rootMemoryExitId)
+inline bool cLibrary::registerRootMemoryExit(const tRootModuleName& rootModuleName,
+                                             const tMemoryExitName& memoryExitName,
+                                             const tMemoryTypeName& memoryTypeName,
+                                             tRootMemoryExitId& rootMemoryExitId)
 {
 	return virtualMachine->registerRootMemoryExit(getLibraryName(),
 	                                              rootModuleName,
@@ -1381,7 +1373,7 @@ inline bool cLibrary::isStopped() const
 	return virtualMachine->isStopped();
 }
 
-bool cScheme::init(cScheme* parentScheme, tModuleId parentModuleId)
+inline bool cScheme::init(cScheme* parentScheme, tModuleId parentModuleId)
 {
 #define CHECK_MAP(map, key) \
 do { \
@@ -1643,10 +1635,10 @@ do { \
 #undef CHECK_MAP
 }
 
-bool cScheme::findEntryPathModule(const tModuleId entryModuleId,
-                                  const tSignalEntryName& signalEntryName,
-                                  cModule*& registerModule,
-                                  cModule*& clonedModule) const
+inline bool cScheme::findEntryPathModule(const tModuleId entryModuleId,
+                                         const tSignalEntryName& signalEntryName,
+                                         cModule*& registerModule,
+                                         cModule*& clonedModule) const
 {
 #define CHECK_MAP(map, key) \
 do { \
@@ -1728,9 +1720,9 @@ do { \
 #undef CHECK_MAP
 }
 
-bool cScheme::findMemoryEntryPath(const tModuleId entryModuleId,
-                                  const tMemoryEntryName& memoryEntryName,
-                                  void*& pointer) const
+inline bool cScheme::findMemoryEntryPath(const tModuleId entryModuleId,
+                                         const tMemoryEntryName& memoryEntryName,
+                                         void*& pointer) const
 {
 #define CHECK_MAP(map, key) \
 do { \
@@ -1801,9 +1793,9 @@ do { \
 #undef CHECK_MAP
 }
 
-bool cScheme::findMemoryExitPath(const tModuleId moduleId,
-                                 const tMemoryExitName& memoryExitName,
-                                 void*& pointer) const
+inline bool cScheme::findMemoryExitPath(const tModuleId moduleId,
+                                        const tMemoryExitName& memoryExitName,
+                                        void*& pointer) const
 {
 #define CHECK_MAP(map, key) \
 do { \
@@ -1872,7 +1864,7 @@ do { \
 #undef CHECK_MAP
 }
 
-bool cModule::setVariables(const std::vector<uint8_t>& buffer)
+inline bool cModule::setVariables(const std::vector<uint8_t>& buffer)
 {
 	cStreamIn stream(buffer);
 
@@ -1884,6 +1876,17 @@ bool cModule::setVariables(const std::vector<uint8_t>& buffer)
 	}
 
 	return true;
+}
+
+template<typename TType>
+void cVirtualMachine::rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TType& value)
+{
+	std::lock_guard<std::mutex> guard(mutex);
+	if (!currentScheme)
+	{
+		return;
+	}
+	currentScheme->rootSetMemory(rootMemoryExitId, value);
 }
 
 }

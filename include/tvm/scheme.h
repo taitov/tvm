@@ -97,25 +97,6 @@ private:
 	                     tModuleId& toModuleId, tMemoryExitName& memoryExitName) const;
 	bool getMemoryModule(tModuleId fromModuleId, const tMemoryExitName& memoryExitName,
 	                     tModuleId& toModuleId, tMemoryEntryName& memoryEntryName) const;
-private: /** exec */
-	inline bool rootSignalFlow(tRootSignalExitId rootSignalExitId);
-
-	template<typename TType>
-	inline void rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TType& value)
-	{
-		auto iter = rootMemoryFlows.find(rootMemoryExitId);
-		if (iter != rootMemoryFlows.end())
-		{
-			*(TType*)iter->second = value;
-		}
-
-		if (parentScheme)
-		{
-			parentScheme->rootSetMemory(rootMemoryExitId, value);
-		}
-	}
-
-	inline bool signalFlow(cModule* fromModule, tSignalExitId fromSignalExit);
 
 private:
 	cVirtualMachine* virtualMachine;
@@ -151,6 +132,14 @@ private: /** init */
 	tCustomModules customModules;
 
 private: /** exec */
+	inline bool rootSignalFlow(tRootSignalExitId rootSignalExitId);
+
+	template<typename TType>
+	inline void rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TType& value);
+
+	inline bool signalFlow(cModule* fromModule, tSignalExitId fromSignalExit);
+
+private: /** exec */
 	using tRootSignalFlows = std::map<tRootSignalExitId,
 	                                  std::tuple<cSignalEntry*,
 	                                             void*>>;
@@ -168,13 +157,13 @@ private: /** exec */
 	tSignalFlows signalFlows;
 };
 
-cScheme::cScheme(cVirtualMachine* virtualMachine)
+inline cScheme::cScheme(cVirtualMachine* virtualMachine)
 {
 	this->virtualMachine = virtualMachine;
 	parentScheme = nullptr;
 }
 
-cScheme::~cScheme()
+inline cScheme::~cScheme()
 {
 	for (auto& iter : memories)
 	{
@@ -192,7 +181,7 @@ cScheme::~cScheme()
 	}
 }
 
-cScheme* cScheme::clone() const
+inline cScheme* cScheme::clone() const
 {
 	cScheme* newScheme = new cScheme(virtualMachine);
 
@@ -213,7 +202,7 @@ cScheme* cScheme::clone() const
 	return newScheme;
 }
 
-bool cScheme::read(cStreamIn& stream)
+inline bool cScheme::read(cStreamIn& stream)
 {
 	stream.pop(loadMemories);
 	stream.pop(loadModules);
@@ -236,7 +225,7 @@ bool cScheme::read(cStreamIn& stream)
 	return true;
 }
 
-tModuleId cScheme::findSchemeSignalEntryModule(const tSignalExitName& signalExitName) const
+inline tModuleId cScheme::findSchemeSignalEntryModule(const tSignalExitName& signalExitName) const
 {
 	for (const auto& iter : loadSchemeSignalEntryModules)
 	{
@@ -248,7 +237,7 @@ tModuleId cScheme::findSchemeSignalEntryModule(const tSignalExitName& signalExit
 	return 0;
 }
 
-tModuleId cScheme::findSchemeMemoryEntryModule(const tMemoryExitName& memoryExitName) const
+inline tModuleId cScheme::findSchemeMemoryEntryModule(const tMemoryExitName& memoryExitName) const
 {
 	for (const auto& iter : loadSchemeMemoryEntryModules)
 	{
@@ -260,7 +249,7 @@ tModuleId cScheme::findSchemeMemoryEntryModule(const tMemoryExitName& memoryExit
 	return 0;
 }
 
-tModuleId cScheme::findSchemeMemoryExitModule(const tMemoryEntryName& memoryEntryName) const
+inline tModuleId cScheme::findSchemeMemoryExitModule(const tMemoryEntryName& memoryEntryName) const
 {
 	for (const auto& iter : loadSchemeMemoryExitModules)
 	{
@@ -272,8 +261,8 @@ tModuleId cScheme::findSchemeMemoryExitModule(const tMemoryEntryName& memoryEntr
 	return 0;
 }
 
-bool cScheme::getMemoryModule(tModuleId fromModuleId, const tMemoryEntryName& memoryEntryName,
-                              tModuleId& toModuleId, tMemoryExitName& memoryExitName) const
+inline bool cScheme::getMemoryModule(tModuleId fromModuleId, const tMemoryEntryName& memoryEntryName,
+                                     tModuleId& toModuleId, tMemoryExitName& memoryExitName) const
 {
 	for (const auto& iter : loadMemoryFlows)
 	{
@@ -288,8 +277,8 @@ bool cScheme::getMemoryModule(tModuleId fromModuleId, const tMemoryEntryName& me
 	return false;
 }
 
-bool cScheme::getMemoryModule(tModuleId fromModuleId, const tMemoryExitName& memoryExitName,
-                              tModuleId& toModuleId, tMemoryEntryName& memoryEntryName) const
+inline bool cScheme::getMemoryModule(tModuleId fromModuleId, const tMemoryExitName& memoryExitName,
+                                     tModuleId& toModuleId, tMemoryEntryName& memoryEntryName) const
 {
 	for (const auto& iter : loadMemoryFlows)
 	{
@@ -346,6 +335,21 @@ inline bool cScheme::signalFlow(cModule* fromModule, tSignalExitId fromSignalExi
 inline bool cModule::signalFlow(tSignalExitId signalExitId)
 {
 	return scheme->signalFlow(this, signalExitId);
+}
+
+template<typename TType>
+inline void cScheme::rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TType& value)
+{
+	auto iter = rootMemoryFlows.find(rootMemoryExitId);
+	if (iter != rootMemoryFlows.end())
+	{
+		*(TType*)iter->second = value;
+	}
+
+	if (parentScheme)
+	{
+		parentScheme->rootSetMemory(rootMemoryExitId, value);
+	}
 }
 
 }

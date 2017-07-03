@@ -49,30 +49,30 @@ private:
 	tRootModuleName rootModuleName;
 };
 
-cRootModule::cRootModule()
+inline cRootModule::cRootModule()
 {
 }
 
-cRootModule::~cRootModule()
+inline cRootModule::~cRootModule()
 {
 }
 
-const tRootModuleName& cRootModule::getModuleName() const
+inline const tRootModuleName& cRootModule::getModuleName() const
 {
 	return rootModuleName;
 }
 
-const tModuleTypeName cRootModule::getModuleTypeName() const
+inline const tModuleTypeName cRootModule::getModuleTypeName() const
 {
 	return "root";
 }
 
-void cRootModule::setModuleName(const tRootModuleName& rootModuleName)
+inline void cRootModule::setModuleName(const tRootModuleName& rootModuleName)
 {
 	this->rootModuleName = rootModuleName;
 }
 
-bool cRootModule::doRegisterModule(cLibrary* library)
+inline bool cRootModule::doRegisterModule(cLibrary* library)
 {
 	this->library = library;
 	return registerModule();
