@@ -1,6 +1,7 @@
 #include "project.h"
 #include "flowscene.h"
 #include "flowview.h"
+#include "toolboxmodules.h"
 
 using namespace nVirtualMachine::nGui;
 
@@ -17,9 +18,9 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine) :
 		layout->setContentsMargins(0, 0, 0, 0);
 		layout->setSpacing(0);
 
-		{ /** tree view */
-//			treeView = new cTreeViewModules(virtualMachine);
-//			layout->addWidget(treeView);
+		{ /** tool box */
+			toolBox = new cToolBoxModulesWidget();
+			layout->addWidget(toolBox);
 		}
 
 		QWidget* widget = new QWidget();

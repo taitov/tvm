@@ -14,6 +14,7 @@ namespace nGui
 
 class cFlowViewWidget;
 class cFlowSceneWidget;
+class cToolBoxModulesWidget;
 
 class cProjectWidget : public QWidget
 {
@@ -24,7 +25,7 @@ private:
 	const cVirtualMachine* virtualMachine;
 	QString filePath;
 
-//	cTreeViewModules* treeView;
+	cToolBoxModulesWidget* toolBox;
 	cFlowSceneWidget* flowScene;
 	cFlowViewWidget* flowView;
 };
