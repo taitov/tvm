@@ -18,8 +18,18 @@ class cToolBoxModulesWidget;
 
 class cProjectWidget : public QWidget
 {
+	Q_OBJECT
+
 public:
 	cProjectWidget(const cVirtualMachine* virtualMachine);
+
+	bool save();
+
+private:
+	bool saveProject(const QString& filePath);
+
+Q_SIGNALS:
+	void projectNameChanged(QString projectName);
 
 private:
 	const cVirtualMachine* virtualMachine;

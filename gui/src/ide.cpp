@@ -21,8 +21,10 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 		fileMenu->addSeparator();
 		auto openAction = fileMenu->addAction(QIcon::fromTheme("document-open"), "&Open");
 		fileMenu->addSeparator();
-		auto saveAction = fileMenu->addAction(QIcon::fromTheme("document-save"), "Save");
-		auto saveAsAction = fileMenu->addAction(QIcon::fromTheme("document-save-as"), "Save &As");
+		saveAction = fileMenu->addAction(QIcon::fromTheme("document-save"), "Save");
+		saveAction->setEnabled(false);
+		saveAsAction = fileMenu->addAction(QIcon::fromTheme("document-save-as"), "Save &As");
+		saveAsAction->setEnabled(false);
 		auto saveAllAction = fileMenu->addAction("&Save All");
 		fileMenu->addSeparator();
 		auto quitAction = fileMenu->addAction(QIcon::fromTheme("window-close"), "&Quit");
@@ -59,6 +61,16 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 		{
 			projectsWidget->newProject();
 			stackedWidget->setCurrentWidget(projectsWidget);
+		});
+
+		connect(saveAction, &QAction::triggered,
+		        this, [this]
+		{
+			QWidget* widget = stackedWidget->currentWidget();
+			if (widget == projectsWidget)
+			{
+				projectsWidget->save();
+			}
 		});
 
 		connect(quitAction, &QAction::triggered,
@@ -137,6 +149,20 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 				stackedWidget->addWidget(debugWidget);
 			}
 
+			connect(stackedWidget, &QStackedWidget::currentChanged, this, [this](int index)
+			{
+				saveAction->setEnabled(false);
+				saveAsAction->setEnabled(false);
+
+				QWidget* widget = stackedWidget->widget(index);
+				if (widget == projectsWidget)
+				{
+					saveAction->setEnabled(true);
+					saveAsAction->setEnabled(true);
+				}
+			});
+
+			stackedWidget->setCurrentWidget(welcomeWidget);
 			bodyLayout->addWidget(stackedWidget);
 		}
 
@@ -149,6 +175,12 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 
 void cIdeWidget::closeEvent(QCloseEvent* event)
 {
-	/** @todo */
-	event->accept();
+	if (projectsWidget->saveAllProjects())
+	{
+		event->accept();
+	}
+	else
+	{
+		event->ignore();
+	}
 }

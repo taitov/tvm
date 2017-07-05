@@ -19,6 +19,8 @@ public:
 	cProjectsWidget(const cVirtualMachine* virtualMachine);
 
 	void newProject();
+	bool save();
+	bool saveAllProjects();
 
 private:
 	const cVirtualMachine* virtualMachine;

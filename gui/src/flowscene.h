@@ -13,6 +13,8 @@ namespace nGui
 
 class cFlowSceneWidget : public QtNodes::FlowScene
 {
+	using DataModelRegistry = QtNodes::DataModelRegistry;
+
 public:
 	cFlowSceneWidget(const cVirtualMachine* virtualMachine);
 

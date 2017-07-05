@@ -42,6 +42,9 @@ private:
 	cProjectsWidget* projectsWidget;
 	QWidget* customsWidget;
 	QWidget* debugWidget;
+
+	QAction* saveAction;
+	QAction* saveAsAction;
 };
 
 }
