@@ -1,3 +1,7 @@
+#include <QtCore/QDir>
+
+#include <QtWidgets/QFileDialog>
+
 #include "ide.h"
 #include "projects.h"
 
@@ -63,6 +67,29 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			stackedWidget->setCurrentWidget(projectsWidget);
 		});
 
+		connect(openAction, &QAction::triggered,
+		        this, [this]
+		{
+			QString filePath = QFileDialog::getOpenFileName(nullptr,
+			                                                ("Open"),
+			                                                QDir::homePath(), /**< @todo */
+			                                                ("All Files (*.tvmproject *.tvmcustom);;TVM Project (*.tvmproject);;TVM Custom Module (*.tvmcustom)"));
+
+			if (filePath.isEmpty())
+			{
+				return;
+			}
+
+			if (filePath.endsWith(".tvmproject", Qt::CaseInsensitive))
+			{
+				if (projectsWidget->open(filePath))
+				{
+					stackedWidget->setCurrentWidget(projectsWidget);
+				}
+				return;
+			}
+		});
+
 		connect(saveAction, &QAction::triggered,
 		        this, [this]
 		{
@@ -70,6 +97,16 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			if (widget == projectsWidget)
 			{
 				projectsWidget->save();
+			}
+		});
+
+		connect(saveAsAction, &QAction::triggered,
+		        this, [this]
+		{
+			QWidget* widget = stackedWidget->currentWidget();
+			if (widget == projectsWidget)
+			{
+				projectsWidget->saveAs();
 			}
 		});
 

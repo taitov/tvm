@@ -83,6 +83,37 @@ bool cProjectWidget::save()
 	return saveProject(filePath);
 }
 
+bool cProjectWidget::saveAs()
+{
+	QString filePath = QFileDialog::getSaveFileName(nullptr,
+	                                                ("Save As Project"),
+	                                                QDir::homePath(), /**< @todo: last dir */
+	                                                ("TVM Project (*.tvmproject)"));
+
+	if (filePath.isEmpty())
+	{
+		return false;
+	}
+
+	if (!filePath.endsWith(".tvmproject", Qt::CaseInsensitive))
+	{
+		filePath += ".tvmproject";
+	}
+
+	return saveProject(filePath);
+}
+
+bool cProjectWidget::open(const QString& filePath)
+{
+	return openProject(filePath);
+}
+
+QString cProjectWidget::getProjectName()
+{
+	QFileInfo fileInfo(filePath);
+	return fileInfo.completeBaseName();
+}
+
 bool cProjectWidget::saveProject(const QString& filePath)
 {
 	QFile file(filePath);
@@ -98,6 +129,29 @@ bool cProjectWidget::saveProject(const QString& filePath)
 
 	QFileInfo fileInfo(filePath);
 	emit projectNameChanged(fileInfo.completeBaseName());
+
+	return true;
+}
+
+bool cProjectWidget::openProject(const QString& filePath)
+{
+	if (!QFileInfo::exists(filePath))
+	{
+		printf("error: QFileInfo::exists()\n");
+		return false;
+	}
+
+	QFile file(filePath);
+	if (!file.open(QIODevice::ReadOnly))
+	{
+		printf("error: file.open()\n");
+		return false;
+	}
+
+	QByteArray wholeFile = file.readAll();
+	flowScene->loadFromMemory(wholeFile);
+
+	this->filePath = filePath;
 
 	return true;
 }

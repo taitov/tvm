@@ -20,6 +20,8 @@ cMemoryDataModel::~cMemoryDataModel()
 QJsonObject cMemoryDataModel::save() const
 {
 	QJsonObject jsonObject = NodeDataModel::save();
+	jsonObject["moduleTypeName"] = "memory";
+	jsonObject["memoryTypeName"] = QString::fromUtf8(memoryTypeName.value.c_str());
 	return jsonObject;
 }
 

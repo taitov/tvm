@@ -12,21 +12,22 @@ cProjectsWidget::cProjectsWidget(const cVirtualMachine* virtualMachine) :
 
 void cProjectsWidget::newProject()
 {
-	cProjectWidget* projectWidget = new cProjectWidget(virtualMachine);
+	cProjectWidget* projectWidget = createProject();
 	addTab(projectWidget, "untitled");
-
-	connect(projectWidget, &cProjectWidget::projectNameChanged, this, [this, projectWidget](QString projectName)
-	{
-		int index = indexOf(projectWidget);
-		if (index < 0)
-		{
-			return;
-		}
-
-		setTabText(index, projectName);
-	});
-
 	setCurrentWidget(projectWidget);
+}
+
+bool cProjectsWidget::open(const QString& filePath)
+{
+	cProjectWidget* projectWidget = createProject();
+	if (!projectWidget->open(filePath))
+	{
+		delete projectWidget;
+		return false;
+	}
+	addTab(projectWidget, projectWidget->getProjectName());
+	setCurrentWidget(projectWidget);
+	return true;
 }
 
 bool cProjectsWidget::save()
@@ -35,6 +36,16 @@ bool cProjectsWidget::save()
 	{
 		cProjectWidget* projectWidget = (cProjectWidget*)currentWidget();
 		return projectWidget->save();
+	}
+	return false;
+}
+
+bool cProjectsWidget::saveAs()
+{
+	if (currentWidget())
+	{
+		cProjectWidget* projectWidget = (cProjectWidget*)currentWidget();
+		return projectWidget->saveAs();
 	}
 	return false;
 }
@@ -50,4 +61,22 @@ bool cProjectsWidget::saveAllProjects()
 		}
 	}
 	return true;
+}
+
+cProjectWidget* cProjectsWidget::createProject()
+{
+	cProjectWidget* projectWidget = new cProjectWidget(virtualMachine);
+
+	connect(projectWidget, &cProjectWidget::projectNameChanged, this, [this, projectWidget](QString projectName)
+	{
+		int index = indexOf(projectWidget);
+		if (index < 0)
+		{
+			return;
+		}
+
+		setTabText(index, projectName);
+	});
+
+	return projectWidget;
 }

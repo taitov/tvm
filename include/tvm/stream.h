@@ -7,6 +7,8 @@
 #include <vector>
 #include <map>
 
+#include "string.h"
+
 #include "type.h"
 
 namespace nVirtualMachine
