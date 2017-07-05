@@ -4,6 +4,8 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QSplitter>
 
+#include <nodes/NodeDataModel>
+
 namespace nVirtualMachine
 {
 
@@ -29,12 +31,40 @@ public:
 
 	QString getProjectName();
 
+	bool hasChanges();
+
+	void undo();
+	void redo();
+
 private:
 	bool saveProject(const QString& filePath);
 	bool openProject(const QString& filePath);
 
 Q_SIGNALS:
 	void projectNameChanged(QString projectName);
+	void projectChanged(bool flagHasChanges);
+
+private:
+	class cAction
+	{
+	public:
+		enum eType
+		{
+			none,
+			nodeCreated,
+			nodeDeleted
+		};
+
+	public:
+		cAction();
+		cAction(eType type, QtNodes::Node& node);
+
+	public:
+		eType type;
+		QUuid id;
+		QString moduleFullName;
+		QPointF position;
+	};
 
 private:
 	const cVirtualMachine* virtualMachine;
@@ -43,6 +73,10 @@ private:
 	cToolBoxModulesWidget* toolBox;
 	cFlowSceneWidget* flowScene;
 	cFlowViewWidget* flowView;
+	bool flagHasChanges;
+
+	std::vector<cAction> actions;
+	size_t actionPosition;
 };
 
 }

@@ -119,6 +119,26 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			stackedWidget->setCurrentWidget(current);
 		});
 
+		connect(undoAction, &QAction::triggered,
+		        this, [this]
+		{
+			QWidget* widget = stackedWidget->currentWidget();
+			if (widget == projectsWidget)
+			{
+				projectsWidget->undo();
+			}
+		});
+
+		connect(redoAction, &QAction::triggered,
+		        this, [this]
+		{
+			QWidget* widget = stackedWidget->currentWidget();
+			if (widget == projectsWidget)
+			{
+				projectsWidget->redo();
+			}
+		});
+
 		connect(quitAction, &QAction::triggered,
 		        this, &QWidget::close);
 
@@ -221,7 +241,7 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 
 void cIdeWidget::closeEvent(QCloseEvent* event)
 {
-	if (projectsWidget->saveAllProjects())
+	if (projectsWidget->closeAllProjects())
 	{
 		event->accept();
 	}

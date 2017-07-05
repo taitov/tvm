@@ -25,6 +25,9 @@ public:
 	bool save();
 	bool saveAs();
 	bool saveAllProjects();
+	bool closeAllProjects();
+	void undo();
+	void redo();
 
 private:
 	cProjectWidget* createProject();
