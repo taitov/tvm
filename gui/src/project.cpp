@@ -208,6 +208,9 @@ void cProjectWidget::undo()
 		}
 	}
 
+	flagHasChanges = true;
+	emit projectChanged(flagHasChanges);
+
 	actionPosition--;
 }
 
@@ -245,6 +248,9 @@ void cProjectWidget::redo()
 		flowScene->removeNode(*(nodes.find(action.id)->second),
 		                      false);
 	}
+
+	flagHasChanges = true;
+	emit projectChanged(flagHasChanges);
 
 	actionPosition++;
 }
