@@ -52,18 +52,15 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine) :
 
 		connect(flowScene, &cFlowSceneWidget::nodeCreated, this, [this](QtNodes::Node& node)
 		{
-			actions.resize(actionPosition + 1);
-			actions[actionPosition] = cAction(cAction::nodeCreated, node);
-			actionPosition = actions.size();
+			addAction(cAction::nodeCreated, node);
+			prevPositions[node.id()] = node.nodeGraphicsObject().pos();
 			flagHasChanges = true;
 			emit projectChanged(flagHasChanges);
 		});
 
 		connect(flowScene, &cFlowSceneWidget::nodeDeleted, this, [this](QtNodes::Node& node)
 		{
-			actions.resize(actionPosition + 1);
-			actions[actionPosition] = cAction(cAction::nodeDeleted, node);
-			actionPosition = actions.size();
+			addAction(cAction::nodeDeleted, node);
 			flagHasChanges = true;
 			emit projectChanged(flagHasChanges);
 		});
@@ -94,6 +91,12 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine) :
 
 		connect(flowScene, &cFlowSceneWidget::nodeMoved, this, [this](QtNodes::Node& node, const QPointF& newLocation)
 		{
+			if (prevPositions[node.id()] == newLocation)
+			{
+				return;
+			}
+			addAction(cAction::nodeMoved, node, prevPositions[node.id()], newLocation);
+			prevPositions[node.id()] = newLocation;
 			flagHasChanges = true;
 			emit projectChanged(flagHasChanges);
 		});
@@ -201,11 +204,28 @@ void cProjectWidget::undo()
 		auto type = flowScene->registry().create(action.moduleFullName);
 		if (type)
 		{
-			flowScene->createNode(std::move(type),
-			                      action.id,
-			                      action.position,
-			                      false);
+			auto* node = flowScene->createNode(std::move(type),
+			                                   action.id,
+			                                   action.position,
+			                                   false);
+			prevPositions[node->id()] = node->nodeGraphicsObject().pos();
 		}
+	}
+	else if (action.type == cAction::nodeMoved)
+	{
+		const auto& nodes = flowScene->nodes();
+
+		if (nodes.find(action.id) == nodes.end())
+		{
+			printf("error: undo()\n");
+			actionPosition = 0;
+			actions.clear();
+			return;
+		}
+
+		nodes.find(action.id)->second->nodeGraphicsObject().setPos(action.fromPosition);
+		nodes.find(action.id)->second->nodeGraphicsObject().moveConnections();
+		prevPositions[action.id] = action.fromPosition;
 	}
 
 	flagHasChanges = true;
@@ -227,10 +247,11 @@ void cProjectWidget::redo()
 		auto type = flowScene->registry().create(action.moduleFullName);
 		if (type)
 		{
-			flowScene->createNode(std::move(type),
-			                      action.id,
-			                      action.position,
-			                      false);
+			auto* node = flowScene->createNode(std::move(type),
+			                                   action.id,
+			                                   action.position,
+			                                   false);
+			prevPositions[node->id()] = node->nodeGraphicsObject().pos();
 		}
 	}
 	else if (action.type == cAction::nodeDeleted)
@@ -247,6 +268,22 @@ void cProjectWidget::redo()
 
 		flowScene->removeNode(*(nodes.find(action.id)->second),
 		                      false);
+	}
+	else if (action.type == cAction::nodeMoved)
+	{
+		const auto& nodes = flowScene->nodes();
+
+		if (nodes.find(action.id) == nodes.end())
+		{
+			printf("error: undo()\n");
+			actionPosition = 0;
+			actions.clear();
+			return;
+		}
+
+		nodes.find(action.id)->second->nodeGraphicsObject().setPos(action.toPosition);
+		nodes.find(action.id)->second->nodeGraphicsObject().moveConnections();
+		prevPositions[action.id] = action.toPosition;
 	}
 
 	flagHasChanges = true;
@@ -316,6 +353,11 @@ bool cProjectWidget::openProject(const QString& filePath)
 	actionPosition = 0;
 	actions.clear();
 
+	for (const auto& iter : flowScene->nodes())
+	{
+		prevPositions[iter.first] = iter.second->nodeGraphicsObject().pos();
+	}
+
 	return true;
 }
 
@@ -324,10 +366,20 @@ cProjectWidget::cAction::cAction() :
 {
 }
 
-cProjectWidget::cAction::cAction(cProjectWidget::cAction::eType type, QtNodes::Node& node) :
+cProjectWidget::cAction::cAction(cProjectWidget::cAction::eType type, const QtNodes::Node& node) :
         type(type)
 {
 	id = node.id();
 	moduleFullName = node.nodeDataModel()->name();
 	position = node.nodeGraphicsObject().pos();
+}
+
+cProjectWidget::cAction::cAction(cProjectWidget::cAction::eType type, const QtNodes::Node& node,
+                                 const QPointF& fromPosition, const QPointF& toPosition) :
+        type(type),
+        fromPosition(fromPosition),
+        toPosition(toPosition)
+{
+	id = node.id();
+	moduleFullName = node.nodeDataModel()->name();
 }

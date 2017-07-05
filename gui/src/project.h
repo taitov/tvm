@@ -40,6 +40,14 @@ private:
 	bool saveProject(const QString& filePath);
 	bool openProject(const QString& filePath);
 
+	template<typename ... TArgs>
+	void addAction(const TArgs& ... args)
+	{
+		actions.resize(actionPosition + 1);
+		actions[actionPosition] = cAction(args ...);
+		actionPosition = actions.size();
+	}
+
 Q_SIGNALS:
 	void projectNameChanged(QString projectName);
 	void projectChanged(bool flagHasChanges);
@@ -52,18 +60,23 @@ private:
 		{
 			none,
 			nodeCreated,
-			nodeDeleted
+			nodeDeleted,
+			nodeMoved
 		};
 
 	public:
 		cAction();
-		cAction(eType type, QtNodes::Node& node);
+		cAction(eType type, const QtNodes::Node& node);
+		cAction(eType type, const QtNodes::Node& node,
+		        const QPointF& fromPosition, const QPointF& toPosition);
 
 	public:
 		eType type;
 		QUuid id;
 		QString moduleFullName;
 		QPointF position;
+		QPointF fromPosition;
+		QPointF toPosition;
 	};
 
 private:
@@ -77,6 +90,8 @@ private:
 
 	std::vector<cAction> actions;
 	size_t actionPosition;
+
+	std::map<QUuid, QPointF> prevPositions;
 };
 
 }
