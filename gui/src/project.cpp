@@ -2,6 +2,8 @@
 
 #include <QtWidgets/QFileDialog>
 
+#include <tvm/export/json.h>
+
 #include "project.h"
 #include "flowscene.h"
 #include "flowview.h"
@@ -116,18 +118,35 @@ QString cProjectWidget::getProjectName()
 
 bool cProjectWidget::saveProject(const QString& filePath)
 {
-	QFile file(filePath);
-	if (!file.open(QIODevice::WriteOnly))
+	QByteArray byteArray = flowScene->saveToMemory();
+
 	{
-		printf("error: file.open()\n");
-		return false;
+		QFile file(filePath);
+		if (!file.open(QIODevice::WriteOnly))
+		{
+			printf("error: file.open()\n");
+			return false;
+		}
+
+		file.write(byteArray);
 	}
 
-	file.write(flowScene->saveToMemory());
+	QFileInfo fileInfo(filePath);
+
+	{
+		QFile file(fileInfo.path() + "/" + fileInfo.completeBaseName() + ".tvm");
+		if (!file.open(QIODevice::WriteOnly))
+		{
+			printf("error: file.open()\n");
+			return false;
+		}
+
+		std::vector<uint8_t> buffer = nExport::cJson::exportToMemory(byteArray);
+		file.write((char*)&buffer[0], buffer.size());
+	}
 
 	this->filePath = filePath;
 
-	QFileInfo fileInfo(filePath);
 	emit projectNameChanged(fileInfo.completeBaseName());
 
 	return true;

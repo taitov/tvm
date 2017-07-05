@@ -110,6 +110,15 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			}
 		});
 
+		connect(saveAllAction, &QAction::triggered,
+		        this, [this]
+		{
+			QWidget* current = stackedWidget->currentWidget();
+			stackedWidget->setCurrentWidget(projectsWidget);
+			projectsWidget->saveAllProjects();
+			stackedWidget->setCurrentWidget(current);
+		});
+
 		connect(quitAction, &QAction::triggered,
 		        this, &QWidget::close);
 

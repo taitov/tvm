@@ -55,6 +55,7 @@ bool cProjectsWidget::saveAllProjects()
 	for (int project_i = 0; project_i < count(); project_i++)
 	{
 		cProjectWidget* projectWidget = (cProjectWidget*)widget(project_i);
+		setCurrentWidget(projectWidget);
 		if (!projectWidget->save())
 		{
 			return false;
