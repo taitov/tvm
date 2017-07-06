@@ -6,6 +6,8 @@
 #include "memorydatamodel.h"
 #include "rootmoduledatamodel.h"
 #include "logicmoduledatamodel.h"
+#include "schemesignalmoduledatamodel.h"
+#include "schemememorymoduledatamodel.h"
 
 using namespace nVirtualMachine::nGui;
 
@@ -61,6 +63,14 @@ cFlowSceneWidget::cFlowSceneWidget(const cVirtualMachine* virtualMachine,
 
 	if (addSchemeModules)
 	{
+		dataModelRegistry->registerModel<cSchemeSignalModuleDataModel>(std::make_unique<cSchemeSignalModuleDataModel>(":scheme:inSignal",
+		                                                                                                              QtNodes::PortType::Out));
+		dataModelRegistry->registerModel<cSchemeSignalModuleDataModel>(std::make_unique<cSchemeSignalModuleDataModel>(":scheme:outSignal",
+		                                                                                                              QtNodes::PortType::In));
+		dataModelRegistry->registerModel<cSchemeMemoryModuleDataModel>(std::make_unique<cSchemeMemoryModuleDataModel>(":scheme:inMemory",
+		                                                                                                              QtNodes::PortType::Out));
+		dataModelRegistry->registerModel<cSchemeMemoryModuleDataModel>(std::make_unique<cSchemeMemoryModuleDataModel>(":scheme:outMemory",
+		                                                                                                              QtNodes::PortType::In));
 	}
 
 	setRegistry(dataModelRegistry);

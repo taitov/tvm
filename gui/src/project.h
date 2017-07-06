@@ -39,7 +39,7 @@ public:
 	void undo() override;
 	void redo() override;
 
-private:
+protected:
 	bool saveProject(const QString& filePath);
 	bool openProject(const QString& filePath);
 
@@ -82,10 +82,11 @@ private:
 		QPointF toPosition;
 	};
 
-private:
+protected:
 	const cVirtualMachine* virtualMachine;
 	QString filePath;
 
+private:
 	cToolBoxModulesWidget* toolBox;
 	cFlowSceneWidget* flowScene;
 	cFlowViewWidget* flowView;
