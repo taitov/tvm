@@ -4,6 +4,7 @@
 
 #include "ide.h"
 #include "projects.h"
+#include "custommodules.h"
 
 using namespace nVirtualMachine::nGui;
 
@@ -50,6 +51,7 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 		auto aboutAction = helpMenu->addAction(QIcon::fromTheme("help-about"), "&About");
 
 		newProjectAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_N));
+		newCustomModuleAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_T));
 		openAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
 		saveAction->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
 		saveAllAction->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_S));
@@ -63,8 +65,15 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 		connect(newProjectAction, &QAction::triggered,
 		        this, [this]
 		{
-			projectsWidget->newProject();
+			projectsWidget->newDocument();
 			stackedWidget->setCurrentWidget(projectsWidget);
+		});
+
+		connect(newCustomModuleAction, &QAction::triggered,
+		        this, [this]
+		{
+			customsWidget->newDocument();
+			stackedWidget->setCurrentWidget(customsWidget);
 		});
 
 		connect(openAction, &QAction::triggered,
@@ -88,6 +97,14 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 				}
 				return;
 			}
+			else if (filePath.endsWith(".tvmcustom", Qt::CaseInsensitive))
+			{
+				if (customsWidget->open(filePath))
+				{
+					stackedWidget->setCurrentWidget(customsWidget);
+				}
+				return;
+			}
 		});
 
 		connect(saveAction, &QAction::triggered,
@@ -97,6 +114,10 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			if (widget == projectsWidget)
 			{
 				projectsWidget->save();
+			}
+			else if (widget == customsWidget)
+			{
+				customsWidget->save();
 			}
 		});
 
@@ -108,14 +129,23 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			{
 				projectsWidget->saveAs();
 			}
+			else if (widget == customsWidget)
+			{
+				customsWidget->saveAs();
+			}
 		});
 
 		connect(saveAllAction, &QAction::triggered,
 		        this, [this]
 		{
 			QWidget* current = stackedWidget->currentWidget();
+
 			stackedWidget->setCurrentWidget(projectsWidget);
-			projectsWidget->saveAllProjects();
+			projectsWidget->saveAllDocuments();
+
+			stackedWidget->setCurrentWidget(customsWidget);
+			customsWidget->saveAllDocuments();
+
 			stackedWidget->setCurrentWidget(current);
 		});
 
@@ -127,6 +157,10 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			{
 				projectsWidget->undo();
 			}
+			else if (widget == customsWidget)
+			{
+				customsWidget->undo();
+			}
 		});
 
 		connect(redoAction, &QAction::triggered,
@@ -136,6 +170,10 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			if (widget == projectsWidget)
 			{
 				projectsWidget->redo();
+			}
+			else if (widget == customsWidget)
+			{
+				customsWidget->redo();
 			}
 		});
 
@@ -206,7 +244,7 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			}
 
 			{ /** customs */
-				customsWidget = new QLabel("@todo");
+				customsWidget = new cCustomModulesWidget(virtualMachine);
 				stackedWidget->addWidget(customsWidget);
 			}
 
@@ -226,6 +264,11 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 					saveAction->setEnabled(true);
 					saveAsAction->setEnabled(true);
 				}
+				else if (widget == customsWidget)
+				{
+					saveAction->setEnabled(true);
+					saveAsAction->setEnabled(true);
+				}
 			});
 
 			stackedWidget->setCurrentWidget(welcomeWidget);
@@ -241,12 +284,16 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 
 void cIdeWidget::closeEvent(QCloseEvent* event)
 {
-	if (projectsWidget->closeAllProjects())
+	stackedWidget->setCurrentWidget(projectsWidget);
+	if (projectsWidget->closeAllDocuments())
 	{
-		event->accept();
+		stackedWidget->setCurrentWidget(customsWidget);
+		if (customsWidget->closeAllDocuments())
+		{
+			event->accept();
+			return;
+		}
 	}
-	else
-	{
-		event->ignore();
-	}
+
+	event->ignore();
 }

@@ -9,7 +9,8 @@
 
 using namespace nVirtualMachine::nGui;
 
-cFlowSceneWidget::cFlowSceneWidget(const cVirtualMachine* virtualMachine) :
+cFlowSceneWidget::cFlowSceneWidget(const cVirtualMachine* virtualMachine,
+                                   bool addSchemeModules) :
         virtualMachine(virtualMachine)
 {
 	auto dataModelRegistry = std::make_shared<DataModelRegistry>();
@@ -56,6 +57,10 @@ cFlowSceneWidget::cFlowSceneWidget(const cVirtualMachine* virtualMachine) :
 		                                                         iterMemoryModules.second->getMemoryEntries(),
 		                                                         iterMemoryModules.second->getSignalExits(),
 		                                                         iterMemoryModules.second->getMemoryExits()));
+	}
+
+	if (addSchemeModules)
+	{
 	}
 
 	setRegistry(dataModelRegistry);

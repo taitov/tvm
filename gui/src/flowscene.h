@@ -16,7 +16,8 @@ class cFlowSceneWidget : public QtNodes::FlowScene
 	using DataModelRegistry = QtNodes::DataModelRegistry;
 
 public:
-	cFlowSceneWidget(const cVirtualMachine* virtualMachine);
+	cFlowSceneWidget(const cVirtualMachine* virtualMachine,
+	                 bool addSchemeModules);
 
 private:
 	const cVirtualMachine* virtualMachine;

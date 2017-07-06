@@ -3,6 +3,8 @@
 
 #include <QtWidgets/QTabWidget>
 
+#include "documents.h"
+
 namespace nVirtualMachine
 {
 
@@ -13,24 +15,15 @@ namespace nGui
 
 class cProjectWidget;
 
-class cProjectsWidget : public QTabWidget
+class cProjectsWidget : public cDocumentsWidget
 {
 	Q_OBJECT
 
 public:
 	cProjectsWidget(const cVirtualMachine* virtualMachine);
 
-	void newProject();
-	bool open(const QString& filePath);
-	bool save();
-	bool saveAs();
-	bool saveAllProjects();
-	bool closeAllProjects();
-	void undo();
-	void redo();
-
 private:
-	cProjectWidget* createProject();
+	cDocumentWidget* createDocument() override;
 
 private:
 	const cVirtualMachine* virtualMachine;

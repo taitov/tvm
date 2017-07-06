@@ -6,6 +6,8 @@
 
 #include <nodes/NodeDataModel>
 
+#include "document.h"
+
 namespace nVirtualMachine
 {
 
@@ -18,23 +20,24 @@ class cFlowViewWidget;
 class cFlowSceneWidget;
 class cToolBoxModulesWidget;
 
-class cProjectWidget : public QWidget
+class cProjectWidget : public cDocumentWidget
 {
 	Q_OBJECT
 
 public:
-	cProjectWidget(const cVirtualMachine* virtualMachine);
+	cProjectWidget(const cVirtualMachine* virtualMachine,
+	               bool addSchemeModules);
 
-	bool save();
-	bool saveAs();
-	bool open(const QString& filePath);
+	bool save() override;
+	bool saveAs() override;
+	bool open(const QString& filePath) override;
 
-	QString getProjectName();
+	QString getDocumentName() override;
 
-	bool hasChanges();
+	bool hasChanges() override;
 
-	void undo();
-	void redo();
+	void undo() override;
+	void redo() override;
 
 private:
 	bool saveProject(const QString& filePath);

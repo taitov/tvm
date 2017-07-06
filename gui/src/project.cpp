@@ -11,7 +11,8 @@
 
 using namespace nVirtualMachine::nGui;
 
-cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine) :
+cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine,
+                               bool addSchemeModules) :
         virtualMachine(virtualMachine)
 {
 	QVBoxLayout* mainLayout = new QVBoxLayout(this);
@@ -25,7 +26,7 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine) :
 		layout->setSpacing(0);
 
 		{ /** tool box */
-			toolBox = new cToolBoxModulesWidget(virtualMachine, false);
+			toolBox = new cToolBoxModulesWidget(virtualMachine, addSchemeModules);
 
 			connect(toolBox, &cToolBoxModulesWidget::moduleClicked, [this](QString moduleFullName, QString moduleName)
 			{
@@ -47,7 +48,7 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine) :
 	}
 
 	{ /** graphics view */
-		flowScene = new cFlowSceneWidget(virtualMachine);
+		flowScene = new cFlowSceneWidget(virtualMachine, addSchemeModules);
 		flowView = new cFlowViewWidget(flowScene);
 
 		connect(flowScene, &cFlowSceneWidget::nodeCreated, this, [this](QtNodes::Node& node)
@@ -160,7 +161,7 @@ bool cProjectWidget::open(const QString& filePath)
 	return openProject(filePath);
 }
 
-QString cProjectWidget::getProjectName()
+QString cProjectWidget::getDocumentName()
 {
 	if (filePath.isEmpty())
 	{

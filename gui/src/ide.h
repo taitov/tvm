@@ -21,6 +21,7 @@ namespace nGui
 {
 
 class cProjectsWidget;
+class cCustomModulesWidget;
 
 class cIdeWidget : public QWidget
 {
@@ -40,7 +41,7 @@ private:
 	QStackedWidget* stackedWidget;
 	QWidget* welcomeWidget;
 	cProjectsWidget* projectsWidget;
-	QWidget* customsWidget;
+	cCustomModulesWidget* customsWidget;
 	QWidget* debugWidget;
 
 	QAction* saveAction;
