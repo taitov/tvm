@@ -242,9 +242,24 @@ void cToolBoxModulesWidget::updateCustomModuleDir(QTreeWidgetItem* item,
 {
 	for (const QFileInfo& fileInfo : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs))
 	{
-		QTreeWidgetItem* dirItem = new QTreeWidgetItem(item);
-		dirItem->setText(0, fileInfo.baseName());
-		dirItem->setData(0, Qt::UserRole, "");
+		QTreeWidgetItem* dirItem = nullptr;
+
+		for (int item_i = 0; item_i < item->childCount(); item_i++)
+		{
+			QTreeWidgetItem* subItem = item->child(item_i);
+			if (subItem->text(0) == fileInfo.baseName())
+			{
+				dirItem = subItem;
+				break;
+			}
+		}
+
+		if (!dirItem)
+		{
+			dirItem = new QTreeWidgetItem(item);
+			dirItem->setText(0, fileInfo.baseName());
+			dirItem->setData(0, Qt::UserRole, "");
+		}
 
 		QDir subDir(fileInfo.absoluteFilePath());
 		updateCustomModuleDir(dirItem, subDir, moduleFullName + fileInfo.baseName() + ":");
@@ -259,9 +274,24 @@ void cToolBoxModulesWidget::updateCustomModuleDir(QTreeWidgetItem* item,
 	{
 		if (fileInfo.absoluteFilePath().endsWith(".tvmcustom", Qt::CaseInsensitive))
 		{
-			QTreeWidgetItem* moduleItem = new QTreeWidgetItem(item);
-			moduleItem->setText(0, fileInfo.baseName());
-			moduleItem->setData(0, Qt::UserRole, moduleFullName + fileInfo.baseName());
+			QTreeWidgetItem* moduleItem = nullptr;
+
+			for (int item_i = 0; item_i < item->childCount(); item_i++)
+			{
+				QTreeWidgetItem* subItem = item->child(item_i);
+				if (subItem->text(0) == fileInfo.baseName())
+				{
+					moduleItem = subItem;
+					break;
+				}
+			}
+
+			if (!moduleItem)
+			{
+				moduleItem = new QTreeWidgetItem(item);
+				moduleItem->setText(0, fileInfo.baseName());
+				moduleItem->setData(0, Qt::UserRole, moduleFullName + fileInfo.baseName());
+			}
 		}
 	}
 }
