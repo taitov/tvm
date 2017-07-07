@@ -5,6 +5,8 @@
 
 #include <nodes/NodeDataModel>
 
+#include "data.h"
+
 namespace nVirtualMachine
 {
 
@@ -50,6 +52,7 @@ public:
 	QWidget* embeddedWidget() override;
 
 private:
+	cData data;
 	const tMemoryTypeName memoryTypeName;
 };
 

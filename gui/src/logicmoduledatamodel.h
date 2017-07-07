@@ -6,6 +6,8 @@
 
 #include <nodes/NodeDataModel>
 
+#include "data.h"
+
 namespace nVirtualMachine
 {
 
@@ -48,6 +50,7 @@ public:
 	QString caption() const override;
 	QString name() const override;
 	std::unique_ptr<NodeDataModel> clone() const override;
+	const void* getData() const override;
 
 public:
 	const bool canConnect(PortType portType,
@@ -64,6 +67,7 @@ public:
 	QWidget* embeddedWidget() override;
 
 private:
+	cData data;
 	const tLibraryName libraryName;
 	const tModuleTypeName moduleTypeName;
 	const tModuleName moduleName;

@@ -5,6 +5,8 @@ using namespace nVirtualMachine::nGui;
 cMemoryDataModel::cMemoryDataModel(const tMemoryTypeName& memoryTypeName) :
         memoryTypeName(memoryTypeName)
 {
+	data.moduleTypeName = "memory";
+
 	NodeStyle style = nodeStyle();
 	style.GradientColor0 = QColor(0x83502e);
 	style.GradientColor1 = QColor(0x83502e);
@@ -46,7 +48,7 @@ std::unique_ptr<cMemoryDataModel::NodeDataModel> cMemoryDataModel::clone() const
 
 const void* cMemoryDataModel::getData() const
 {
-	return nullptr;
+	return &data;
 }
 
 const bool cMemoryDataModel::canConnect(cMemoryDataModel::PortType portType,

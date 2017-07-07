@@ -8,6 +8,8 @@
 
 #include <nodes/NodeDataModel>
 
+#include "data.h"
+
 namespace nVirtualMachine
 {
 
@@ -35,6 +37,7 @@ public:
 	QString caption() const override;
 	QString name() const override;
 	std::unique_ptr<NodeDataModel> clone() const override;
+	const void* getData() const override;
 
 public:
 	unsigned int nPorts(PortType portType) const override;
@@ -49,6 +52,7 @@ public:
 	QWidget* embeddedWidget() override;
 
 private:
+	cData data;
 	QWidget* mainWidget;
 	QLineEdit* lineEditName;
 	QLineEdit* lineEditType;

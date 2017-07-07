@@ -5,6 +5,8 @@
 
 #include <nodes/NodeDataModel>
 
+#include "data.h"
+
 namespace nVirtualMachine
 {
 
@@ -54,10 +56,11 @@ public:
 	QWidget* embeddedWidget() override;
 
 private:
+	cData data;
 	const tLibraryName libraryName;
 	const tRootModuleName rootModuleName;
-        const tGuiRootSignalExits guiRootSignalExits;
-        const tGuiRootMemoryExits guiRootMemoryExits;
+	const tGuiRootSignalExits guiRootSignalExits;
+	const tGuiRootMemoryExits guiRootMemoryExits;
 };
 
 }

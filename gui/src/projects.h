@@ -22,6 +22,9 @@ class cProjectsWidget : public cDocumentsWidget
 public:
 	cProjectsWidget(const cVirtualMachine* virtualMachine);
 
+Q_SIGNALS:
+	void openCustomModule(QString filePath);
+
 private:
 	cDocumentWidget* createDocument() override;
 

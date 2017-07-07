@@ -7,6 +7,8 @@ cSchemeSignalModuleDataModel::cSchemeSignalModuleDataModel(const QString& module
         moduleFullName(moduleFullName),
         direction(direction)
 {
+	data.moduleTypeName = "scheme";
+
 	NodeStyle style = nodeStyle();
 	style.GradientColor0 = QColor(0x800080);
 	style.GradientColor1 = QColor(0x800080);
@@ -54,6 +56,11 @@ std::unique_ptr<cSchemeSignalModuleDataModel::NodeDataModel> cSchemeSignalModule
 {
 	return std::make_unique<cSchemeSignalModuleDataModel>(moduleFullName,
 	                                                      direction);
+}
+
+const void* cSchemeSignalModuleDataModel::getData() const
+{
+	return &data;
 }
 
 unsigned int cSchemeSignalModuleDataModel::nPorts(cSchemeSignalModuleDataModel::PortType portType) const

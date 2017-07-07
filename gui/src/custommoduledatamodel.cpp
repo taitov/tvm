@@ -4,17 +4,22 @@ using namespace nVirtualMachine::nGui;
 
 cCustomModuleDataModel::cCustomModuleDataModel(const QString& moduleFullName,
                                                const QString& captionName,
+                                               const QString& filePath,
                                                const tGuiSignalEntries& guiSignalEntries,
                                                const tGuiMemoryEntries& guiMemoryEntries,
                                                const tGuiSignalExits& guiSignalExits,
                                                const tGuiMemoryExits& guiMemoryExits) :
         moduleFullName(moduleFullName),
         captionName(captionName),
+        filePath(filePath),
         guiSignalEntries(guiSignalEntries),
         guiMemoryEntries(guiMemoryEntries),
         guiSignalExits(guiSignalExits),
         guiMemoryExits(guiMemoryExits)
 {
+	data.moduleTypeName = "custom";
+	data.filePath = filePath;
+
 	NodeStyle style = nodeStyle();
 	style.GradientColor0 = QColor(0x800080);
 	style.GradientColor1 = QColor(0x800080);
@@ -53,10 +58,16 @@ std::unique_ptr<cCustomModuleDataModel::NodeDataModel> cCustomModuleDataModel::c
 {
 	return std::make_unique<cCustomModuleDataModel>(moduleFullName,
 	                                                captionName,
+	                                                filePath,
 	                                                guiSignalEntries,
 	                                                guiMemoryEntries,
 	                                                guiSignalExits,
 	                                                guiMemoryExits);
+}
+
+const void* cCustomModuleDataModel::getData() const
+{
+	return &data;
 }
 
 const bool cCustomModuleDataModel::canConnect(cCustomModuleDataModel::PortType portType,

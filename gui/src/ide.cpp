@@ -240,6 +240,15 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 
 			{ /** projects */
 				projectsWidget = new cProjectsWidget(virtualMachine);
+
+				connect(projectsWidget, &cProjectsWidget::openCustomModule, this, [this](QString filePath)
+				{
+					if (customsWidget->open(filePath))
+					{
+						stackedWidget->setCurrentWidget(customsWidget);
+					}
+				});
+
 				stackedWidget->addWidget(projectsWidget);
 			}
 

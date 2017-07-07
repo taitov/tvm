@@ -227,6 +227,7 @@ void cFlowSceneWidget::updateCustomModuleDir(std::shared_ptr<QtNodes::DataModelR
 			{
 				dataModelRegistry->registerModel<cCustomModuleDataModel>(std::make_unique<cCustomModuleDataModel>(moduleFullName,
 				                                                                                                  captionName,
+				                                                                                                  fileInfo.absoluteFilePath(),
 				                                                                                                  signalEntries,
 				                                                                                                  memoryEntries,
 				                                                                                                  signalExits,

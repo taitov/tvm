@@ -35,5 +35,16 @@ cDocumentWidget* cProjectsWidget::createDocument()
 		setTabText(index, projectWidget->getDocumentName() + (flagHasChanges ? "*" : ""));
 	});
 
+	connect(projectWidget, &cProjectWidget::openCustomModule, this, [this, projectWidget](QString filePath)
+	{
+		int index = indexOf(projectWidget);
+		if (index < 0)
+		{
+			return;
+		}
+
+		emit openCustomModule(filePath);
+	});
+
 	return (cDocumentWidget*)projectWidget;
 }

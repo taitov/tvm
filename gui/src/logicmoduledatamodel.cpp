@@ -19,6 +19,8 @@ cLogicModuleDataModel::cLogicModuleDataModel(const tLibraryName& libraryName,
         guiSignalExits(guiSignalExits),
         guiMemoryExits(guiMemoryExits)
 {
+	data.moduleTypeName = moduleTypeName;
+
 	NodeStyle style = nodeStyle();
 	style.GradientColor0 = QColor(0x234d20);
 	style.GradientColor1 = QColor(0x234d20);
@@ -70,6 +72,11 @@ std::unique_ptr<cLogicModuleDataModel::NodeDataModel> cLogicModuleDataModel::clo
 	                                               guiMemoryEntries,
 	                                               guiSignalExits,
 	                                               guiMemoryExits);
+}
+
+const void* cLogicModuleDataModel::getData() const
+{
+	return &data;
 }
 
 const bool cLogicModuleDataModel::canConnect(cLogicModuleDataModel::PortType portType,

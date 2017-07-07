@@ -8,6 +8,7 @@
 #include "flowscene.h"
 #include "flowview.h"
 #include "toolboxmodules.h"
+#include "data.h"
 
 using namespace nVirtualMachine::nGui;
 
@@ -108,7 +109,11 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine,
 
 		connect(flowScene, &cFlowSceneWidget::nodeDoubleClicked, this, [this](QtNodes::Node& node)
 		{
-			emit openCustomModule("");
+			const cData* data = (const cData*)node.nodeDataModel()->getData();
+			if (data && data->moduleTypeName.value == "custom")
+			{
+				emit openCustomModule(data->filePath);
+			}
 		});
 
 		splitter->addWidget(flowView);

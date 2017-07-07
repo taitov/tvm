@@ -11,6 +11,8 @@ cRootModuleDataModel::cRootModuleDataModel(const tLibraryName& libraryName,
         guiRootSignalExits(guiRootSignalExits),
         guiRootMemoryExits(guiRootMemoryExits)
 {
+	data.moduleTypeName = "root";
+
 	NodeStyle style = nodeStyle();
 	style.GradientColor0 = QColor(0xc30101);
 	style.GradientColor1 = QColor(0xc30101);
@@ -56,7 +58,7 @@ std::unique_ptr<cRootModuleDataModel::NodeDataModel> cRootModuleDataModel::clone
 
 const void* cRootModuleDataModel::getData() const
 {
-	return nullptr;
+	return &data;
 }
 
 size_t cRootModuleDataModel::uniqueCount() const
