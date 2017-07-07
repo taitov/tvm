@@ -140,11 +140,11 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 		{
 			QWidget* current = stackedWidget->currentWidget();
 
-			stackedWidget->setCurrentWidget(projectsWidget);
-			projectsWidget->saveAllDocuments();
-
 			stackedWidget->setCurrentWidget(customsWidget);
 			customsWidget->saveAllDocuments();
+
+			stackedWidget->setCurrentWidget(projectsWidget);
+			projectsWidget->saveAllDocuments();
 
 			stackedWidget->setCurrentWidget(current);
 		});

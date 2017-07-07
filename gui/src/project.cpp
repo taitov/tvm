@@ -332,7 +332,8 @@ bool cProjectWidget::saveProject(const QString& filePath)
 			return false;
 		}
 
-		std::vector<uint8_t> buffer = nExport::cJson::exportToMemory(byteArray);
+		std::vector<uint8_t> buffer = nExport::cJson::exportToMemory(byteArray,
+		                                                             {QDir::homePath() + "/.local/share/tvm/customModules"}); /**< @todo */
 		file.write((char*)&buffer[0], buffer.size());
 	}
 

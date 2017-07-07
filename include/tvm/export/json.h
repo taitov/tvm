@@ -6,10 +6,12 @@
 #include <inttypes.h>
 
 #include <vector>
+#include <algorithm>
 
 #include <QtCore/QJsonDocument>
 #include <QtCore/QJsonArray>
 #include <QtCore/QJsonObject>
+#include <QtCore/QFileInfo>
 
 #include <tvm/vm.h>
 
@@ -26,8 +28,25 @@ public:
 	                               tModuleId>;
 
 public:
-	static void readSchemes(std::map<tSchemeName, QJsonObject>& schemes,
-	                        const QJsonObject& jsonObject)
+	static QString getFilePathOfScheme(const std::vector<QString>& customModulePaths,
+	                                   const tSchemeName& schemeName)
+	{
+		QString schemePath = QString::fromUtf8(schemeName.value.c_str());
+		schemePath.replace(':', '/');
+		for (const QString& customModulePath : customModulePaths)
+		{
+			QString filePath = customModulePath + "/" + schemePath + ".tvmcustom";
+			if (QFileInfo::exists(filePath))
+			{
+				return filePath;
+			}
+		}
+		return "";
+	}
+
+	static bool readSchemes(std::map<tSchemeName, QJsonObject>& schemes,
+	                        const QJsonObject& jsonObject,
+	                        const std::vector<QString>& customModulePaths)
 	{
 		QJsonArray connectionJsonArray = jsonObject["nodes"].toArray();
 		for (int i = 0; i < connectionJsonArray.size(); ++i)
@@ -46,18 +65,14 @@ public:
 							continue;
 						}
 
-						/** @todo */
-						std::string filePath = "";
-//						std::string filePath = getFilePathOfScheme(std::vector<std::string>(),
-//						                                           schemeName);
-
-						if (!QFileInfo::exists(QString::fromUtf8(filePath.c_str())))
+						QString filePath = getFilePathOfScheme(customModulePaths,
+						                                       schemeName);
+						if (filePath.isEmpty())
 						{
-							printf("error: QFileInfo::exists()\n");
-							continue;
+							return false;
 						}
 
-						QFile file(QString::fromUtf8(filePath.c_str()));
+						QFile file(filePath);
 						if (!file.open(QIODevice::ReadOnly))
 						{
 							printf("error: file.open()\n");
@@ -67,11 +82,17 @@ public:
 						QByteArray wholeFile = file.readAll();
 
 						schemes[schemeName] = QJsonDocument::fromJson(wholeFile).object();
-						readSchemes(schemes, schemes[schemeName]);
+						if (!readSchemes(schemes,
+						                 schemes[schemeName],
+						                 customModulePaths))
+						{
+							return false;
+						}
 					}
 				}
 			}
 		}
+		return true;
 	}
 
 	static tGuiModuleIds getModuleIds(const QJsonObject& jsonObject)
@@ -158,7 +179,8 @@ public:
 		return stream.getBuffer();
 	}
 
-	static std::vector<uint8_t> exportToMemory(const QByteArray& byteArray)
+	static std::vector<uint8_t> exportToMemory(const QByteArray& byteArray,
+	                                           const std::vector<QString>& customModulePaths)
 	{
 		QJsonObject jsonObject = QJsonDocument::fromJson(byteArray).object();
 
@@ -169,7 +191,12 @@ public:
 		         QJsonObject> schemes;
 
 		schemes["main"] = jsonObject;
-		readSchemes(schemes, schemes["main"]);
+		if (!readSchemes(schemes,
+		                 schemes["main"],
+		                 customModulePaths))
+		{
+			return std::vector<uint8_t>();
+		}
 
 		uint32_t schemesCount = schemes.size();
 		stream.push(schemesCount);

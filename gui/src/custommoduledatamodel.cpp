@@ -36,7 +36,7 @@ QJsonObject cCustomModuleDataModel::save() const
 {
 	QJsonObject jsonObject = NodeDataModel::save();
 	jsonObject["moduleTypeName"] = "custom";
-	jsonObject["schemeName"] = moduleFullName;
+	jsonObject["schemeName"] = moduleFullName.mid(8);
 	return jsonObject;
 }
 
