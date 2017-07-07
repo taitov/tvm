@@ -26,6 +26,9 @@ public:
 	virtual void redo() = 0;
 
 	virtual QString getFilePath() = 0;
+
+Q_SIGNALS:
+	virtual void documentSaved() = 0;
 };
 
 }

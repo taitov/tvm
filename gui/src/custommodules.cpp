@@ -9,12 +9,23 @@ cCustomModulesWidget::cCustomModulesWidget(const cVirtualMachine* virtualMachine
 {
 }
 
+void cCustomModulesWidget::setCustomModulePaths(const std::vector<QString>& customModulePaths)
+{
+	this->customModulePaths = customModulePaths;
+
+	for (int custom_i = 0; custom_i < count(); custom_i++)
+	{
+		cCustomModuleWidget* customWidget = (cCustomModuleWidget*)widget(custom_i);
+		customWidget->setCustomModulePaths(customModulePaths);
+	}
+}
+
 cDocumentWidget* cCustomModulesWidget::createDocument()
 {
 	cCustomModuleWidget* customWidget = new cCustomModuleWidget(virtualMachine,
 	                                                            customModulePaths);
 
-	connect(customWidget, &cProjectWidget::projectNameChanged, this, [this, customWidget](QString projectName)
+	connect(customWidget, &cCustomModuleWidget::documentSaved, this, [this, customWidget]()
 	{
 		int index = indexOf(customWidget);
 		if (index < 0)
@@ -22,10 +33,11 @@ cDocumentWidget* cCustomModulesWidget::createDocument()
 			return;
 		}
 
-		setTabText(index, projectName);
+		setTabText(index, customWidget->getDocumentName());
+		emit customModuleUpdated();
 	});
 
-	connect(customWidget, &cProjectWidget::projectChanged, this, [this, customWidget](bool flagHasChanges)
+	connect(customWidget, &cCustomModuleWidget::projectChanged, this, [this, customWidget](bool flagHasChanges)
 	{
 		int index = indexOf(customWidget);
 		if (index < 0)
@@ -36,7 +48,7 @@ cDocumentWidget* cCustomModulesWidget::createDocument()
 		setTabText(index, customWidget->getDocumentName() + (flagHasChanges ? "*" : ""));
 	});
 
-	connect(customWidget, &cProjectWidget::openCustomModule, this, [this, customWidget](QString filePath)
+	connect(customWidget, &cCustomModuleWidget::openCustomModule, this, [this, customWidget](QString filePath)
 	{
 		int index = indexOf(customWidget);
 		if (index < 0)

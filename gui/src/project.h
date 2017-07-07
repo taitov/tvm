@@ -58,7 +58,7 @@ private:
 	}
 
 Q_SIGNALS:
-	void projectNameChanged(QString projectName);
+	void documentSaved() override;
 	void projectChanged(bool flagHasChanges);
 	void openCustomModule(QString filePath);
 

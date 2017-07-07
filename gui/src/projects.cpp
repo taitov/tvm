@@ -28,7 +28,7 @@ cDocumentWidget* cProjectsWidget::createDocument()
 	                                                   false,
 	                                                   customModulePaths);
 
-	connect(projectWidget, &cProjectWidget::projectNameChanged, this, [this, projectWidget](QString projectName)
+	connect(projectWidget, &cProjectWidget::documentSaved, this, [this, projectWidget]()
 	{
 		int index = indexOf(projectWidget);
 		if (index < 0)
@@ -36,7 +36,7 @@ cDocumentWidget* cProjectsWidget::createDocument()
 			return;
 		}
 
-		setTabText(index, projectName);
+		setTabText(index, projectWidget->getDocumentName());
 	});
 
 	connect(projectWidget, &cProjectWidget::projectChanged, this, [this, projectWidget](bool flagHasChanges)

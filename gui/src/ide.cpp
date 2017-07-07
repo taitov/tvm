@@ -282,6 +282,12 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 					addAction(cAction::customModuleChanged, (QWidget*)documentWidget);
 				});
 
+				connect(customsWidget, &cCustomModulesWidget::customModuleUpdated, this, [this]()
+				{
+					projectsWidget->setCustomModulePaths(customModulePaths);
+					customsWidget->setCustomModulePaths(customModulePaths);
+				});
+
 				stackedWidget->addWidget(customsWidget);
 			}
 

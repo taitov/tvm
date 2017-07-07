@@ -105,7 +105,7 @@ bool cCustomModuleWidget::saveCustomModule(const QString& filePath)
 	flagHasChanges = false;
 
 	emit projectChanged(flagHasChanges);
-	emit projectNameChanged(fileInfo.completeBaseName());
+	emit documentSaved();
 
 	return true;
 }

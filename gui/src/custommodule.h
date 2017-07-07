@@ -13,6 +13,8 @@ namespace nGui
 
 class cCustomModuleWidget : public cProjectWidget
 {
+	Q_OBJECT
+
 public:
 	cCustomModuleWidget(const cVirtualMachine* virtualMachine,
 	                    const std::vector<QString>& customModulePaths);
