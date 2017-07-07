@@ -28,11 +28,14 @@ public:
 	void undo();
 	void redo();
 
+Q_SIGNALS:
+	void currentDocumentChanged(cDocumentWidget* documentWidget);
+
 protected:
 	virtual cDocumentWidget* createDocument() = 0;
 
 private:
-	std::map<QString, QWidget*> filePaths;
+	std::map<QString, cDocumentWidget*> filePaths;
 };
 
 }

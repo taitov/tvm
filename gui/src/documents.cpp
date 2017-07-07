@@ -46,6 +46,12 @@ cDocumentsWidget::cDocumentsWidget()
 		filePaths.erase(documentWidget->getFilePath());
 		removeTab(index);
 	});
+
+	connect(this, &cDocumentsWidget::currentChanged, this, [this](int index)
+	{
+		cDocumentWidget* documentWidget = (cDocumentWidget*)widget(index);
+		emit currentDocumentChanged(documentWidget);
+	});
 }
 
 void cDocumentsWidget::newDocument()
@@ -59,7 +65,14 @@ bool cDocumentsWidget::open(const QString& filePath)
 {
 	if (filePaths.find(filePath) != filePaths.end())
 	{
-		setCurrentWidget(filePaths[filePath]);
+		if (currentWidget() != filePaths[filePath])
+		{
+			setCurrentWidget(filePaths[filePath]);
+		}
+		else
+		{
+			emit currentDocumentChanged(filePaths[filePath]);
+		}
 		return true;
 	}
 

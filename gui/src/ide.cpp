@@ -5,6 +5,7 @@
 #include "ide.h"
 #include "projects.h"
 #include "custommodules.h"
+#include "document.h"
 
 using namespace nVirtualMachine::nGui;
 
@@ -249,11 +250,32 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 					}
 				});
 
+				connect(projectsWidget, &cProjectsWidget::currentDocumentChanged, this, [this](cDocumentWidget* documentWidget)
+				{
+					if (doAction)
+					{
+						return;
+					}
+
+					addAction(cAction::projectChanged, (QWidget*)documentWidget);
+				});
+
 				stackedWidget->addWidget(projectsWidget);
 			}
 
 			{ /** customs */
 				customsWidget = new cCustomModulesWidget(virtualMachine);
+
+				connect(customsWidget, &cCustomModulesWidget::currentDocumentChanged, this, [this](cDocumentWidget* documentWidget)
+				{
+					if (doAction)
+					{
+						return;
+					}
+
+					addAction(cAction::customModuleChanged, (QWidget*)documentWidget);
+				});
+
 				stackedWidget->addWidget(customsWidget);
 			}
 
@@ -287,6 +309,9 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 		mainLayout->addLayout(bodyLayout);
 	}
 
+	actionPosition = 0;
+	doAction = false;
+
 	setWindowTitle(this->titleName);
 	showMaximized();
 }
@@ -305,4 +330,74 @@ void cIdeWidget::closeEvent(QCloseEvent* event)
 	}
 
 	event->ignore();
+}
+
+void cIdeWidget::mousePressEvent(QMouseEvent* event)
+{
+	if (event->button() == Qt::BackButton)
+	{
+		if (actionPosition <= 1)
+		{
+			return;
+		}
+
+		doAction = true;
+
+		const cAction& action = actions[actionPosition - 2];
+		if (action.type == cAction::projectChanged)
+		{
+			projectsWidget->setCurrentWidget(action.widget);
+			stackedWidget->setCurrentWidget(projectsWidget);
+		}
+		else if (action.type == cAction::customModuleChanged)
+		{
+			customsWidget->setCurrentWidget(action.widget);
+			stackedWidget->setCurrentWidget(customsWidget);
+		}
+
+		doAction = false;
+
+		actionPosition--;
+	}
+	else if (event->button() == Qt::ForwardButton)
+	{
+		if (actionPosition >= actions.size())
+		{
+			return;
+		}
+
+		doAction = true;
+
+		const cAction& action = actions[actionPosition];
+		if (action.type == cAction::projectChanged)
+		{
+			projectsWidget->setCurrentWidget(action.widget);
+			stackedWidget->setCurrentWidget(projectsWidget);
+		}
+		else if (action.type == cAction::customModuleChanged)
+		{
+			customsWidget->setCurrentWidget(action.widget);
+			stackedWidget->setCurrentWidget(customsWidget);
+		}
+
+		doAction = false;
+
+		actionPosition++;
+	}
+	else
+	{
+		QWidget::mousePressEvent(event);
+	}
+}
+
+cIdeWidget::cAction::cAction() :
+        type(none)
+{
+}
+
+cIdeWidget::cAction::cAction(cIdeWidget::cAction::eType type,
+                             QWidget* widget) :
+        type(type),
+        widget(widget)
+{
 }

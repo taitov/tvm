@@ -22,6 +22,7 @@ namespace nGui
 
 class cProjectsWidget;
 class cCustomModulesWidget;
+class cDocumentWidget;
 
 class cIdeWidget : public QWidget
 {
@@ -33,6 +34,7 @@ public:
 
 private:
 	void closeEvent(QCloseEvent* event) override;
+	void mousePressEvent(QMouseEvent *event) override;
 
 private:
 	const cVirtualMachine* virtualMachine;
@@ -46,6 +48,39 @@ private:
 
 	QAction* saveAction;
 	QAction* saveAsAction;
+
+private:
+	template<typename ... TArgs>
+	void addAction(const TArgs& ... args)
+	{
+		actions.resize(actionPosition + 1);
+		actions[actionPosition] = cAction(args ...);
+		actionPosition = actions.size();
+	}
+
+	class cAction
+	{
+	public:
+		enum eType
+		{
+			none,
+			projectChanged,
+			customModuleChanged,
+		};
+
+	public:
+		cAction();
+		cAction(eType type,
+		        QWidget* widget);
+
+	public:
+		eType type;
+		QWidget* widget;
+	};
+
+	std::vector<cAction> actions;
+	size_t actionPosition;
+	bool doAction;
 };
 
 }
