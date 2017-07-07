@@ -3,15 +3,16 @@
 
 using namespace nVirtualMachine::nGui;
 
-cCustomModulesWidget::cCustomModulesWidget(const cVirtualMachine* virtualMachine) :
-        cDocumentsWidget::cDocumentsWidget(),
-        virtualMachine(virtualMachine)
+cCustomModulesWidget::cCustomModulesWidget(const cVirtualMachine* virtualMachine,
+                                           const std::vector<QString>& customModulePaths) :
+        cProjectsWidget::cProjectsWidget(virtualMachine, customModulePaths)
 {
 }
 
 cDocumentWidget* cCustomModulesWidget::createDocument()
 {
-	cCustomModuleWidget* customWidget = new cCustomModuleWidget(virtualMachine);
+	cCustomModuleWidget* customWidget = new cCustomModuleWidget(virtualMachine,
+	                                                            customModulePaths);
 
 	connect(customWidget, &cProjectWidget::projectNameChanged, this, [this, customWidget](QString projectName)
 	{

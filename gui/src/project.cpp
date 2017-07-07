@@ -13,8 +13,10 @@
 using namespace nVirtualMachine::nGui;
 
 cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine,
-                               bool addSchemeModules) :
-        virtualMachine(virtualMachine)
+                               bool addSchemeModules,
+                               const std::vector<QString>& customModulePaths) :
+        virtualMachine(virtualMachine),
+        customModulePaths(customModulePaths)
 {
 	QVBoxLayout* mainLayout = new QVBoxLayout(this);
 
@@ -28,8 +30,6 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine,
 
 		{ /** tool box */
 			toolBox = new cToolBoxModulesWidget(virtualMachine, addSchemeModules);
-
-			toolBox->setCustomModulePaths({QDir::homePath() + "/.local/share/tvm/customModules"}); /**< @todo */
 
 			connect(toolBox, &cToolBoxModulesWidget::moduleClicked, [this](QString moduleFullName, QString moduleName)
 			{
@@ -53,8 +53,6 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine,
 	{ /** graphics view */
 		flowScene = new cFlowSceneWidget(virtualMachine, addSchemeModules);
 		flowView = new cFlowViewWidget(flowScene);
-
-		flowScene->setCustomModulePaths({QDir::homePath() + "/.local/share/tvm/customModules"}); /**< @todo */
 
 		connect(flowScene, &cFlowSceneWidget::nodeCreated, this, [this](QtNodes::Node& node)
 		{
@@ -120,6 +118,8 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine,
 	}
 
 	mainLayout->addWidget(splitter);
+
+	setCustomModulePaths(customModulePaths);
 
 	flagHasChanges = false;
 	actionPosition = 0;
@@ -312,6 +312,28 @@ QString cProjectWidget::getFilePath()
 	return filePath;
 }
 
+void cProjectWidget::setCustomModulePaths(const std::vector<QString>& customModulePaths)
+{
+	this->customModulePaths = customModulePaths;
+
+	std::vector<QString> totalCustomModulePaths;
+
+	if (!filePath.isEmpty())
+	{
+		QFileInfo fileInfo(filePath);
+		totalCustomModulePaths.emplace_back(fileInfo.path() + "/customModules");
+	}
+
+	totalCustomModulePaths.insert(totalCustomModulePaths.end(),
+	                              customModulePaths.begin(),
+	                              customModulePaths.end());
+
+	/** @todo: delete duplicates */
+
+	toolBox->setCustomModulePaths(totalCustomModulePaths);
+	flowScene->setCustomModulePaths(totalCustomModulePaths);
+}
+
 bool cProjectWidget::saveProject(const QString& filePath)
 {
 	QByteArray byteArray = flowScene->saveToMemory();
@@ -337,8 +359,20 @@ bool cProjectWidget::saveProject(const QString& filePath)
 			return false;
 		}
 
+		std::vector<QString> totalCustomModulePaths;
+
+		if (!filePath.isEmpty())
+		{
+			QFileInfo fileInfo(filePath);
+			totalCustomModulePaths.emplace_back(fileInfo.path() + "/customModules");
+		}
+
+		totalCustomModulePaths.insert(totalCustomModulePaths.end(),
+		                              customModulePaths.begin(),
+		                              customModulePaths.end());
+
 		std::vector<uint8_t> buffer = nExport::cJson::exportToMemory(byteArray,
-		                                                             {QDir::homePath() + "/.local/share/tvm/customModules"}); /**< @todo */
+		                                                             totalCustomModulePaths);
 		file.write((char*)&buffer[0], buffer.size());
 	}
 
@@ -366,10 +400,13 @@ bool cProjectWidget::openProject(const QString& filePath)
 		return false;
 	}
 
+	this->filePath = filePath;
+
+	setCustomModulePaths(customModulePaths);
+
 	QByteArray wholeFile = file.readAll();
 	flowScene->loadFromMemory(wholeFile);
 
-	this->filePath = filePath;
 	flagHasChanges = false;
 	actionPosition = 0;
 	actions.clear();

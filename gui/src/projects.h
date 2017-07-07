@@ -20,7 +20,11 @@ class cProjectsWidget : public cDocumentsWidget
 	Q_OBJECT
 
 public:
-	cProjectsWidget(const cVirtualMachine* virtualMachine);
+	cProjectsWidget(const cVirtualMachine* virtualMachine,
+	                const std::vector<QString>& customModulePaths);
+
+public:
+	void setCustomModulePaths(const std::vector<QString>& customModulePaths);
 
 Q_SIGNALS:
 	void openCustomModule(QString filePath);
@@ -28,8 +32,9 @@ Q_SIGNALS:
 private:
 	cDocumentWidget* createDocument() override;
 
-private:
+protected:
 	const cVirtualMachine* virtualMachine;
+	std::vector<QString> customModulePaths;
 };
 
 }

@@ -14,13 +14,18 @@ namespace nGui
 class cCustomModuleWidget : public cProjectWidget
 {
 public:
-	cCustomModuleWidget(const cVirtualMachine* virtualMachine);
+	cCustomModuleWidget(const cVirtualMachine* virtualMachine,
+	                    const std::vector<QString>& customModulePaths);
 
 	bool save() override;
 	bool saveAs() override;
 
+public:
+	void setCustomModulePaths(const std::vector<QString>& customModulePaths) override;
+
 private:
 	bool saveCustomModule(const QString& filePath);
+	QString getRootDirectory(const QString& filePath);
 };
 
 }

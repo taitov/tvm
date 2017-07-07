@@ -10,13 +10,17 @@
 using namespace nVirtualMachine::nGui;
 
 cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
-                       const QString& titleName) :
+                       const QString& virtualMachineName) :
         virtualMachine(virtualMachine),
-        titleName(titleName)
+        virtualMachineName(virtualMachineName)
 {
 	QVBoxLayout* mainLayout = new QVBoxLayout(this);
 	mainLayout->setContentsMargins(0, 0, 0, 0);
 	mainLayout->setSpacing(0);
+
+	customModulePaths.emplace_back(QDir::homePath() + "/.local/share/tvm/customModules");
+	customModulePaths.emplace_back("/usr/share/tvm/customModules");
+	customModulePaths.emplace_back("/usr/local/share/tvm/customModules");
 
 	{ /** menu */
 		auto menuBar = new QMenuBar();
@@ -240,7 +244,8 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			}
 
 			{ /** projects */
-				projectsWidget = new cProjectsWidget(virtualMachine);
+				projectsWidget = new cProjectsWidget(virtualMachine,
+				                                     customModulePaths);
 
 				connect(projectsWidget, &cProjectsWidget::openCustomModule, this, [this](QString filePath)
 				{
@@ -264,7 +269,8 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			}
 
 			{ /** customs */
-				customsWidget = new cCustomModulesWidget(virtualMachine);
+				customsWidget = new cCustomModulesWidget(virtualMachine,
+				                                         customModulePaths);
 
 				connect(customsWidget, &cCustomModulesWidget::currentDocumentChanged, this, [this](cDocumentWidget* documentWidget)
 				{
@@ -312,7 +318,7 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 	actionPosition = 0;
 	doAction = false;
 
-	setWindowTitle(this->titleName);
+	setWindowTitle(this->virtualMachineName);
 	showMaximized();
 }
 

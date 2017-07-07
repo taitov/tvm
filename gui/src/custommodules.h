@@ -1,7 +1,7 @@
 #ifndef CCUSTOMMODULESWIDGET_H
 #define CCUSTOMMODULESWIDGET_H
 
-#include "documents.h"
+#include "projects.h"
 
 namespace nVirtualMachine
 {
@@ -11,16 +11,14 @@ class cVirtualMachine;
 namespace nGui
 {
 
-class cCustomModulesWidget : public cDocumentsWidget
+class cCustomModulesWidget : public cProjectsWidget
 {
 public:
-	cCustomModulesWidget(const cVirtualMachine* virtualMachine);
+	cCustomModulesWidget(const cVirtualMachine* virtualMachine,
+	                     const std::vector<QString>& customModulePaths);
 
 private:
 	cDocumentWidget* createDocument() override;
-
-private:
-	const cVirtualMachine* virtualMachine;
 };
 
 }

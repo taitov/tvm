@@ -26,7 +26,8 @@ class cProjectWidget : public cDocumentWidget
 
 public:
 	cProjectWidget(const cVirtualMachine* virtualMachine,
-	               bool addSchemeModules);
+	               bool addSchemeModules,
+	               const std::vector<QString>& customModulePaths);
 
 	bool save() override;
 	bool saveAs() override;
@@ -40,6 +41,9 @@ public:
 	void redo() override;
 
 	QString getFilePath() override;
+
+public:
+	virtual void setCustomModulePaths(const std::vector<QString>& customModulePaths);
 
 private:
 	bool saveProject(const QString& filePath);
@@ -98,6 +102,8 @@ protected:
 	size_t actionPosition;
 
 	std::map<QUuid, QPointF> prevPositions;
+
+	std::vector<QString> customModulePaths;
 };
 
 }

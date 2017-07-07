@@ -4,11 +4,13 @@
 
 #include "custommodule.h"
 #include "flowscene.h"
+#include "toolboxmodules.h"
 
 using namespace nVirtualMachine::nGui;
 
-cCustomModuleWidget::cCustomModuleWidget(const cVirtualMachine* virtualMachine) :
-        cProjectWidget::cProjectWidget(virtualMachine, true)
+cCustomModuleWidget::cCustomModuleWidget(const cVirtualMachine* virtualMachine,
+                                         const std::vector<QString>& customModulePaths) :
+        cProjectWidget::cProjectWidget(virtualMachine, true, customModulePaths)
 {
 }
 
@@ -57,6 +59,31 @@ bool cCustomModuleWidget::saveAs()
 	return saveCustomModule(filePath);
 }
 
+void cCustomModuleWidget::setCustomModulePaths(const std::vector<QString>& customModulePaths)
+{
+	this->customModulePaths = customModulePaths;
+
+	std::vector<QString> totalCustomModulePaths;
+
+	if (!filePath.isEmpty())
+	{
+		QString rootPath = getRootDirectory(filePath);
+		if (!rootPath.isEmpty())
+		{
+			totalCustomModulePaths.emplace_back(rootPath);
+		}
+	}
+
+	totalCustomModulePaths.insert(totalCustomModulePaths.end(),
+	                              customModulePaths.begin(),
+	                              customModulePaths.end());
+
+	/** @todo: delete duplicates */
+
+	toolBox->setCustomModulePaths(totalCustomModulePaths);
+	flowScene->setCustomModulePaths(totalCustomModulePaths);
+}
+
 bool cCustomModuleWidget::saveCustomModule(const QString& filePath)
 {
 	QByteArray byteArray = flowScene->saveToMemory();
@@ -81,4 +108,21 @@ bool cCustomModuleWidget::saveCustomModule(const QString& filePath)
 	emit projectNameChanged(fileInfo.completeBaseName());
 
 	return true;
+}
+
+QString cCustomModuleWidget::getRootDirectory(const QString& filePath)
+{
+	if (filePath.isEmpty() ||
+	    filePath == "/")
+	{
+		return "";
+	}
+
+	QFileInfo fileInfo(filePath);
+	if (fileInfo.path().endsWith("/customModules"))
+	{
+		return fileInfo.path();
+	}
+
+	return getRootDirectory(fileInfo.path());
 }

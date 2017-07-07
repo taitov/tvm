@@ -30,7 +30,7 @@ class cIdeWidget : public QWidget
 
 public:
 	cIdeWidget(const cVirtualMachine* virtualMachine,
-	           const QString& titleName);
+	           const QString& virtualMachineName);
 
 private:
 	void closeEvent(QCloseEvent* event) override;
@@ -38,7 +38,7 @@ private:
 
 private:
 	const cVirtualMachine* virtualMachine;
-	QString titleName;
+	QString virtualMachineName;
 
 	QStackedWidget* stackedWidget;
 	QWidget* welcomeWidget;
@@ -48,6 +48,8 @@ private:
 
 	QAction* saveAction;
 	QAction* saveAsAction;
+
+	std::vector<QString> customModulePaths;
 
 private:
 	template<typename ... TArgs>
