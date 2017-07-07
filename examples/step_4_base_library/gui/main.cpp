@@ -17,7 +17,7 @@ int main(int argc, char** argv, char** envp)
 		return 1;
 	}
 
-	nGui::cIdeWidget ide(&virtualMachine, "step_1_helloworld");
+	nGui::cIdeWidget ide(&virtualMachine, "step_4_base_library");
 
 	return app.exec();
 }

@@ -18,7 +18,9 @@ public:
 
 	bool save() override;
 	bool saveAs() override;
-	bool open(const QString& filePath) override;
+
+private:
+	bool saveCustomModule(const QString& filePath);
 };
 
 }

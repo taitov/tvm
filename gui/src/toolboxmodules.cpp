@@ -13,6 +13,25 @@ cToolBoxModulesWidget::cToolBoxModulesWidget(const cVirtualMachine* virtualMachi
 	addItem(treeModulesAll, "All");
 }
 
+void cToolBoxModulesWidget::setCustomModulePaths(const std::vector<QString>& paths)
+{
+	customModulePaths = paths;
+
+	for (int index = 0; index < count(); index++)
+	{
+		cTreeModulesWidget* treeModules = (cTreeModulesWidget*)widget(index);
+
+		for (int item_i = 0; item_i < treeModules->topLevelItemCount(); item_i++)
+		{
+			QTreeWidgetItem* item = treeModules->topLevelItem(item_i);
+			if (item->text(0) == "custom")
+			{
+				updateCustomModulesItem(item);
+			}
+		}
+	}
+}
+
 cTreeModulesWidget* cToolBoxModulesWidget::makeTreeModulesAll(bool addSchemeModules)
 {
 	cTreeModulesWidget* treeModules = new cTreeModulesWidget();
@@ -112,7 +131,11 @@ cTreeModulesWidget* cToolBoxModulesWidget::makeTreeModulesAll(bool addSchemeModu
 	}
 
 	{ /** custom modules */
-		/** @todo */
+		QTreeWidgetItem* libraryItem = new QTreeWidgetItem((QTreeWidget*)treeModules);
+		libraryItem->setText(0, "custom");
+		libraryItem->setData(0, Qt::UserRole, "");
+
+		treeModules->expandItem(libraryItem);
 	}
 
 	std::map<QString, QTreeWidgetItem*> libraryMap;
@@ -197,4 +220,48 @@ cTreeModulesWidget* cToolBoxModulesWidget::makeTreeModulesAll(bool addSchemeModu
 	});
 
 	return treeModules;
+}
+
+void cToolBoxModulesWidget::updateCustomModulesItem(QTreeWidgetItem* customItem)
+{
+	for (int child_i = 0; child_i < customItem->childCount(); child_i++)
+	{
+		customItem->removeChild(customItem->takeChild(child_i));
+	}
+
+	for (const QString& customModulePath : customModulePaths)
+	{
+		QDir dir(customModulePath);
+		updateCustomModuleDir(customItem, dir, ":custom:");
+	}
+}
+
+void cToolBoxModulesWidget::updateCustomModuleDir(QTreeWidgetItem* item,
+                                                  const QDir& dir,
+                                                  const QString& moduleFullName)
+{
+	for (const QFileInfo& fileInfo : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Dirs))
+	{
+		QTreeWidgetItem* dirItem = new QTreeWidgetItem(item);
+		dirItem->setText(0, fileInfo.baseName());
+		dirItem->setData(0, Qt::UserRole, "");
+
+		QDir subDir(fileInfo.absoluteFilePath());
+		updateCustomModuleDir(dirItem, subDir, moduleFullName + fileInfo.baseName() + ":");
+
+		if (!dirItem->childCount())
+		{
+			item->removeChild(dirItem);
+		}
+	}
+
+	for (const QFileInfo& fileInfo : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files))
+	{
+		if (fileInfo.absoluteFilePath().endsWith(".tvmcustom", Qt::CaseInsensitive))
+		{
+			QTreeWidgetItem* moduleItem = new QTreeWidgetItem(item);
+			moduleItem->setText(0, fileInfo.baseName());
+			moduleItem->setData(0, Qt::UserRole, moduleFullName + fileInfo.baseName());
+		}
+	}
 }

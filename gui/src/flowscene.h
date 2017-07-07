@@ -1,6 +1,8 @@
 #ifndef CFLOWSCENEWIDGET_H
 #define CFLOWSCENEWIDGET_H
 
+#include <QtCore/QDir>
+
 #include <nodes/FlowScene>
 
 namespace nVirtualMachine
@@ -19,8 +21,18 @@ public:
 	cFlowSceneWidget(const cVirtualMachine* virtualMachine,
 	                 bool addSchemeModules);
 
+	void setCustomModulePaths(const std::vector<QString>& paths);
+
+private:
+	std::shared_ptr<QtNodes::DataModelRegistry> makeVirtualMachineDataModelRegistry(bool addSchemeModules);
+	void updateCustomModuleDir(std::shared_ptr<QtNodes::DataModelRegistry> dataModelRegistry,
+	                           const QDir& dir,
+	                           const QString& modulePrefixName);
+
 private:
 	const cVirtualMachine* virtualMachine;
+	const bool addSchemeModules;
+	std::vector<QString> customModulePaths;
 };
 
 }

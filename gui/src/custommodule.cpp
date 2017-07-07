@@ -3,6 +3,7 @@
 #include <QtWidgets/QFileDialog>
 
 #include "custommodule.h"
+#include "flowscene.h"
 
 using namespace nVirtualMachine::nGui;
 
@@ -30,10 +31,10 @@ bool cCustomModuleWidget::save()
 			filePath += ".tvmcustom";
 		}
 
-		return saveProject(filePath);
+		return saveCustomModule(filePath);
 	}
 
-	return saveProject(filePath);
+	return saveCustomModule(filePath);
 }
 
 bool cCustomModuleWidget::saveAs()
@@ -53,10 +54,31 @@ bool cCustomModuleWidget::saveAs()
 		filePath += ".tvmcustom";
 	}
 
-	return saveProject(filePath);
+	return saveCustomModule(filePath);
 }
 
-bool cCustomModuleWidget::open(const QString& filePath)
+bool cCustomModuleWidget::saveCustomModule(const QString& filePath)
 {
-	return openProject(filePath);
+	QByteArray byteArray = flowScene->saveToMemory();
+
+	{
+		QFile file(filePath);
+		if (!file.open(QIODevice::WriteOnly))
+		{
+			printf("error: file.open()\n");
+			return false;
+		}
+
+		file.write(byteArray);
+	}
+
+	QFileInfo fileInfo(filePath);
+
+	this->filePath = filePath;
+	flagHasChanges = false;
+
+	emit projectChanged(flagHasChanges);
+	emit projectNameChanged(fileInfo.completeBaseName());
+
+	return true;
 }

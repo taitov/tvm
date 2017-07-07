@@ -39,7 +39,7 @@ public:
 	void undo() override;
 	void redo() override;
 
-protected:
+private:
 	bool saveProject(const QString& filePath);
 	bool openProject(const QString& filePath);
 
@@ -54,6 +54,7 @@ protected:
 Q_SIGNALS:
 	void projectNameChanged(QString projectName);
 	void projectChanged(bool flagHasChanges);
+	void openCustomModule(QString filePath);
 
 private:
 	class cAction
@@ -86,7 +87,6 @@ protected:
 	const cVirtualMachine* virtualMachine;
 	QString filePath;
 
-private:
 	cToolBoxModulesWidget* toolBox;
 	cFlowSceneWidget* flowScene;
 	cFlowViewWidget* flowView;

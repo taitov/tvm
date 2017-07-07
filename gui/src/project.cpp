@@ -28,6 +28,8 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine,
 		{ /** tool box */
 			toolBox = new cToolBoxModulesWidget(virtualMachine, addSchemeModules);
 
+			toolBox->setCustomModulePaths({QDir::homePath() + "/.local/share/tvm/customModules"}); /**< @todo */
+
 			connect(toolBox, &cToolBoxModulesWidget::moduleClicked, [this](QString moduleFullName, QString moduleName)
 			{
 				auto type = flowScene->registry().create(moduleFullName);
@@ -50,6 +52,8 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine,
 	{ /** graphics view */
 		flowScene = new cFlowSceneWidget(virtualMachine, addSchemeModules);
 		flowView = new cFlowViewWidget(flowScene);
+
+		flowScene->setCustomModulePaths({QDir::homePath() + "/.local/share/tvm/customModules"}); /**< @todo */
 
 		connect(flowScene, &cFlowSceneWidget::nodeCreated, this, [this](QtNodes::Node& node)
 		{
@@ -100,6 +104,11 @@ cProjectWidget::cProjectWidget(const cVirtualMachine* virtualMachine,
 			prevPositions[node.id()] = newLocation;
 			flagHasChanges = true;
 			emit projectChanged(flagHasChanges);
+		});
+
+		connect(flowScene, &cFlowSceneWidget::nodeDoubleClicked, this, [this](QtNodes::Node& node)
+		{
+			emit openCustomModule("");
 		});
 
 		splitter->addWidget(flowView);
