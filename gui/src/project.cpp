@@ -307,6 +307,11 @@ void cProjectWidget::redo()
 	actionPosition++;
 }
 
+QString cProjectWidget::getFilePath()
+{
+	return filePath;
+}
+
 bool cProjectWidget::saveProject(const QString& filePath)
 {
 	QByteArray byteArray = flowScene->saveToMemory();

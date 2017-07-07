@@ -43,6 +43,7 @@ cDocumentsWidget::cDocumentsWidget()
 				return;
 			}
 		}
+		filePaths.erase(documentWidget->getFilePath());
 		removeTab(index);
 	});
 }
@@ -56,14 +57,23 @@ void cDocumentsWidget::newDocument()
 
 bool cDocumentsWidget::open(const QString& filePath)
 {
+	if (filePaths.find(filePath) != filePaths.end())
+	{
+		setCurrentWidget(filePaths[filePath]);
+		return true;
+	}
+
 	cDocumentWidget* documentWidget = createDocument();
 	if (!documentWidget->open(filePath))
 	{
 		delete documentWidget;
 		return false;
 	}
+
 	addTab(documentWidget, documentWidget->getDocumentName());
 	setCurrentWidget(documentWidget);
+
+	filePaths[filePath] = documentWidget;
 	return true;
 }
 
@@ -72,7 +82,12 @@ bool cDocumentsWidget::save()
 	if (currentWidget())
 	{
 		cDocumentWidget* documentWidget = (cDocumentWidget*)currentWidget();
-		return documentWidget->save();
+		if (!documentWidget->save())
+		{
+			return false;
+		}
+		filePaths[documentWidget->getFilePath()] = documentWidget;
+		return true;
 	}
 	return false;
 }
@@ -82,7 +97,12 @@ bool cDocumentsWidget::saveAs()
 	if (currentWidget())
 	{
 		cDocumentWidget* documentWidget = (cDocumentWidget*)currentWidget();
-		return documentWidget->saveAs();
+		if (!documentWidget->saveAs())
+		{
+			return false;
+		}
+		filePaths[documentWidget->getFilePath()] = documentWidget;
+		return true;
 	}
 	return false;
 }
@@ -143,6 +163,8 @@ bool cDocumentsWidget::closeAllDocuments()
 	{
 		removeTab(document_i);
 	}
+
+	filePaths.clear();
 
 	return true;
 }

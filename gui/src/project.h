@@ -39,6 +39,8 @@ public:
 	void undo() override;
 	void redo() override;
 
+	QString getFilePath() override;
+
 private:
 	bool saveProject(const QString& filePath);
 	bool openProject(const QString& filePath);

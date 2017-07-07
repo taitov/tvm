@@ -30,6 +30,9 @@ public:
 
 protected:
 	virtual cDocumentWidget* createDocument() = 0;
+
+private:
+	std::map<QString, QWidget*> filePaths;
 };
 
 }
