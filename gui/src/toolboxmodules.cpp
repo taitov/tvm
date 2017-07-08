@@ -224,9 +224,9 @@ cTreeModulesWidget* cToolBoxModulesWidget::makeTreeModulesAll(bool addSchemeModu
 
 void cToolBoxModulesWidget::updateCustomModulesItem(QTreeWidgetItem* customItem)
 {
-	for (int child_i = 0; child_i < customItem->childCount(); child_i++)
+	for (auto* child : customItem->takeChildren())
 	{
-		customItem->removeChild(customItem->takeChild(child_i));
+		customItem->removeChild(child);
 	}
 
 	for (const QString& customModulePath : customModulePaths)
