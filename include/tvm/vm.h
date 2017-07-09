@@ -1483,21 +1483,24 @@ do { \
 
 		cModule* registerModule;
 		cModule* clonedModule;
+		cSignalEntry* entrySignalEntry;
 		if (!findEntryPathModule(entryModuleId,
 		                         signalEntryName,
 		                         registerModule,
-		                         clonedModule))
+		                         clonedModule,
+		                         entrySignalEntry))
 		{
 			return false;
 		}
 
 		if ((!registerModule) ||
-		    (!clonedModule))
+		    (!clonedModule) ||
+		    (!entrySignalEntry))
 		{
 			continue;
 		}
 
-		auto rootSignalFlowValue = std::make_tuple(std::get<1>(registerModule->getSignalEntries().find(signalEntryName)->second),
+		auto rootSignalFlowValue = std::make_tuple(entrySignalEntry,
 		                                           clonedModule);
 		rootSignalFlows[map.find(key)->second] = rootSignalFlowValue;
 	}
@@ -1546,26 +1549,28 @@ do { \
 
 			cModule* entryRegisterModule;
 			cModule* entryClonedModule;
+			cSignalEntry* entrySignalEntry;
 			if (!findEntryPathModule(entryModuleId,
 			                         signalEntryName,
 			                         entryRegisterModule,
-			                         entryClonedModule))
+			                         entryClonedModule,
+			                         entrySignalEntry))
 			{
 				return false;
 			}
 
 			if ((!entryRegisterModule) ||
-			    (!entryClonedModule))
+			    (!entryClonedModule) ||
+			    (!entrySignalEntry))
 			{
 				continue;
 			}
 
 			CHECK_MAP(modules, iter.first);
-			CHECK_MAP(entryRegisterModule->getSignalEntries(), signalEntryName);
 
 			const auto signalFlowKey = std::make_tuple(modules.find(iter.first)->second,
 			                                           signalExit.second);
-			const auto signalFlowValue = std::make_tuple(std::get<1>(entryRegisterModule->getSignalEntries().find(signalEntryName)->second),
+			const auto signalFlowValue = std::make_tuple(entrySignalEntry,
 			                                             entryClonedModule);
 			signalFlows[signalFlowKey] = signalFlowValue;
 		}
@@ -1663,7 +1668,8 @@ do { \
 inline bool cScheme::findEntryPathModule(const tModuleId entryModuleId,
                                          const tSignalEntryName& signalEntryName,
                                          cModule*& registerModule,
-                                         cModule*& clonedModule) const
+                                         cModule*& clonedModule,
+                                         cSignalEntry*& signalEntry) const
 {
 #define CHECK_MAP(map, key) \
 do { \
@@ -1682,6 +1688,9 @@ do { \
 
 		registerModule = virtualMachineModules.find(loadModules.find(entryModuleId)->second)->second;
 		clonedModule = modules.find(entryModuleId)->second;
+
+		CHECK_MAP(registerModule->getSignalEntries(), signalEntryName);
+		signalEntry = std::get<1>(registerModule->getSignalEntries().find(signalEntryName)->second);
 
 		const auto& entryModuleSignalEntries = registerModule->getSignalEntries();
 		CHECK_MAP(entryModuleSignalEntries, signalEntryName);
@@ -1708,13 +1717,15 @@ do { \
 		{
 			registerModule = nullptr;
 			clonedModule = nullptr;
+			signalEntry = nullptr;
 			return true;
 		}
 
 		return scheme->findEntryPathModule(std::get<0>(signalFlows.find(signalFlowsKey)->second),
 		                                   std::get<1>(signalFlows.find(signalFlowsKey)->second),
 		                                   registerModule,
-		                                   clonedModule);
+		                                   clonedModule,
+		                                   signalEntry);
 	}
 	else if (loadSchemeSignalExitModules.find(entryModuleId) != loadSchemeSignalExitModules.end())
 	{
@@ -1731,13 +1742,15 @@ do { \
 		{
 			registerModule = nullptr;
 			clonedModule = nullptr;
+			signalEntry = nullptr;
 			return true;
 		}
 
 		return parentScheme->findEntryPathModule(std::get<0>(signalFlows.find(signalFlowsKey)->second),
 		                                         std::get<1>(signalFlows.find(signalFlowsKey)->second),
 		                                         registerModule,
-		                                         clonedModule);
+		                                         clonedModule,
+		                                         signalEntry);
 	}
 
 	return false;

@@ -80,7 +80,8 @@ private:
 	bool findEntryPathModule(const tModuleId entryModuleId,
 	                         const tSignalEntryName& signalEntryName,
 	                         cModule*& registerModule,
-	                         cModule*& clonedModule) const;
+	                         cModule*& clonedModule,
+	                         cSignalEntry*& signalEntry) const;
 
 	bool findMemoryEntryPath(const tModuleId entryModuleId,
 	                         const tMemoryEntryName& memoryEntryName,
