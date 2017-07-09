@@ -1842,6 +1842,99 @@ private:
 	TToType* to;
 };
 
+template<typename TFromType,
+         typename TToType>
+class cLogicConvertBool : public cLogicModule
+{
+public:
+	using tFunction = std::function<bool(TFromType*, TToType*)>;
+
+public:
+	cLogicConvertBool(const tModuleName& moduleName,
+	                  const tMemoryTypeName& memoryTypeNameFrom,
+	                  const tMemoryTypeName& memoryTypeNameTo,
+	                  tFunction convertFunction) :
+	        moduleName(moduleName),
+	        memoryTypeNameFrom(memoryTypeNameFrom),
+	        memoryTypeNameTo(memoryTypeNameTo),
+	        convertFunction(convertFunction)
+	{
+	}
+
+	const tModuleTypeName getModuleTypeName() const override
+	{
+		return "convert";
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicConvertBool(moduleName,
+		                             memoryTypeNameFrom,
+		                             memoryTypeNameTo,
+		                             convertFunction);
+	}
+
+	bool registerModule() override
+	{
+		setModuleName(moduleName);
+		setCaptionName("convert");
+
+		if (!registerSignalEntry("signal", &cLogicConvertBool::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry(memoryTypeNameFrom.value, memoryTypeNameFrom, from))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("done", signalExitDone))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("fail", signalExitFail))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit(memoryTypeNameTo.value, memoryTypeNameTo, to))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (from && to)
+		{
+			if (convertFunction(from, to))
+			{
+				return signalFlow(signalExitDone);
+			}
+		}
+		return signalFlow(signalExitFail);
+	}
+
+private:
+	const tModuleName moduleName;
+	const tMemoryTypeName memoryTypeNameFrom;
+	const tMemoryTypeName memoryTypeNameTo;
+	tFunction convertFunction;
+
+private:
+	const tSignalExitId signalExitDone = 1;
+	const tSignalExitId signalExitFail = 2;
+
+private:
+	TFromType* from;
+	TToType* to;
+};
+
 template<typename ... TTypes>
 class cLogicTupleGet : public cLogicModule
 {

@@ -102,6 +102,29 @@ public:
 			return false;
 		}
 
+		if (!registerMemoryModule(memoryBooleanTypeName,
+		                          new cLogicConvertBool<tString,
+		                                                tBoolean>("fromString",
+		                                                          "string",
+		                                                          memoryBooleanTypeName,
+			[](tString* from, tBoolean* to)
+			{
+				if (*from == "true")
+				{
+					*to = true;
+					return true;
+				}
+				else if (*from == "false")
+				{
+					*to = false;
+					return true;
+				}
+				return false;
+			})))
+		{
+			return false;
+		}
+
 		if (!registerMemoryStandart<tByte>("byte",
 		                                   0))
 		{
@@ -218,6 +241,25 @@ public:
 			return false;
 		}
 
+		if (!registerMemoryModule(memoryIntegerTypeName,
+		                          new cLogicConvertBool<tString,
+		                                                tInteger>("fromString",
+		                                                          "string",
+		                                                          memoryIntegerTypeName,
+			[](tString* from, tInteger* to)
+			{
+				char* endptr;
+				*to = strtol(from->c_str(), &endptr, 0);
+				if (endptr == from->c_str())
+				{
+					return false;
+				}
+				return true;
+			})))
+		{
+			return false;
+		}
+
 		if (!registerMemoryStandart<tFloat>("float",
 		                                    0.0))
 		{
@@ -232,6 +274,25 @@ public:
 			[](tFloat* from, tString* to)
 			{
 				*to = std::to_string(*from);
+			})))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule("float",
+		                          new cLogicConvertBool<tString,
+		                                                tFloat>("fromString",
+		                                                        "string",
+		                                                        "float",
+			[](tString* from, tFloat* to)
+			{
+				char* endptr;
+				*to = strtod(from->c_str(), &endptr);
+				if (endptr == from->c_str())
+				{
+					return false;
+				}
+				return true;
 			})))
 		{
 			return false;

@@ -263,14 +263,19 @@ public:
 			return false;
 		}
 
-		if (!registerMemoryModule(memoryTypeNameArray, new cLogicConvert<tBuffer,
-		                                                                 tArray>("fromBuffer",
-		                                                                         memoryBufferTypeName,
-		                                                                         memoryTypeNameArray,
+		if (!registerMemoryModule(memoryTypeNameArray, new cLogicConvertBool<tBuffer,
+		                                                                     tArray>("fromBuffer",
+		                                                                             memoryBufferTypeName,
+		                                                                             memoryTypeNameArray,
 			[](tBuffer* from, tArray* to)
 			{
 				cStreamIn stream(*from);
 				stream.pop(*to);
+				if (stream.isFailed())
+				{
+					return false;
+				}
+				return true;
 			})))
 		{
 			return false;
@@ -368,14 +373,19 @@ public:
 			return false;
 		}
 
-		if (!registerMemoryModule(memoryTypeNameVector, new cLogicConvert<tBuffer,
-		                                                                 tVector>("fromBuffer",
-		                                                                          memoryBufferTypeName,
-		                                                                          memoryTypeNameVector,
+		if (!registerMemoryModule(memoryTypeNameVector, new cLogicConvertBool<tBuffer,
+		                                                                      tVector>("fromBuffer",
+		                                                                               memoryBufferTypeName,
+		                                                                               memoryTypeNameVector,
 			[](tBuffer* from, tVector* to)
 			{
 				cStreamIn stream(*from);
 				stream.pop(*to);
+				if (stream.isFailed())
+				{
+					return false;
+				}
+				return true;
 			})))
 		{
 			return false;
@@ -465,14 +475,19 @@ public:
 			return false;
 		}
 
-		if (!registerMemoryModule(memoryTypeNameMap, new cLogicConvert<tBuffer,
-		                                                               tMap>("fromBuffer",
-		                                                                     memoryBufferTypeName,
-		                                                                     memoryTypeNameMap,
+		if (!registerMemoryModule(memoryTypeNameMap, new cLogicConvertBool<tBuffer,
+		                                                                   tMap>("fromBuffer",
+		                                                                         memoryBufferTypeName,
+		                                                                         memoryTypeNameMap,
 			[](tBuffer* from, tMap* to)
 			{
 				cStreamIn stream(*from);
 				stream.pop(*to);
+				if (stream.isFailed())
+				{
+					return false;
+				}
+				return true;
 			})))
 		{
 			return false;
@@ -570,14 +585,19 @@ public:
 			return false;
 		}
 
-		if (!registerMemoryModule(memoryTypeNameTuple, new cLogicConvert<tBuffer,
-		                                                                 tTuple>("fromBuffer",
-		                                                                         memoryBufferTypeName,
-		                                                                         memoryTypeNameTuple,
+		if (!registerMemoryModule(memoryTypeNameTuple, new cLogicConvertBool<tBuffer,
+		                                                                     tTuple>("fromBuffer",
+		                                                                             memoryBufferTypeName,
+		                                                                             memoryTypeNameTuple,
 			[](tBuffer* from, tTuple* to)
 			{
 				cStreamIn stream(*from);
 				stream.pop(*to);
+				if (stream.isFailed())
+				{
+					return false;
+				}
+				return true;
 			})))
 		{
 			return false;
@@ -742,14 +762,19 @@ private:
 			return false;
 		}
 
-		if (!registerMemoryModule(memoryTypeName, new cLogicConvert<tBuffer,
-		                                                            TType>("fromBuffer",
-		                                                                   memoryBufferTypeName,
-		                                                                   memoryTypeName,
+		if (!registerMemoryModule(memoryTypeName, new cLogicConvertBool<tBuffer,
+		                                                                TType>("fromBuffer",
+		                                                                       memoryBufferTypeName,
+		                                                                       memoryTypeName,
 			[](tBuffer* from, TType* to)
 			{
 				cStreamIn stream(*from);
 				stream.pop(*to);
+				if (stream.isFailed())
+				{
+					return false;
+				}
+				return true;
 			})))
 		{
 			return false;
