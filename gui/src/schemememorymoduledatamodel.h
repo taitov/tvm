@@ -40,6 +40,9 @@ public:
 	const void* getData() const override;
 
 public:
+	const bool canConnect(PortType portType,
+	                      NodeDataModel* model,
+	                      NodeDataType nodeDataType) const override;
 	unsigned int nPorts(PortType portType) const override;
 	NodeDataType dataType(PortType portType,
 	                      PortIndex portIndex) const override;

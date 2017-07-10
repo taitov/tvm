@@ -78,6 +78,24 @@ const void* cSchemeMemoryModuleDataModel::getData() const
 	return &data;
 }
 
+const bool cSchemeMemoryModuleDataModel::canConnect(cSchemeMemoryModuleDataModel::PortType portType,
+                                                    cSchemeMemoryModuleDataModel::NodeDataModel* model,
+                                                    cSchemeMemoryModuleDataModel::NodeDataType nodeDataType) const
+{
+	cData* secondData = (cData*)model->getData();
+	if (!secondData)
+	{
+		return true;
+	}
+
+	if (secondData->moduleTypeName.value == "memory")
+	{
+		return false;
+	}
+
+	return true;
+}
+
 unsigned int cSchemeMemoryModuleDataModel::nPorts(cSchemeMemoryModuleDataModel::PortType portType) const
 {
 	if (portType == direction)

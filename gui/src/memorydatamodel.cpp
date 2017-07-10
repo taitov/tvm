@@ -55,11 +55,17 @@ const bool cMemoryDataModel::canConnect(cMemoryDataModel::PortType portType,
                                         cMemoryDataModel::NodeDataModel* model,
                                         cMemoryDataModel::NodeDataType nodeDataType) const
 {
-//	cModelData* data = (cModelData*)model->getData();
-//	if (data->moduleTypeName == modelData.moduleTypeName)
-//	{
-//		return false;
-//	}
+	cData* secondData = (cData*)model->getData();
+	if (!secondData)
+	{
+		return true;
+	}
+
+	if (secondData->moduleTypeName == data.moduleTypeName)
+	{
+		return false;
+	}
+
 	return true;
 }
 

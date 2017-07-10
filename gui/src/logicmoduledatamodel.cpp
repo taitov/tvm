@@ -83,23 +83,22 @@ const bool cLogicModuleDataModel::canConnect(cLogicModuleDataModel::PortType por
                                              cLogicModuleDataModel::NodeDataModel* model,
                                              cLogicModuleDataModel::NodeDataType nodeDataType) const
 {
-//	cModelData* data = (cModelData*)model->getData();
+	cData* secondData = (cData*)model->getData();
+	if (!secondData)
+	{
+		return true;
+	}
 
-//	if (data->moduleTypeName.value == "scheme")
-//	{
-//		return true;
-//	}
-//	else if (data->moduleTypeName.value == "custom")
-//	{
-//		/** @todo */
-//		return true;
-//	}
+	if (secondData->moduleTypeName.value == "scheme")
+	{
+		return true;
+	}
 
-//	if (nodeDataType.id != "signal" &&
-//	    data->moduleTypeName.value != "memory")
-//	{
-//		return false;
-//	}
+	if (nodeDataType.id != "signal" &&
+	    secondData->moduleTypeName.value != "memory")
+	{
+		return false;
+	}
 
 	return true;
 }
