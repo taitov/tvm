@@ -376,6 +376,19 @@ bool cProjectWidget::saveProject(const QString& filePath)
 		file.write((char*)&buffer[0], buffer.size());
 	}
 
+	{
+		flowScene->clearSelection();
+		flowScene->setSceneRect(flowScene->itemsBoundingRect());
+
+		QImage image(flowScene->sceneRect().size().toSize(), QImage::Format_ARGB32);
+		image.fill(Qt::transparent);
+
+		QPainter painter(&image);
+		flowScene->render(&painter);
+
+		image.save(fileInfo.path() + "/" + fileInfo.completeBaseName() + ".png");
+	}
+
 	this->filePath = filePath;
 	flagHasChanges = false;
 
