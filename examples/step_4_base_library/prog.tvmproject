@@ -207,8 +207,7 @@
                 "moduleTypeName": "memory",
                 "name": ":memory:string",
                 "variables": {
-                    "value": {
-                        "type": "std::string",
+                    "string": {
                         "value": ""
                     }
                 }
@@ -224,9 +223,7 @@
                 "libraryName": "base",
                 "moduleName": "getEnvironments",
                 "moduleTypeName": "logic",
-                "name": "base:logic:getEnvironments",
-                "variables": {
-                }
+                "name": "base:logic:getEnvironments"
             },
             "position": {
                 "x": -627,
@@ -240,6 +237,8 @@
                 "moduleTypeName": "memory",
                 "name": ":memory:vector<string>",
                 "variables": {
+                    "vector<string>": {
+                    }
                 }
             },
             "position": {
@@ -253,9 +252,7 @@
                 "libraryName": "console",
                 "moduleName": "printLine",
                 "moduleTypeName": "logic",
-                "name": "console:logic:printLine",
-                "variables": {
-                }
+                "name": "console:logic:printLine"
             },
             "position": {
                 "x": 494,
@@ -269,8 +266,7 @@
                 "moduleTypeName": "memory",
                 "name": ":memory:string",
                 "variables": {
-                    "value": {
-                        "type": "std::string",
+                    "string": {
                         "value": "PATH"
                     }
                 }
@@ -286,9 +282,7 @@
                 "libraryName": ":memory:vector<string>",
                 "moduleName": "popBack",
                 "moduleTypeName": "logic",
-                "name": ":memory:vector<string>:logic:popBack",
-                "variables": {
-                }
+                "name": ":memory:vector<string>:logic:popBack"
             },
             "position": {
                 "x": -323,
@@ -301,9 +295,7 @@
                 "libraryName": "console",
                 "moduleName": "printLine",
                 "moduleTypeName": "logic",
-                "name": "console:logic:printLine",
-                "variables": {
-                }
+                "name": "console:logic:printLine"
             },
             "position": {
                 "x": 494,
@@ -316,9 +308,7 @@
                 "libraryName": "base",
                 "moduleName": "getArguments",
                 "moduleTypeName": "logic",
-                "name": "base:logic:getArguments",
-                "variables": {
-                }
+                "name": "base:logic:getArguments"
             },
             "position": {
                 "x": -893,
@@ -331,9 +321,7 @@
                 "libraryName": ":memory:map<string,string>",
                 "moduleName": "get",
                 "moduleTypeName": "logic",
-                "name": ":memory:map<string,string>:logic:get",
-                "variables": {
-                }
+                "name": ":memory:map<string,string>:logic:get"
             },
             "position": {
                 "x": -76,
@@ -346,9 +334,7 @@
                 "libraryName": "tvm",
                 "moduleTypeName": "root",
                 "name": "tvm:root:schemeLoaded",
-                "rootModuleName": "schemeLoaded",
-                "variables": {
-                }
+                "rootModuleName": "schemeLoaded"
             },
             "position": {
                 "x": -1121,
@@ -361,9 +347,7 @@
                 "libraryName": "console",
                 "moduleName": "printLine",
                 "moduleTypeName": "logic",
-                "name": "console:logic:printLine",
-                "variables": {
-                }
+                "name": "console:logic:printLine"
             },
             "position": {
                 "x": 494,
@@ -377,6 +361,8 @@
                 "moduleTypeName": "memory",
                 "name": ":memory:map<string,string>",
                 "variables": {
+                    "map<string,string>": {
+                    }
                 }
             },
             "position": {
@@ -391,8 +377,7 @@
                 "moduleTypeName": "memory",
                 "name": ":memory:string",
                 "variables": {
-                    "value": {
-                        "type": "std::string",
+                    "string": {
                         "value": "'PATH' not found"
                     }
                 }
