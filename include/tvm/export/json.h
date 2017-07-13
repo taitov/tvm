@@ -24,6 +24,11 @@ namespace nExport
 class cJson
 {
 public:
+	using tBoolean = bool;
+	using tString = std::string;
+	using tInteger = int64_t;
+	using tFloat = double;
+
 	using tGuiModuleIds = std::map<QString,
 	                               tModuleId>;
 
@@ -113,66 +118,29 @@ public:
 		return guiModuleIds;
 	}
 
-	static std::vector<uint8_t> exportMemoryModuleVariables(QJsonObject jsonObject)
+	static std::vector<uint8_t> exportMemoryModuleVariables(const QString& typeName,
+	                                                        const QJsonObject& jsonObject)
 	{
 		cStreamOut stream;
 
-		QString type = jsonObject["value"].toObject()["type"].toString();
-		auto valueJson = jsonObject["value"].toObject()["value"];
-
-		if (type == "std::string")
+		if (typeName == "boolean")
 		{
-			std::string value = valueJson.toString().toStdString();
+			tBoolean value = jsonObject["value"].toBool();
 			stream.push(value);
 		}
-		else if (type == "uint64_t")
+		else if (typeName == "string")
 		{
-			uint64_t value = valueJson.toString().toULongLong(nullptr, 0);
+			tString value = jsonObject["value"].toString().toStdString();
 			stream.push(value);
 		}
-		else if (type == "uint32_t")
+		else if (typeName == "integer")
 		{
-			uint32_t value = valueJson.toString().toULongLong(nullptr, 0);
+			tInteger value = jsonObject["value"].toString().toLongLong(nullptr, 0);
 			stream.push(value);
 		}
-		else if (type == "uint16_t")
+		else if (typeName == "float")
 		{
-			uint16_t value = valueJson.toString().toULongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == "uint8_t")
-		{
-			uint8_t value = valueJson.toString().toULongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == "int64_t")
-		{
-			int64_t value = valueJson.toString().toLongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == "int32_t")
-		{
-			int32_t value = valueJson.toString().toLongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == "int16_t")
-		{
-			int16_t value = valueJson.toString().toLongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == "int8_t")
-		{
-			int8_t value = valueJson.toString().toLongLong(nullptr, 0);
-			stream.push(value);
-		}
-		else if (type == "bool")
-		{
-			bool value = valueJson.toBool();
-			stream.push(value);
-		}
-		else if (type == "double")
-		{
-			double value = valueJson.toString().toDouble();
+			tFloat value = jsonObject["value"].toString().toDouble();
 			stream.push(value);
 		}
 
@@ -236,10 +204,12 @@ public:
 					{
 						if (modelJson["moduleTypeName"].toString() == "memory")
 						{
+							QString typeName = modelJson["memoryTypeName"].toString();
 							auto key = moduleIds[nodeJson["id"].toString()];
-							auto value = modelJson["memoryTypeName"].toString().toStdString();
+							auto value = typeName.toStdString();
 							memories[key] = value;
-							memoryModuleVariables[key] = exportMemoryModuleVariables(modelJson["variables"].toObject());
+							memoryModuleVariables[key] = exportMemoryModuleVariables(typeName,
+							                                                         modelJson["variables"].toObject()[typeName].toObject());
 						}
 						else if (modelJson["moduleTypeName"].toString() == "logic" ||
 						         modelJson["moduleTypeName"].toString() == "convert")

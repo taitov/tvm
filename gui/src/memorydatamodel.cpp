@@ -7,6 +7,8 @@ cMemoryDataModel::cMemoryDataModel(const tMemoryTypeName& memoryTypeName) :
 {
 	data.moduleTypeName = "memory";
 
+	data.makeWidget(QString::fromUtf8(memoryTypeName.value.c_str()));
+
 	NodeStyle style = nodeStyle();
 	style.GradientColor0 = QColor(0x83502e);
 	style.GradientColor1 = QColor(0x83502e);
@@ -22,6 +24,7 @@ cMemoryDataModel::~cMemoryDataModel()
 QJsonObject cMemoryDataModel::save() const
 {
 	QJsonObject jsonObject = NodeDataModel::save();
+	jsonObject["variables"] = data.save();
 	jsonObject["moduleTypeName"] = "memory";
 	jsonObject["memoryTypeName"] = QString::fromUtf8(memoryTypeName.value.c_str());
 	return jsonObject;
@@ -29,6 +32,7 @@ QJsonObject cMemoryDataModel::save() const
 
 void cMemoryDataModel::restore(const QJsonObject& jsonObject)
 {
+	data.restore(jsonObject["variables"]);
 }
 
 QString cMemoryDataModel::caption() const
@@ -131,5 +135,5 @@ void cMemoryDataModel::setInData(std::shared_ptr<cMemoryDataModel::NodeData>, in
 
 QWidget* cMemoryDataModel::embeddedWidget()
 {
-	return nullptr;
+	return data.mainWidget;
 }
