@@ -389,6 +389,10 @@ bool cProjectWidget::saveProject(const QString& filePath)
 		image.save(fileInfo.path() + "/" + fileInfo.completeBaseName() + ".png");
 	}
 
+	{
+		QDir().mkdir(fileInfo.path() + "/customModules");
+	}
+
 	this->filePath = filePath;
 	flagHasChanges = false;
 
