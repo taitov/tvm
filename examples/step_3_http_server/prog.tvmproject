@@ -1,0 +1,474 @@
+{
+    "connections": [
+        {
+            "id": "{25fbebb5-ced6-4c31-8226-ed31c9a2f9da}",
+            "in_id": "{a5885714-3fa6-46cf-97ed-64fecec7825e}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "string",
+            "out_id": "{af6691d6-61f0-45c3-8cf0-777f9d627b38}",
+            "out_index": 1,
+            "out_portName": "result",
+            "out_portType": "string"
+        },
+        {
+            "id": "{3d85a4c8-2ac1-4bd1-8ef3-1c94519f3c81}",
+            "in_id": "{267716cb-54e0-4fce-ad8a-998142ac527d}",
+            "in_index": 1,
+            "in_portName": "first",
+            "in_portType": "string",
+            "out_id": "{a5885714-3fa6-46cf-97ed-64fecec7825e}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "string"
+        },
+        {
+            "id": "{46884ed5-cd97-41fe-8428-7e1b37cf3d7a}",
+            "in_id": "{d696c9b0-3ed2-4afa-a25b-1aa522b29704}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "string",
+            "out_id": "{fa558a6f-7c00-43e6-aca7-2b050be8f950}",
+            "out_index": 1,
+            "out_portName": "string",
+            "out_portType": "string"
+        },
+        {
+            "id": "{5a4a3096-de35-4f95-bbd4-8c4060f281ab}",
+            "in_id": "{34df4c75-8a8c-4119-bfd3-77199840438f}",
+            "in_index": 2,
+            "in_portName": "second",
+            "in_portType": "string",
+            "out_id": "{d696c9b0-3ed2-4afa-a25b-1aa522b29704}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "string"
+        },
+        {
+            "id": "{68918434-9a00-4537-837d-659710d7c751}",
+            "in_id": "{267716cb-54e0-4fce-ad8a-998142ac527d}",
+            "in_index": 2,
+            "in_portName": "second",
+            "in_portType": "string",
+            "out_id": "{00ad1ead-a94e-458e-bb3c-ffdbedb4c2bf}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "string"
+        },
+        {
+            "id": "{70ce86a4-8e44-4139-be8e-60bcdfdde4c9}",
+            "in_id": "{4b0c4fa2-85bb-453c-b6b0-7e64f31c7c82}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "string",
+            "out_id": "{34df4c75-8a8c-4119-bfd3-77199840438f}",
+            "out_index": 1,
+            "out_portName": "result",
+            "out_portType": "string"
+        },
+        {
+            "id": "{740a525f-b3bf-44b8-b983-0c4523c3c1ec}",
+            "in_id": "{af6691d6-61f0-45c3-8cf0-777f9d627b38}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{fa558a6f-7c00-43e6-aca7-2b050be8f950}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{7da9bd75-1664-40b6-80de-c8dad9265d91}",
+            "in_id": "{fa558a6f-7c00-43e6-aca7-2b050be8f950}",
+            "in_index": 1,
+            "in_portName": "ipAddress",
+            "in_portType": "ipv4",
+            "out_id": "{a7643c6f-311d-4264-8e6b-7b8da3638ddd}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "ipv4"
+        },
+        {
+            "id": "{8354a4b8-888d-4d42-8a66-4a997453c020}",
+            "in_id": "{b3a6cb23-e9ed-47c3-8d0a-a9d592efa1c7}",
+            "in_index": 1,
+            "in_portName": "body",
+            "in_portType": "string",
+            "out_id": "{4b0c4fa2-85bb-453c-b6b0-7e64f31c7c82}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "string"
+        },
+        {
+            "id": "{8a767ddc-86fc-4cbb-a6a7-ba350d6c1af9}",
+            "in_id": "{16586639-2c91-4831-96d5-5d569c4444b5}",
+            "in_index": 1,
+            "in_portName": "string",
+            "in_portType": "string",
+            "out_id": "{cb31f0be-2dd9-42e9-a98a-707803c00339}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "string"
+        },
+        {
+            "id": "{92dbb27f-f4df-4356-a468-32f0c9c590a2}",
+            "in_id": "{b3a6cb23-e9ed-47c3-8d0a-a9d592efa1c7}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{34df4c75-8a8c-4119-bfd3-77199840438f}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{93bbc114-5a6c-48f0-b6c8-a5d0a5a0f5c4}",
+            "in_id": "{b3a6cb23-e9ed-47c3-8d0a-a9d592efa1c7}",
+            "in_index": 2,
+            "in_portName": "title",
+            "in_portType": "string",
+            "out_id": "{00ad1ead-a94e-458e-bb3c-ffdbedb4c2bf}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "string"
+        },
+        {
+            "id": "{957e8eea-6fe8-4ca0-8f86-0bbf085770c4}",
+            "in_id": "{af6691d6-61f0-45c3-8cf0-777f9d627b38}",
+            "in_index": 1,
+            "in_portName": "first",
+            "in_portType": "string",
+            "out_id": "{d696c9b0-3ed2-4afa-a25b-1aa522b29704}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "string"
+        },
+        {
+            "id": "{a4aaa31f-e783-40d7-9c7c-a29662dc8d34}",
+            "in_id": "{34df4c75-8a8c-4119-bfd3-77199840438f}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{16586639-2c91-4831-96d5-5d569c4444b5}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{b1bf5bcf-9a96-4327-a8cf-c51f10fd7290}",
+            "in_id": "{a7643c6f-311d-4264-8e6b-7b8da3638ddd}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "ipv4",
+            "out_id": "{3dbcecbc-3607-46a2-a416-52ab9596a9d1}",
+            "out_index": 2,
+            "out_portName": "ipAddress",
+            "out_portType": "ipv4"
+        },
+        {
+            "id": "{b2bdee4d-daa5-435c-9be1-3dbe1b20bf78}",
+            "in_id": "{34df4c75-8a8c-4119-bfd3-77199840438f}",
+            "in_index": 1,
+            "in_portName": "first",
+            "in_portType": "string",
+            "out_id": "{baf9464a-699e-4610-81d7-c120e5c327b9}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "string"
+        },
+        {
+            "id": "{c6606234-6ef1-43fc-a792-8bcdd71d0bc4}",
+            "in_id": "{af6691d6-61f0-45c3-8cf0-777f9d627b38}",
+            "in_index": 2,
+            "in_portName": "second",
+            "in_portType": "string",
+            "out_id": "{fe67fde0-288f-4056-888a-7e67a3f7829a}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "string"
+        },
+        {
+            "id": "{dfe970dd-8e5c-4d9e-8aae-2125ce0f77ab}",
+            "in_id": "{16586639-2c91-4831-96d5-5d569c4444b5}",
+            "in_index": 0,
+            "in_portName": "print",
+            "in_portType": "signal",
+            "out_id": "{267716cb-54e0-4fce-ad8a-998142ac527d}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{ef3eda11-3bd2-45e2-8624-067d72f67fca}",
+            "in_id": "{fa558a6f-7c00-43e6-aca7-2b050be8f950}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{3dbcecbc-3607-46a2-a416-52ab9596a9d1}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{f5af7a72-1313-454f-9c35-d51429ee4c77}",
+            "in_id": "{00ad1ead-a94e-458e-bb3c-ffdbedb4c2bf}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "string",
+            "out_id": "{3dbcecbc-3607-46a2-a416-52ab9596a9d1}",
+            "out_index": 3,
+            "out_portName": "url",
+            "out_portType": "string"
+        },
+        {
+            "id": "{f75e892f-e5ec-44f6-b88e-5af3c66a2453}",
+            "in_id": "{267716cb-54e0-4fce-ad8a-998142ac527d}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{af6691d6-61f0-45c3-8cf0-777f9d627b38}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{fea92aec-27b7-4c74-a430-d096146886b9}",
+            "in_id": "{cb31f0be-2dd9-42e9-a98a-707803c00339}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "string",
+            "out_id": "{267716cb-54e0-4fce-ad8a-998142ac527d}",
+            "out_index": 1,
+            "out_portName": "result",
+            "out_portType": "string"
+        }
+    ],
+    "nodes": [
+        {
+            "id": "{00ad1ead-a94e-458e-bb3c-ffdbedb4c2bf}",
+            "model": {
+                "memoryTypeName": "string",
+                "moduleTypeName": "memory",
+                "name": ":memory:string",
+                "variables": {
+                    "string": {
+                        "value": ""
+                    }
+                }
+            },
+            "position": {
+                "x": -798,
+                "y": 399
+            }
+        },
+        {
+            "id": "{16586639-2c91-4831-96d5-5d569c4444b5}",
+            "model": {
+                "libraryName": "example",
+                "moduleName": "print",
+                "moduleTypeName": "logic",
+                "name": "example:logic:print"
+            },
+            "position": {
+                "x": 1083,
+                "y": 19
+            }
+        },
+        {
+            "id": "{267716cb-54e0-4fce-ad8a-998142ac527d}",
+            "model": {
+                "libraryName": "example",
+                "moduleName": "append",
+                "moduleTypeName": "logic",
+                "name": "example:logic:append"
+            },
+            "position": {
+                "x": 532,
+                "y": 323
+            }
+        },
+        {
+            "id": "{34df4c75-8a8c-4119-bfd3-77199840438f}",
+            "model": {
+                "libraryName": "example",
+                "moduleName": "append",
+                "moduleTypeName": "logic",
+                "name": "example:logic:append"
+            },
+            "position": {
+                "x": 1292,
+                "y": 190
+            }
+        },
+        {
+            "id": "{3dbcecbc-3607-46a2-a416-52ab9596a9d1}",
+            "model": {
+                "libraryName": "example",
+                "moduleTypeName": "root",
+                "name": "example:root:GET",
+                "rootModuleName": "GET"
+            },
+            "position": {
+                "x": -1121,
+                "y": 19
+            }
+        },
+        {
+            "id": "{4b0c4fa2-85bb-453c-b6b0-7e64f31c7c82}",
+            "model": {
+                "memoryTypeName": "string",
+                "moduleTypeName": "memory",
+                "name": ":memory:string",
+                "variables": {
+                    "string": {
+                        "value": ""
+                    }
+                }
+            },
+            "position": {
+                "x": 1577,
+                "y": 266
+            }
+        },
+        {
+            "id": "{a5885714-3fa6-46cf-97ed-64fecec7825e}",
+            "model": {
+                "memoryTypeName": "string",
+                "moduleTypeName": "memory",
+                "name": ":memory:string",
+                "variables": {
+                    "string": {
+                        "value": ""
+                    }
+                }
+            },
+            "position": {
+                "x": 209,
+                "y": 133
+            }
+        },
+        {
+            "id": "{a7643c6f-311d-4264-8e6b-7b8da3638ddd}",
+            "model": {
+                "memoryTypeName": "ipv4",
+                "moduleTypeName": "memory",
+                "name": ":memory:ipv4",
+                "variables": {
+                    "ipv4": {
+                    }
+                }
+            },
+            "position": {
+                "x": -931,
+                "y": 95
+            }
+        },
+        {
+            "id": "{af6691d6-61f0-45c3-8cf0-777f9d627b38}",
+            "model": {
+                "libraryName": "example",
+                "moduleName": "append",
+                "moduleTypeName": "logic",
+                "name": "example:logic:append"
+            },
+            "position": {
+                "x": -19,
+                "y": 19
+            }
+        },
+        {
+            "id": "{b3a6cb23-e9ed-47c3-8d0a-a9d592efa1c7}",
+            "model": {
+                "libraryName": "example",
+                "moduleName": "OK",
+                "moduleTypeName": "logic",
+                "name": "example:logic:OK"
+            },
+            "position": {
+                "x": 1900,
+                "y": 323
+            }
+        },
+        {
+            "id": "{baf9464a-699e-4610-81d7-c120e5c327b9}",
+            "model": {
+                "memoryTypeName": "string",
+                "moduleTypeName": "memory",
+                "name": ":memory:string",
+                "variables": {
+                    "string": {
+                        "value": "Your address: "
+                    }
+                }
+            },
+            "position": {
+                "x": 969,
+                "y": 456
+            }
+        },
+        {
+            "id": "{cb31f0be-2dd9-42e9-a98a-707803c00339}",
+            "model": {
+                "memoryTypeName": "string",
+                "moduleTypeName": "memory",
+                "name": ":memory:string",
+                "variables": {
+                    "string": {
+                        "value": ""
+                    }
+                }
+            },
+            "position": {
+                "x": 760,
+                "y": 133
+            }
+        },
+        {
+            "id": "{d696c9b0-3ed2-4afa-a25b-1aa522b29704}",
+            "model": {
+                "memoryTypeName": "string",
+                "moduleTypeName": "memory",
+                "name": ":memory:string",
+                "variables": {
+                    "string": {
+                        "value": ""
+                    }
+                }
+            },
+            "position": {
+                "x": -342,
+                "y": 266
+            }
+        },
+        {
+            "id": "{fa558a6f-7c00-43e6-aca7-2b050be8f950}",
+            "model": {
+                "libraryName": "example",
+                "moduleName": "convert",
+                "moduleTypeName": "logic",
+                "name": "example:logic:convert"
+            },
+            "position": {
+                "x": -608,
+                "y": 19
+            }
+        },
+        {
+            "id": "{fe67fde0-288f-4056-888a-7e67a3f7829a}",
+            "model": {
+                "memoryTypeName": "string",
+                "moduleTypeName": "memory",
+                "name": ":memory:string",
+                "variables": {
+                    "string": {
+                        "value": ": GET "
+                    }
+                }
+            },
+            "position": {
+                "x": -342,
+                "y": 95
+            }
+        }
+    ]
+}
