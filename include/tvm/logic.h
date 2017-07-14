@@ -1569,7 +1569,7 @@ public:
 
 template<typename TType>
 class cLogicIncrement<TType,
-                      void_t<decltype(++std::declval<TType>())>>: public cLogicModule
+                      void_t<decltype(++std::declval<TType&>())>>: public cLogicModule
 {
 public:
 	cLogicIncrement(const tMemoryTypeName& memoryTypeName) :
@@ -1636,7 +1636,7 @@ public:
 
 template<typename TType>
 class cLogicDecrement<TType,
-                      void_t<decltype(--std::declval<TType>())>> : public cLogicModule
+                      void_t<decltype(--std::declval<TType&>())>>: public cLogicModule
 {
 public:
 	cLogicDecrement(const tMemoryTypeName& memoryTypeName) :
