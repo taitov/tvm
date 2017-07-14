@@ -1,0 +1,411 @@
+{
+    "connections": [
+        {
+            "id": "{0f1758bc-269c-4420-a643-f4c9e442076c}",
+            "in_id": "{74f04831-cf26-4bd1-9a60-2dd8e9fef5ae}",
+            "in_index": 0,
+            "in_portName": "iteration",
+            "in_portType": "signal",
+            "out_id": "{20a7fe88-0a65-4a53-82a9-c03f2f67f657}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{43c40cf3-f1d0-4c51-8d4a-a9dcddff87f8}",
+            "in_id": "{11109807-fd5e-4be9-bbe6-a292b3c5f1c2}",
+            "in_index": 2,
+            "in_portName": "vector<string>",
+            "in_portType": "vector<string>",
+            "out_id": "{a4e9ae2c-1c9a-4610-8fc1-39d53e4fcc4e}",
+            "out_index": 0,
+            "out_portName": "vector<string>",
+            "out_portType": "vector<string>"
+        },
+        {
+            "id": "{4f191c93-58c7-48c9-b659-ce3344c1d7b0}",
+            "in_id": "{81262c01-890f-436a-b0ab-af5e77be7d09}",
+            "in_index": 1,
+            "in_portName": "vector<string>",
+            "in_portType": "vector<string>",
+            "out_id": "{a4e9ae2c-1c9a-4610-8fc1-39d53e4fcc4e}",
+            "out_index": 0,
+            "out_portName": "vector<string>",
+            "out_portType": "vector<string>"
+        },
+        {
+            "id": "{5256aff6-9805-4be5-9c5f-0cd78f2768a1}",
+            "in_id": "{af3895ee-a27d-4cf1-8d6d-c5c307f8546b}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "integer",
+            "out_id": "{81262c01-890f-436a-b0ab-af5e77be7d09}",
+            "out_index": 1,
+            "out_portName": "integer",
+            "out_portType": "integer"
+        },
+        {
+            "id": "{5356c2d0-b5a9-4835-9476-a3e18d9c5684}",
+            "in_id": "{0484a1b7-1b0d-4b05-8809-b5f39c22e8a7}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{81262c01-890f-436a-b0ab-af5e77be7d09}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{6ba4a413-ca3a-4e72-bc12-42882fbc1a68}",
+            "in_id": "{c59c77f4-05ab-4052-b720-cee0bc7ede01}",
+            "in_index": 0,
+            "in_portName": "done",
+            "in_portType": "signal",
+            "out_id": "{0484a1b7-1b0d-4b05-8809-b5f39c22e8a7}",
+            "out_index": 0,
+            "out_portName": "false",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{767e6416-0e1e-4f0e-8fd3-ddded98dd910}",
+            "in_id": "{2c5ecd7b-f911-4613-9e94-df8e1c91017e}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{1fe2f874-05d8-4783-bca7-05afbe913ca9}",
+            "out_index": 0,
+            "out_portName": "begin",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{8124c0b5-48dc-4ab7-a137-f61b80d91280}",
+            "in_id": "{5299f1dd-7b95-4f5d-9ea7-89da7b8486dc}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "integer",
+            "out_id": "{20a7fe88-0a65-4a53-82a9-c03f2f67f657}",
+            "out_index": 1,
+            "out_portName": "integer",
+            "out_portType": "integer"
+        },
+        {
+            "id": "{890a1f12-59ef-45d9-8539-c0c451b343b0}",
+            "in_id": "{1b92232a-c64a-459e-950b-048e6d0bef14}",
+            "in_index": 0,
+            "in_portName": "string",
+            "in_portType": "string",
+            "out_id": "{11109807-fd5e-4be9-bbe6-a292b3c5f1c2}",
+            "out_index": 2,
+            "out_portName": "string",
+            "out_portType": "string"
+        },
+        {
+            "id": "{8c699708-967a-4dbc-ab5e-c8b0a5781888}",
+            "in_id": "{2c5ecd7b-f911-4613-9e94-df8e1c91017e}",
+            "in_index": 1,
+            "in_portName": "integer",
+            "in_portType": "integer",
+            "out_id": "{3078f030-f45c-4534-97fb-006081dfb012}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "integer"
+        },
+        {
+            "id": "{b3eb7fce-159e-49e0-9f96-3f162eb01490}",
+            "in_id": "{0484a1b7-1b0d-4b05-8809-b5f39c22e8a7}",
+            "in_index": 1,
+            "in_portName": "first",
+            "in_portType": "integer",
+            "out_id": "{5299f1dd-7b95-4f5d-9ea7-89da7b8486dc}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "integer"
+        },
+        {
+            "id": "{b73c02fc-f998-4f80-902c-2fda0df9e09c}",
+            "in_id": "{11109807-fd5e-4be9-bbe6-a292b3c5f1c2}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{0484a1b7-1b0d-4b05-8809-b5f39c22e8a7}",
+            "out_index": 1,
+            "out_portName": "true",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{b9e4e217-3efa-4303-b073-39a80bf9bfbb}",
+            "in_id": "{5299f1dd-7b95-4f5d-9ea7-89da7b8486dc}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "integer",
+            "out_id": "{2c5ecd7b-f911-4613-9e94-df8e1c91017e}",
+            "out_index": 1,
+            "out_portName": "integer",
+            "out_portType": "integer"
+        },
+        {
+            "id": "{bf5c7d03-1fe8-47ed-a0fd-98a80a281b8a}",
+            "in_id": "{20a7fe88-0a65-4a53-82a9-c03f2f67f657}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{11109807-fd5e-4be9-bbe6-a292b3c5f1c2}",
+            "out_index": 0,
+            "out_portName": "done",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{c1f8a50f-a9cd-4488-a5e2-90c5e076eb49}",
+            "in_id": "{0484a1b7-1b0d-4b05-8809-b5f39c22e8a7}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{d8e27521-eb33-485b-8e1b-46d846ab4935}",
+            "out_index": 0,
+            "out_portName": "continue",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{e728d6f8-1bb8-4e9f-bdce-3f830bafa4a8}",
+            "in_id": "{81262c01-890f-436a-b0ab-af5e77be7d09}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{2c5ecd7b-f911-4613-9e94-df8e1c91017e}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{e946bca6-a50b-49ad-9a21-9e150bab13ac}",
+            "in_id": "{c59c77f4-05ab-4052-b720-cee0bc7ede01}",
+            "in_index": 0,
+            "in_portName": "done",
+            "in_portType": "signal",
+            "out_id": "{11109807-fd5e-4be9-bbe6-a292b3c5f1c2}",
+            "out_index": 1,
+            "out_portName": "fail",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{f86b86a1-d1b6-4e63-9612-ddd8ac7c4b4e}",
+            "in_id": "{11109807-fd5e-4be9-bbe6-a292b3c5f1c2}",
+            "in_index": 1,
+            "in_portName": "index",
+            "in_portType": "integer",
+            "out_id": "{5299f1dd-7b95-4f5d-9ea7-89da7b8486dc}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "integer"
+        },
+        {
+            "id": "{fc5d7a83-e12a-4f74-bacf-358d8578f675}",
+            "in_id": "{0484a1b7-1b0d-4b05-8809-b5f39c22e8a7}",
+            "in_index": 2,
+            "in_portName": "second",
+            "in_portType": "integer",
+            "out_id": "{af3895ee-a27d-4cf1-8d6d-c5c307f8546b}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "integer"
+        }
+    ],
+    "nodes": [
+        {
+            "id": "{0484a1b7-1b0d-4b05-8809-b5f39c22e8a7}",
+            "model": {
+                "libraryName": ":memory:integer",
+                "moduleName": "ifLess",
+                "moduleTypeName": "logic",
+                "name": ":memory:integer:logic:ifLess"
+            },
+            "position": {
+                "x": 304,
+                "y": -209
+            }
+        },
+        {
+            "id": "{11109807-fd5e-4be9-bbe6-a292b3c5f1c2}",
+            "model": {
+                "libraryName": ":memory:vector<string>",
+                "moduleName": "get",
+                "moduleTypeName": "logic",
+                "name": ":memory:vector<string>:logic:get"
+            },
+            "position": {
+                "x": 513,
+                "y": -57
+            }
+        },
+        {
+            "id": "{1b92232a-c64a-459e-950b-048e6d0bef14}",
+            "model": {
+                "direction": "outMemory",
+                "moduleTypeName": "scheme",
+                "name": ":scheme:outMemory",
+                "portName": "",
+                "portType": "string"
+            },
+            "position": {
+                "x": 760,
+                "y": 76
+            }
+        },
+        {
+            "id": "{1fe2f874-05d8-4783-bca7-05afbe913ca9}",
+            "model": {
+                "direction": "inSignal",
+                "moduleTypeName": "scheme",
+                "name": ":scheme:inSignal",
+                "portName": "begin"
+            },
+            "position": {
+                "x": -1121,
+                "y": -171
+            }
+        },
+        {
+            "id": "{20a7fe88-0a65-4a53-82a9-c03f2f67f657}",
+            "model": {
+                "libraryName": ":memory:integer",
+                "moduleName": "increment",
+                "moduleTypeName": "logic",
+                "name": ":memory:integer:logic:increment"
+            },
+            "position": {
+                "x": 760,
+                "y": -57
+            }
+        },
+        {
+            "id": "{2c5ecd7b-f911-4613-9e94-df8e1c91017e}",
+            "model": {
+                "libraryName": ":memory:integer",
+                "moduleName": "copy",
+                "moduleTypeName": "logic",
+                "name": ":memory:integer:logic:copy"
+            },
+            "position": {
+                "x": -475,
+                "y": -171
+            }
+        },
+        {
+            "id": "{3078f030-f45c-4534-97fb-006081dfb012}",
+            "model": {
+                "memoryTypeName": "integer",
+                "moduleTypeName": "memory",
+                "name": ":memory:integer",
+                "variables": {
+                    "integer": {
+                        "value": "0"
+                    }
+                }
+            },
+            "position": {
+                "x": -798,
+                "y": -95
+            }
+        },
+        {
+            "id": "{5299f1dd-7b95-4f5d-9ea7-89da7b8486dc}",
+            "model": {
+                "memoryTypeName": "integer",
+                "moduleTypeName": "memory",
+                "name": ":memory:integer",
+                "variables": {
+                    "integer": {
+                        "value": ""
+                    }
+                }
+            },
+            "position": {
+                "x": -266,
+                "y": -171
+            }
+        },
+        {
+            "id": "{74f04831-cf26-4bd1-9a60-2dd8e9fef5ae}",
+            "model": {
+                "direction": "outSignal",
+                "moduleTypeName": "scheme",
+                "name": ":scheme:outSignal",
+                "portName": "iteration"
+            },
+            "position": {
+                "x": 969,
+                "y": -57
+            }
+        },
+        {
+            "id": "{81262c01-890f-436a-b0ab-af5e77be7d09}",
+            "model": {
+                "libraryName": ":memory:vector<string>",
+                "moduleName": "getCount",
+                "moduleTypeName": "logic",
+                "name": ":memory:vector<string>:logic:getCount"
+            },
+            "position": {
+                "x": -266,
+                "y": -76
+            }
+        },
+        {
+            "id": "{a4e9ae2c-1c9a-4610-8fc1-39d53e4fcc4e}",
+            "model": {
+                "direction": "inMemory",
+                "moduleTypeName": "scheme",
+                "name": ":scheme:inMemory",
+                "portName": "",
+                "portType": "vector<string>"
+            },
+            "position": {
+                "x": -589,
+                "y": 19
+            }
+        },
+        {
+            "id": "{af3895ee-a27d-4cf1-8d6d-c5c307f8546b}",
+            "model": {
+                "memoryTypeName": "integer",
+                "moduleTypeName": "memory",
+                "name": ":memory:integer",
+                "variables": {
+                    "integer": {
+                        "value": ""
+                    }
+                }
+            },
+            "position": {
+                "x": -19,
+                "y": -38
+            }
+        },
+        {
+            "id": "{c59c77f4-05ab-4052-b720-cee0bc7ede01}",
+            "model": {
+                "direction": "outSignal",
+                "moduleTypeName": "scheme",
+                "name": ":scheme:outSignal",
+                "portName": "done"
+            },
+            "position": {
+                "x": 760,
+                "y": -209
+            }
+        },
+        {
+            "id": "{d8e27521-eb33-485b-8e1b-46d846ab4935}",
+            "model": {
+                "direction": "inSignal",
+                "moduleTypeName": "scheme",
+                "name": ":scheme:inSignal",
+                "portName": "continue"
+            },
+            "position": {
+                "x": -19,
+                "y": -266
+            }
+        }
+    ]
+}

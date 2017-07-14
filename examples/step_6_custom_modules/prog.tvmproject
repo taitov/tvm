@@ -1,0 +1,178 @@
+{
+    "connections": [
+        {
+            "id": "{0d6b8917-6235-4e2c-9c9c-302527cfe7e1}",
+            "in_id": "{6a1dd296-d743-42c2-bec3-d30311726ab4}",
+            "in_index": 0,
+            "in_portName": "begin",
+            "in_portType": "signal",
+            "out_id": "{20b5c752-29cc-4b38-a114-6b4b4e073043}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{1f283739-1393-4710-b93b-e512a9cf84fd}",
+            "in_id": "{6a1dd296-d743-42c2-bec3-d30311726ab4}",
+            "in_index": 2,
+            "in_portName": "vector<string>",
+            "in_portType": "vector<string>",
+            "out_id": "{7634b88c-6a75-43cc-ae66-63ccbe640d0e}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "vector<string>"
+        },
+        {
+            "id": "{4001effb-dd1d-467e-8ac7-0d7121602f7d}",
+            "in_id": "{20b5c752-29cc-4b38-a114-6b4b4e073043}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{79bcf9a1-e1cf-4572-b813-09a500a07f77}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{525898e4-ef2b-417a-aea5-7f7d4d042a7e}",
+            "in_id": "{c51206bc-9903-426a-b995-f731547d6888}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{6a1dd296-d743-42c2-bec3-d30311726ab4}",
+            "out_index": 1,
+            "out_portName": "iteration",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{549575e5-0ec7-4926-a70c-faed23f3a212}",
+            "in_id": "{aa8202c0-b952-41bc-92f1-4cba474c5902}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "string",
+            "out_id": "{6a1dd296-d743-42c2-bec3-d30311726ab4}",
+            "out_index": 2,
+            "out_portName": "string",
+            "out_portType": "string"
+        },
+        {
+            "id": "{7346a5de-1d9b-4944-8c64-3f5fda004ce3}",
+            "in_id": "{c51206bc-9903-426a-b995-f731547d6888}",
+            "in_index": 1,
+            "in_portName": "string",
+            "in_portType": "string",
+            "out_id": "{aa8202c0-b952-41bc-92f1-4cba474c5902}",
+            "out_index": 0,
+            "out_portName": "",
+            "out_portType": "string"
+        },
+        {
+            "id": "{bee07561-0d0d-4677-9a92-18a6de79632d}",
+            "in_id": "{7634b88c-6a75-43cc-ae66-63ccbe640d0e}",
+            "in_index": 0,
+            "in_portName": "",
+            "in_portType": "vector<string>",
+            "out_id": "{20b5c752-29cc-4b38-a114-6b4b4e073043}",
+            "out_index": 1,
+            "out_portName": "vector<string>",
+            "out_portType": "vector<string>"
+        },
+        {
+            "id": "{de835d23-3431-4dc6-8403-620690ba2307}",
+            "in_id": "{6a1dd296-d743-42c2-bec3-d30311726ab4}",
+            "in_index": 1,
+            "in_portName": "continue",
+            "in_portType": "signal",
+            "out_id": "{c51206bc-9903-426a-b995-f731547d6888}",
+            "out_index": 0,
+            "out_portName": "signal",
+            "out_portType": "signal"
+        }
+    ],
+    "nodes": [
+        {
+            "id": "{20b5c752-29cc-4b38-a114-6b4b4e073043}",
+            "model": {
+                "libraryName": "base",
+                "moduleName": "getArguments",
+                "moduleTypeName": "logic",
+                "name": "base:logic:getArguments"
+            },
+            "position": {
+                "x": -912,
+                "y": -171
+            }
+        },
+        {
+            "id": "{6a1dd296-d743-42c2-bec3-d30311726ab4}",
+            "model": {
+                "moduleTypeName": "custom",
+                "name": ":custom:forEach",
+                "schemeName": "forEach"
+            },
+            "position": {
+                "x": -418,
+                "y": -171
+            }
+        },
+        {
+            "id": "{7634b88c-6a75-43cc-ae66-63ccbe640d0e}",
+            "model": {
+                "memoryTypeName": "vector<string>",
+                "moduleTypeName": "memory",
+                "name": ":memory:vector<string>",
+                "variables": {
+                    "vector<string>": {
+                    }
+                }
+            },
+            "position": {
+                "x": -665,
+                "y": -95
+            }
+        },
+        {
+            "id": "{79bcf9a1-e1cf-4572-b813-09a500a07f77}",
+            "model": {
+                "libraryName": "tvm",
+                "moduleTypeName": "root",
+                "name": "tvm:root:schemeLoaded",
+                "rootModuleName": "schemeLoaded"
+            },
+            "position": {
+                "x": -1121,
+                "y": -171
+            }
+        },
+        {
+            "id": "{aa8202c0-b952-41bc-92f1-4cba474c5902}",
+            "model": {
+                "memoryTypeName": "string",
+                "moduleTypeName": "memory",
+                "name": ":memory:string",
+                "variables": {
+                    "string": {
+                        "value": ""
+                    }
+                }
+            },
+            "position": {
+                "x": -152,
+                "y": -57
+            }
+        },
+        {
+            "id": "{c51206bc-9903-426a-b995-f731547d6888}",
+            "model": {
+                "libraryName": "console",
+                "moduleName": "printLine",
+                "moduleTypeName": "logic",
+                "name": "console:logic:printLine"
+            },
+            "position": {
+                "x": 171,
+                "y": -133
+            }
+        }
+    ]
+}
