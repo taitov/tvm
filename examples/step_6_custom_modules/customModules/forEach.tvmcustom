@@ -1,14 +1,14 @@
 {
     "connections": [
         {
-            "id": "{0f1758bc-269c-4420-a643-f4c9e442076c}",
+            "id": "{37bdc885-4285-4cfc-9d4b-6849f6d522a2}",
             "in_id": "{74f04831-cf26-4bd1-9a60-2dd8e9fef5ae}",
             "in_index": 0,
             "in_portName": "iteration",
             "in_portType": "signal",
-            "out_id": "{20a7fe88-0a65-4a53-82a9-c03f2f67f657}",
+            "out_id": "{11109807-fd5e-4be9-bbe6-a292b3c5f1c2}",
             "out_index": 0,
-            "out_portName": "signal",
+            "out_portName": "done",
             "out_portType": "signal"
         },
         {
@@ -144,25 +144,14 @@
             "out_portType": "integer"
         },
         {
-            "id": "{bf5c7d03-1fe8-47ed-a0fd-98a80a281b8a}",
-            "in_id": "{20a7fe88-0a65-4a53-82a9-c03f2f67f657}",
-            "in_index": 0,
-            "in_portName": "signal",
-            "in_portType": "signal",
-            "out_id": "{11109807-fd5e-4be9-bbe6-a292b3c5f1c2}",
-            "out_index": 0,
-            "out_portName": "done",
-            "out_portType": "signal"
-        },
-        {
-            "id": "{c1f8a50f-a9cd-4488-a5e2-90c5e076eb49}",
+            "id": "{e26c26bf-09b1-42e9-a8a8-96c449927dad}",
             "in_id": "{0484a1b7-1b0d-4b05-8809-b5f39c22e8a7}",
             "in_index": 0,
             "in_portName": "signal",
             "in_portType": "signal",
-            "out_id": "{d8e27521-eb33-485b-8e1b-46d846ab4935}",
+            "out_id": "{20a7fe88-0a65-4a53-82a9-c03f2f67f657}",
             "out_index": 0,
-            "out_portName": "continue",
+            "out_portName": "signal",
             "out_portType": "signal"
         },
         {
@@ -185,6 +174,17 @@
             "out_id": "{11109807-fd5e-4be9-bbe6-a292b3c5f1c2}",
             "out_index": 1,
             "out_portName": "fail",
+            "out_portType": "signal"
+        },
+        {
+            "id": "{f4a941aa-ab3f-49fe-bab9-f17a694fd85b}",
+            "in_id": "{20a7fe88-0a65-4a53-82a9-c03f2f67f657}",
+            "in_index": 0,
+            "in_portName": "signal",
+            "in_portType": "signal",
+            "out_id": "{d8e27521-eb33-485b-8e1b-46d846ab4935}",
+            "out_index": 0,
+            "out_portName": "continue",
             "out_portType": "signal"
         },
         {
@@ -248,7 +248,7 @@
             },
             "position": {
                 "x": 760,
-                "y": 76
+                "y": 38
             }
         },
         {
@@ -273,8 +273,8 @@
                 "name": ":memory:integer:logic:increment"
             },
             "position": {
-                "x": 760,
-                "y": -57
+                "x": -475,
+                "y": -304
             }
         },
         {
@@ -333,7 +333,7 @@
                 "portName": "iteration"
             },
             "position": {
-                "x": 969,
+                "x": 760,
                 "y": -57
             }
         },
@@ -403,8 +403,8 @@
                 "portName": "continue"
             },
             "position": {
-                "x": -19,
-                "y": -266
+                "x": -798,
+                "y": -304
             }
         }
     ]
