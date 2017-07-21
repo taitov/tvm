@@ -101,6 +101,16 @@ private: /** modules */
 				return signalFlow(signalExitFail);
 			}
 
+			if (string)
+			{
+				string->clear();
+			}
+
+			if (buffer)
+			{
+				buffer->clear();
+			}
+
 			curl_easy_setopt(curl, CURLOPT_URL, url->c_str());
 			curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlWriteData);
