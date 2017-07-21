@@ -26,6 +26,7 @@ public:
 	using tIpAddress = uint32_t;
 	using tBoolean = bool;
 	using tString = std::string;
+	using tBuffer = cVirtualMachine::tBuffer;
 
 public:
 	cHttpServer(const std::string& ipAddress,
@@ -161,6 +162,7 @@ public:
 				host = host.substr(0, host.find("\r\n"));
 				tString url = request.substr(4);
 				url = url.substr(0, url.find("\r\n") - 9);
+				tString fullUrl = url;
 
 				tString urlArguments = url;
 				if (url.find('?') != tString::npos)
@@ -197,6 +199,7 @@ public:
 				rootSetMemory(rootGet.memoryHost, host);
 				rootSetMemory(rootGet.memoryUrl, url);
 				rootSetMemory(rootGet.memoryArguments, arguments);
+				rootSetMemory(rootGet.memoryFullUrl, fullUrl);
 				rootSignalFlow(rootGet.signal);
 			}
 			else if (request.substr(0, 4) == "POST")
@@ -258,6 +261,11 @@ private: /** rootModules */
 				return false;
 			}
 
+			if (!registerMemoryExit("fullUrl", "string", memoryFullUrl))
+			{
+				return false;
+			}
+
 			return true;
 		}
 
@@ -266,6 +274,7 @@ private: /** rootModules */
 		tRootMemoryExitId memoryHost;
 		tRootMemoryExitId memoryUrl;
 		tRootMemoryExitId memoryArguments;
+		tRootMemoryExitId memoryFullUrl;
 	};
 
 	class cRootPost : public cRootModule
@@ -325,6 +334,11 @@ private: /** modules */
 				return false;
 			}
 
+			if (!registerMemoryEntry("buffer", "buffer", buffer))
+			{
+				return false;
+			}
+
 			return true;
 		}
 
@@ -334,21 +348,30 @@ private: /** modules */
 			std::string response;
 			response = "HTTP/1.1 200 OK\r\nServer: tvm/library/httpserver\r\n\r\n";
 
-			response += "<HTML>";
-			response += "<HEAD><TITLE>";
-			if (title)
+			if (buffer)
 			{
-				response += *title;
+				size_t position = response.size();
+				response.resize(response.size() + buffer->size());
+				memcpy(&response[position], buffer->data(), buffer->size());
 			}
-			response += "</TITLE></HEAD>";
+			else
+			{
+				response += "<HTML>";
+				response += "<HEAD><TITLE>";
+				if (title)
+				{
+					response += *title;
+				}
+				response += "</TITLE></HEAD>";
 
-			response += "<BODY>";
-			if (body)
-			{
-				response += *body;
+				response += "<BODY>";
+				if (body)
+				{
+					response += *body;
+				}
+				response += "</BODY>";
+				response += "</HTML>";
 			}
-			response += "</BODY>";
-			response += "</HTML>";
 
 			send(library->clientSocket, response.c_str(), response.length(), MSG_NOSIGNAL);
 
@@ -361,6 +384,7 @@ private: /** modules */
 	private:
 		tString* title;
 		tString* body;
+		tBuffer* buffer;
 	};
 
 	class cLogicNotFound : public cLogicModule
