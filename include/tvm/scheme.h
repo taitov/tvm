@@ -74,9 +74,12 @@ public:
 
 	bool read(cStreamIn& stream);
 
-	bool init(cScheme* parentScheme, tModuleId parentModuleId);
+	bool init();
 
 private:
+	bool initModules();
+	bool initFlows();
+
 	bool findEntryPathModule(const tModuleId entryModuleId,
 	                         const tSignalEntryName& signalEntryName,
 	                         cModule*& registerModule,

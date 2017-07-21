@@ -835,7 +835,7 @@ private: /** load */
 
 private: /** exec */
 	volatile bool stopped;
-	cScheme* currentScheme;
+	cScheme* currentScheme; /**< @todo: currentScheme -> vector<currentScheme> + vector<mainScheme>; */
 	std::mutex mutex;
 	tRootSignalExitId rootSignalSchemeLoaded;
 	tRootSignalExitId rootSignalSchemeUnload;
@@ -942,7 +942,7 @@ inline bool cVirtualMachine::loadFromMemory(const std::vector<uint8_t>& buffer)
 	{
 		std::lock_guard<std::mutex> guard(mutex);
 		currentScheme = schemes["main"]->clone();
-		if (!currentScheme->init(nullptr, 0))
+		if (!currentScheme->init())
 		{
 			delete currentScheme;
 			currentScheme = nullptr;
@@ -973,7 +973,7 @@ inline bool cVirtualMachine::reload()
 	}
 
 	currentScheme = schemes["main"]->clone();
-	if (!currentScheme->init(nullptr, 0))
+	if (!currentScheme->init())
 	{
 		delete currentScheme;
 		currentScheme = nullptr;
@@ -1398,7 +1398,25 @@ inline bool cLibrary::isStopped() const
 	return virtualMachine->isStopped();
 }
 
-inline bool cScheme::init(cScheme* parentScheme, tModuleId parentModuleId)
+inline bool cScheme::init()
+{
+	this->parentScheme = nullptr;
+	this->parentModuleId = 0;
+
+	if (!initModules())
+	{
+		return false;
+	}
+
+	if (!initFlows())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool cScheme::initModules()
 {
 #define CHECK_MAP(map, key) \
 do { \
@@ -1407,9 +1425,6 @@ do { \
 		return false; \
 	} \
 } while (0)
-
-	this->parentScheme = parentScheme;
-	this->parentModuleId = parentModuleId;
 
 	const auto virtualMachineModules = virtualMachine->getModules();
 	const auto virtualMachineSchemes = virtualMachine->getSchemes();
@@ -1463,7 +1478,9 @@ do { \
 		CHECK_MAP(virtualMachineSchemes, schemeName);
 
 		cScheme* scheme = virtualMachineSchemes.find(schemeName)->second->clone();
-		if (!scheme->init(this, moduleId))
+		scheme->parentScheme = this;
+		scheme->parentModuleId = moduleId;
+		if (!scheme->initModules())
 		{
 			delete scheme;
 			return false;
@@ -1471,6 +1488,43 @@ do { \
 
 		customModules[moduleId] = scheme;
 	}
+
+	for (const auto& iter : loadMemoryModuleVariables)
+	{
+		const tModuleId moduleId = iter.first;
+
+		CHECK_MAP(memories, moduleId);
+
+		if (!memories.find(moduleId)->second->setVariables(iter.second))
+		{
+			return false;
+		}
+	}
+
+	for (auto& module : modules)
+	{
+		if (!module.second->doInit(this))
+		{
+			return false;
+		}
+	}
+
+	return true;
+
+#undef CHECK_MAP
+}
+
+bool cScheme::initFlows()
+{
+#define CHECK_MAP(map, key) \
+do { \
+	if ((map).find(key) == (map).end()) \
+	{ \
+		return false; \
+	} \
+} while (0)
+
+	const auto virtualMachineModules = virtualMachine->getModules();
 
 	for (const auto& iter : loadRootSignalFlows)
 	{
@@ -1640,21 +1694,11 @@ do { \
 		}
 	}
 
-	for (const auto& iter : loadMemoryModuleVariables)
+	for (const auto& iter : loadCustomModules)
 	{
 		const tModuleId moduleId = iter.first;
-
-		CHECK_MAP(memories, moduleId);
-
-		if (!memories.find(moduleId)->second->setVariables(iter.second))
-		{
-			return false;
-		}
-	}
-
-	for (auto& module : modules)
-	{
-		if (!module.second->doInit(this))
+		CHECK_MAP(customModules, moduleId);
+		if (!customModules[moduleId]->initFlows())
 		{
 			return false;
 		}
