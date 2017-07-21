@@ -1498,6 +1498,8 @@ private:
 template<typename TType>
 class cLogicAppend : public cLogicModule
 {
+	/** @todo: deprecated */
+
 public:
 	cLogicAppend(const tMemoryTypeName& memoryTypeName) :
 	        memoryTypeName(memoryTypeName)
@@ -2250,8 +2252,18 @@ private:
 	TType* result;
 };
 
+template<typename TType, typename = void>
+class cLogicSubtraction : public cLogicNull
+{
+public:
+	cLogicSubtraction(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicSubtraction : public cLogicModule
+class cLogicSubtraction<TType,
+                        void_t<decltype(std::declval<TType>() - std::declval<TType>())>>: public cLogicModule
 {
 public:
 	cLogicSubtraction(const tMemoryTypeName& memoryTypeName) :
@@ -2319,8 +2331,18 @@ private:
 	TType* result;
 };
 
+template<typename TType, typename = void>
+class cLogicMultiplication : public cLogicNull
+{
+public:
+	cLogicMultiplication(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicMultiplication : public cLogicModule
+class cLogicMultiplication<TType,
+                void_t<decltype(std::declval<TType>() * std::declval<TType>())>>: public cLogicModule
 {
 public:
 	cLogicMultiplication(const tMemoryTypeName& memoryTypeName) :
@@ -2388,8 +2410,18 @@ private:
 	TType* result;
 };
 
+template<typename TType, typename = void>
+class cLogicDivision : public cLogicNull
+{
+public:
+	cLogicDivision(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicDivision : public cLogicModule
+class cLogicDivision<TType,
+                     void_t<decltype(std::declval<TType>() / std::declval<TType>())>>: public cLogicModule
 {
 public:
 	cLogicDivision(const tMemoryTypeName& memoryTypeName) :

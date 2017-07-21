@@ -131,13 +131,7 @@ public:
 			return false;
 		}
 
-		if (!registerMemory<tString>("string"))
-		{
-			return false;
-		}
-
-		if (!registerMemoryModule("string",
-		                          new cLogicCopy<tString>("string")))
+		if (!registerMemoryStandart<tString>("string"))
 		{
 			return false;
 		}
@@ -158,14 +152,6 @@ public:
 
 		if (!registerMemoryModule("string",
 		                          new cLogicSetClear<tString>("string")))
-		{
-			return false;
-		}
-
-		if (!registerMemoryModule("string",
-		                          new cLogicIfEqual<tString,
-		                                            tBoolean>("string",
-		                                                    memoryBooleanTypeName)))
 		{
 			return false;
 		}
