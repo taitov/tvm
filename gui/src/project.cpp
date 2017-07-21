@@ -393,7 +393,12 @@ bool cProjectWidget::saveProject(const QString& filePath)
 		QDir().mkdir(fileInfo.path() + "/customModules");
 	}
 
-	this->filePath = filePath;
+	if (this->filePath != filePath)
+	{
+		this->filePath = filePath;
+		setCustomModulePaths(customModulePaths);
+	}
+
 	flagHasChanges = false;
 
 	emit projectChanged(flagHasChanges);
