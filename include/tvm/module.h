@@ -90,7 +90,7 @@ public:
 	const tSignalExits& getSignalExits() const;
 	const tMemoryExits& getMemoryExits() const;
 	const tVariables& getVariables() const;
-	const bool isDeprecated() const;
+	const bool& isDeprecated() const;
 
 	bool setVariables(const std::vector<uint8_t>& buffer);
 
@@ -216,7 +216,7 @@ inline const cModule::tVariables& cModule::getVariables() const
 	return variables;
 }
 
-inline const bool cModule::isDeprecated() const
+inline const bool& cModule::isDeprecated() const
 {
 	return deprecated;
 }
