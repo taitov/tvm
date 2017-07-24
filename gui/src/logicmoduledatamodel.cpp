@@ -9,7 +9,8 @@ cLogicModuleDataModel::cLogicModuleDataModel(const tLibraryName& libraryName,
                                              const tGuiSignalEntries& guiSignalEntries,
                                              const tGuiMemoryEntries& guiMemoryEntries,
                                              const tGuiSignalExits& guiSignalExits,
-                                             const tGuiMemoryExits& guiMemoryExits) :
+                                             const tGuiMemoryExits& guiMemoryExits,
+                                             const bool& deprecated) :
         libraryName(libraryName),
         moduleTypeName(moduleTypeName),
         moduleName(moduleName),
@@ -17,7 +18,8 @@ cLogicModuleDataModel::cLogicModuleDataModel(const tLibraryName& libraryName,
         guiSignalEntries(guiSignalEntries),
         guiMemoryEntries(guiMemoryEntries),
         guiSignalExits(guiSignalExits),
-        guiMemoryExits(guiMemoryExits)
+        guiMemoryExits(guiMemoryExits),
+        deprecated(deprecated)
 {
 	data.moduleTypeName = moduleTypeName;
 
@@ -71,7 +73,8 @@ std::unique_ptr<cLogicModuleDataModel::NodeDataModel> cLogicModuleDataModel::clo
 	                                               guiSignalEntries,
 	                                               guiMemoryEntries,
 	                                               guiSignalExits,
-	                                               guiMemoryExits);
+	                                               guiMemoryExits,
+	                                               deprecated);
 }
 
 const void* cLogicModuleDataModel::getData() const
@@ -184,4 +187,22 @@ void cLogicModuleDataModel::setInData(std::shared_ptr<cLogicModuleDataModel::Nod
 QWidget* cLogicModuleDataModel::embeddedWidget()
 {
 	return nullptr;
+}
+
+cLogicModuleDataModel::NodeValidationState cLogicModuleDataModel::validationState() const
+{
+	if (deprecated)
+	{
+		return NodeValidationState::Warning;
+	}
+	return NodeValidationState::Valid;
+}
+
+QString cLogicModuleDataModel::validationMessage() const
+{
+	if (deprecated)
+	{
+		return "deprecated";
+	}
+	return "";
 }

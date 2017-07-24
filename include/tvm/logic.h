@@ -1498,8 +1498,6 @@ private:
 template<typename TType>
 class cLogicAppend : public cLogicModule
 {
-	/** @todo: deprecated */
-
 public:
 	cLogicAppend(const tMemoryTypeName& memoryTypeName) :
 	        memoryTypeName(memoryTypeName)
@@ -1513,6 +1511,8 @@ public:
 
 	bool registerModule() override
 	{
+		setDeprecated();
+
 		setModuleName("append");
 		setCaptionName("append");
 

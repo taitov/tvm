@@ -22,6 +22,7 @@ class cLogicModuleDataModel : public QtNodes::NodeDataModel
 	using PortIndex = QtNodes::PortIndex;
 	using NodeData = QtNodes::NodeData;
 	using NodeStyle = QtNodes::NodeStyle;
+	using NodeValidationState = QtNodes::NodeValidationState;
 
 public:
 	using tGuiSignalEntries = cModule::tSignalEntries;
@@ -40,7 +41,8 @@ public:
 	                      const tGuiSignalEntries& guiSignalEntries,
 	                      const tGuiMemoryEntries& guiMemoryEntries,
 	                      const tGuiSignalExits& guiSignalExits,
-	                      const tGuiMemoryExits& guiMemoryExits);
+	                      const tGuiMemoryExits& guiMemoryExits,
+	                      const bool& deprecated);
 	~cLogicModuleDataModel();
 
 	QJsonObject save() const override;
@@ -65,6 +67,8 @@ public:
 	std::shared_ptr<NodeData> outData(PortIndex) override;
 	void setInData(std::shared_ptr<NodeData>, int) override;
 	QWidget* embeddedWidget() override;
+	NodeValidationState validationState() const override;
+	QString validationMessage() const override;
 
 private:
 	cData data;
@@ -76,6 +80,7 @@ private:
 	const tGuiMemoryEntries guiMemoryEntries;
 	const tGuiSignalExits guiSignalExits;
 	const tGuiMemoryExits guiMemoryExits;
+	const bool deprecated;
 };
 
 }

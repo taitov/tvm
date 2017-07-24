@@ -69,7 +69,8 @@ std::shared_ptr<QtNodes::DataModelRegistry> cFlowSceneWidget::makeVirtualMachine
 		                                                 iterModule.second->getSignalEntries(),
 		                                                 iterModule.second->getMemoryEntries(),
 		                                                 iterModule.second->getSignalExits(),
-		                                                 iterModule.second->getMemoryExits()));
+		                                                 iterModule.second->getMemoryExits(),
+		                                                 iterModule.second->isDeprecated()));
 	}
 
 	const auto memoryModules = virtualMachine->getGuiMemoryModules();
@@ -83,7 +84,8 @@ std::shared_ptr<QtNodes::DataModelRegistry> cFlowSceneWidget::makeVirtualMachine
 		                                                         iterMemoryModules.second->getSignalEntries(),
 		                                                         iterMemoryModules.second->getMemoryEntries(),
 		                                                         iterMemoryModules.second->getSignalExits(),
-		                                                         iterMemoryModules.second->getMemoryExits()));
+		                                                         iterMemoryModules.second->getMemoryExits(),
+		                                                         iterMemoryModules.second->isDeprecated()));
 	}
 
 	if (addSchemeModules)

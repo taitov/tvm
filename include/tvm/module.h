@@ -90,12 +90,14 @@ public:
 	const tSignalExits& getSignalExits() const;
 	const tMemoryExits& getMemoryExits() const;
 	const tVariables& getVariables() const;
+	const bool isDeprecated() const;
 
 	bool setVariables(const std::vector<uint8_t>& buffer);
 
 protected:
 	void setModuleName(const tModuleName& moduleName);
 	void setCaptionName(const tCaptionName& captionName);
+	void setDeprecated();
 
 	template<typename TObject>
 	bool registerSignalEntry(const tSignalEntryName& signalEntryName,
@@ -140,6 +142,7 @@ private:
 	tSignalExits signalExits;
 	tMemoryExits memoryExits;
 	tVariables variables;
+	bool deprecated;
 
 protected: /** exec */
 	inline bool signalFlow(tSignalExitId signalExitId);
@@ -151,6 +154,7 @@ private: /** exec */
 inline cModule::cModule()
 {
 	virtualMachine = nullptr;
+	deprecated = false;
 	scheme = nullptr;
 }
 
@@ -170,6 +174,11 @@ inline void cModule::setModuleName(const tModuleName& moduleName)
 inline void cModule::setCaptionName(const tCaptionName& captionName)
 {
 	this->captionName = captionName;
+}
+
+inline void cModule::setDeprecated()
+{
+	deprecated = true;
 }
 
 inline const tModuleName& cModule::getModuleName() const
@@ -205,6 +214,11 @@ inline const cModule::tMemoryExits& cModule::getMemoryExits() const
 inline const cModule::tVariables& cModule::getVariables() const
 {
 	return variables;
+}
+
+inline const bool cModule::isDeprecated() const
+{
+	return deprecated;
 }
 
 template<typename TType>
