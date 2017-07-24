@@ -199,10 +199,22 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 			toolBar->setIconSize(QSize(48, 48));
 			toolBar->setMovable(false);
 
-			auto welcomeAction = toolBar->addAction(QIcon::fromTheme("network-connect"), "Welcome");
-			auto projectAction = toolBar->addAction(QIcon::fromTheme("project-development"), "Projects");
-			auto customsAction = toolBar->addAction(QIcon::fromTheme("project-development-new-template"), "Customs");
-			auto debugAction = toolBar->addAction(QIcon::fromTheme("run-build"), "Debug");
+			welcomeAction = toolBar->addAction(QIcon::fromTheme("network-connect"), "Welcome");
+			projectAction = toolBar->addAction(QIcon::fromTheme("project-development"), "Projects");
+			customsAction = toolBar->addAction(QIcon::fromTheme("project-development-new-template"), "Customs");
+			debugAction = toolBar->addAction(QIcon::fromTheme("run-build"), "Debug");
+
+			QActionGroup* actionGroup = new QActionGroup(toolBar);
+			welcomeAction->setCheckable(true);
+			projectAction->setCheckable(true);
+			customsAction->setCheckable(true);
+			debugAction->setCheckable(true);
+			welcomeAction->setActionGroup(actionGroup);
+			projectAction->setActionGroup(actionGroup);
+			customsAction->setActionGroup(actionGroup);
+			debugAction->setActionGroup(actionGroup);
+
+			welcomeAction->setChecked(true);
 
 			QWidget* spacer = new QWidget();
 			spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -302,15 +314,25 @@ cIdeWidget::cIdeWidget(const cVirtualMachine* virtualMachine,
 				saveAsAction->setEnabled(false);
 
 				QWidget* widget = stackedWidget->widget(index);
-				if (widget == projectsWidget)
+				if (widget == welcomeWidget)
+				{
+					welcomeAction->setChecked(true);
+				}
+				else if (widget == projectsWidget)
 				{
 					saveAction->setEnabled(true);
 					saveAsAction->setEnabled(true);
+					projectAction->setChecked(true);
 				}
 				else if (widget == customsWidget)
 				{
 					saveAction->setEnabled(true);
 					saveAsAction->setEnabled(true);
+					customsAction->setChecked(true);
+				}
+				else if (widget == debugWidget)
+				{
+					debugAction->setChecked(true);
 				}
 			});
 

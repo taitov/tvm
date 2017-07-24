@@ -45,6 +45,10 @@ private:
 	cProjectsWidget* projectsWidget;
 	cCustomModulesWidget* customsWidget;
 	QWidget* debugWidget;
+	QAction* welcomeAction;
+	QAction* projectAction;
+	QAction* customsAction;
+	QAction* debugAction;
 
 	QAction* saveAction;
 	QAction* saveAsAction;
