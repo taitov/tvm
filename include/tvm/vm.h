@@ -1416,7 +1416,7 @@ inline bool cScheme::init()
 	return true;
 }
 
-bool cScheme::initModules()
+inline bool cScheme::initModules()
 {
 #define CHECK_MAP(map, key) \
 do { \
@@ -1514,7 +1514,7 @@ do { \
 #undef CHECK_MAP
 }
 
-bool cScheme::initFlows()
+inline bool cScheme::initFlows()
 {
 #define CHECK_MAP(map, key) \
 do { \
