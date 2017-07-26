@@ -95,10 +95,12 @@ bool cDocumentsWidget::save()
 	if (currentWidget())
 	{
 		cDocumentWidget* documentWidget = (cDocumentWidget*)currentWidget();
+		QString prevFilePath = documentWidget->getFilePath();
 		if (!documentWidget->save())
 		{
 			return false;
 		}
+		filePaths.erase(prevFilePath);
 		filePaths[documentWidget->getFilePath()] = documentWidget;
 		return true;
 	}
@@ -110,10 +112,12 @@ bool cDocumentsWidget::saveAs()
 	if (currentWidget())
 	{
 		cDocumentWidget* documentWidget = (cDocumentWidget*)currentWidget();
+		QString prevFilePath = documentWidget->getFilePath();
 		if (!documentWidget->saveAs())
 		{
 			return false;
 		}
+		filePaths.erase(prevFilePath);
 		filePaths[documentWidget->getFilePath()] = documentWidget;
 		return true;
 	}
