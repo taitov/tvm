@@ -65,6 +65,10 @@ protected:
 	                         const std::vector<tMemoryName>& memoryNames,
 	                         const std::vector<tMemoryTypeName>& memoryTypeNames);
 
+	template<typename TTuple>
+	bool registerMemoryTupleContainer(tMemoryTypeName memoryTypeNameTuple,
+	                                  const std::vector<std::pair<tMemoryName, tMemoryTypeName>>& memories);
+
 	bool registerRootSignalExit(const tRootModuleName& rootModuleName,
 	                            const tSignalExitName& signalExitName,
 	                            tRootSignalExitId& rootSignalExitId);
@@ -120,6 +124,12 @@ protected: /** exec */
 	inline bool isStopped() const;
 
 private:
+	template<typename ... TTypes>
+	bool registerMemoryTupleContainerHelper(tMemoryTypeName memoryTypeNameTuple,
+	                                        const std::vector<tMemoryName>& memoryNames,
+	                                        const std::vector<tMemoryTypeName>& memoryTypeNames,
+	                                        std::tuple<TTypes ...>*);
+
 	bool doRegisterLibrary(cVirtualMachine* virtualMachine);
 	virtual bool registerLibrary() = 0;
 	virtual bool init();

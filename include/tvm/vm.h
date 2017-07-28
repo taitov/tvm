@@ -1360,6 +1360,38 @@ bool cLibrary::registerMemoryTuple(tMemoryTypeName memoryTypeNameTuple,
 	                                                       memoryTypeNames);
 }
 
+template<typename TTuple>
+bool cLibrary::registerMemoryTupleContainer(tMemoryTypeName memoryTypeNameTuple,
+                                            const std::vector<std::pair<tMemoryName, tMemoryTypeName>>& memories)
+{
+	TTuple* helper = nullptr;
+
+	std::vector<tMemoryName> memoryNames;
+	std::vector<tMemoryTypeName> memoryTypeNames;
+
+	for (const auto& pair : memories)
+	{
+		memoryNames.push_back(pair.first);
+		memoryTypeNames.push_back(pair.second);
+	}
+
+	return registerMemoryTupleContainerHelper(memoryTypeNameTuple,
+	                                          memoryNames,
+	                                          memoryTypeNames,
+	                                          helper);
+}
+
+template<typename ... TTypes>
+bool cLibrary::registerMemoryTupleContainerHelper(tMemoryTypeName memoryTypeNameTuple,
+                                                  const std::vector<tMemoryName>& memoryNames,
+                                                  const std::vector<tMemoryTypeName>& memoryTypeNames,
+                                                  std::tuple<TTypes ...>*)
+{
+	return registerMemoryTuple<TTypes ...>(memoryTypeNameTuple,
+	                                       memoryNames,
+	                                       memoryTypeNames);
+}
+
 inline bool cLibrary::registerRootSignalExit(const tRootModuleName& rootModuleName,
                                              const tSignalExitName& signalExitName,
                                              tRootSignalExitId& rootSignalExitId)
