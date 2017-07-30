@@ -13,22 +13,22 @@ struct name \
 { \
 	type value; \
  \
-	inline constexpr name() : \
+	inline name() : \
 		value() \
 	{ \
 	} \
  \
-	inline constexpr name(const type& value) : \
+	inline name(const type& value) : \
 		value(value) \
 	{ \
 	} \
  \
-	inline constexpr operator type&() \
+	inline operator type&() \
 	{ \
 		return value; \
 	} \
  \
-	inline constexpr operator const type&() const \
+	inline operator const type&() const \
 	{ \
 		return value; \
 	} \
