@@ -2183,8 +2183,18 @@ private:
 	std::tuple<TTypes* ...> values;
 };
 
+template<typename TType, typename = void>
+class cLogicAddition : public cLogicNull
+{
+public:
+	cLogicAddition(...)
+	{
+	}
+};
+
 template<typename TType>
-class cLogicAddition : public cLogicModule
+class cLogicAddition<TType,
+                     void_t<decltype(std::declval<TType>() + std::declval<TType>())>> : public cLogicModule
 {
 public:
 	cLogicAddition(const tMemoryTypeName& memoryTypeName) :
