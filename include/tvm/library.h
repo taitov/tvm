@@ -69,6 +69,10 @@ protected:
 	bool registerMemoryTupleContainer(tMemoryTypeName memoryTypeNameTuple,
 	                                  const std::vector<std::pair<tMemoryName, tMemoryTypeName>>& memories);
 
+	template<typename TEnum>
+	bool registerMemoryEnum(tMemoryTypeName memoryTypeNameEnum,
+	                        const std::vector<std::pair<tMemoryName, TEnum>>& items);
+
 	bool registerRootSignalExit(const tRootModuleName& rootModuleName,
 	                            const tSignalExitName& signalExitName,
 	                            tRootSignalExitId& rootSignalExitId);

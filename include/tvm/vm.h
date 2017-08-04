@@ -607,6 +607,28 @@ public:
 		return true;
 	}
 
+	template<typename TEnum>
+	bool registerMemoryEnum(tMemoryTypeName memoryTypeNameEnum,
+	                        const std::vector<std::pair<tMemoryName, TEnum>>& items)
+	{
+		if (memoryTypes.find(memoryTypeNameEnum) != memoryTypes.end())
+		{
+			return false;
+		}
+
+		if (!registerMemoryModuleStandart<TEnum,
+		                                  tBoolean>(memoryTypeNameEnum,
+		                                            memoryBooleanTypeName))
+		{
+			return false;
+		}
+
+		/** @todo */
+
+		memoryTypes[memoryTypeNameEnum] = new cMemoryVariable<TEnum>();
+		return true;
+	}
+
 	bool registerRootSignalExit(const tLibraryName& libraryName,
 	                            const tRootModuleName& rootModuleName,
 	                            const tSignalExitName& signalExitName,
@@ -1379,6 +1401,14 @@ bool cLibrary::registerMemoryTupleContainer(tMemoryTypeName memoryTypeNameTuple,
 	                                          memoryNames,
 	                                          memoryTypeNames,
 	                                          helper);
+}
+
+template<typename TEnum>
+bool cLibrary::registerMemoryEnum(tMemoryTypeName memoryTypeNameEnum,
+                                  const std::vector<std::pair<tMemoryName, TEnum>>& items)
+{
+	return virtualMachine->registerMemoryEnum<TEnum>(memoryTypeNameEnum,
+	                                                 items);
 }
 
 template<typename ... TTypes>
