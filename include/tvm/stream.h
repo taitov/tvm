@@ -78,7 +78,7 @@ public:
 		if (in.buffer.size() - in.position < sizeof(TType))
 		{
 			in.buffer.clear();
-			value = 0;
+			value = (TType)0;
 			failed = true;
 			return;
 		}
