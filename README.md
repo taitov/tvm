@@ -22,6 +22,7 @@ make
 
 Run:
 ```sh
+cd tvm/examples/step_4_base_library
 ./step_4_base_library abc1 def2
 def2
 abc1
@@ -29,7 +30,7 @@ abc1
 /usr/bin:/sbin:/bin
 ```
 
-# Build Project Editor (GUI) #
+### Build Project Editor (GUI) ###
 
 ![IDE](ide.png)
 
