@@ -20,7 +20,7 @@ cd tvm/examples/step_4_base_library
 make
 ```
 
-Try run:
+Run:
 ```sh
 ./step_4_base_library abc1 def2
 def2
@@ -30,6 +30,8 @@ abc1
 ```
 
 # Build Project Editor (GUI) #
+
+![IDE](ide.png)
 
 Dependencies:
 ```sh
@@ -56,4 +58,4 @@ Run:
 ./tvm/examples/step_4_base_library/gui/build/gui
 ```
 
-Open TVM Project `./tvm/examples/step_4_base_library/prog.tvmproject`
+Open TVM Project `tvm/examples/step_4_base_library/prog.tvmproject`
