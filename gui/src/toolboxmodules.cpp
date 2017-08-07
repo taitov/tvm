@@ -105,6 +105,12 @@ cTreeModulesWidget* cToolBoxModulesWidget::makeTreeModulesAll(bool addSchemeModu
 			QString memoryTypeName = QString::fromUtf8(std::get<0>(memoryModule.first).value.c_str());
 			QString moduleName = QString::fromUtf8(std::get<1>(memoryModule.first).value.c_str());
 			QString moduleTypeName = QString::fromUtf8(memoryModule.second->getModuleTypeName().value.c_str());
+			QString captionTypeName = QString::fromUtf8(memoryModule.second->getCaptionTypeName().value.c_str());
+
+			if (captionTypeName.isEmpty())
+			{
+				captionTypeName = moduleTypeName;
+			}
 
 			if (memoryMap.find(memoryTypeName) == memoryMap.end())
 			{
@@ -114,15 +120,15 @@ cTreeModulesWidget* cToolBoxModulesWidget::makeTreeModulesAll(bool addSchemeModu
 				memoryMap[memoryTypeName] = memoryItem;
 			}
 
-			if (memoryModuleMap.find(std::make_tuple(memoryTypeName, moduleTypeName)) == memoryModuleMap.end())
+			if (memoryModuleMap.find(std::make_tuple(memoryTypeName, captionTypeName)) == memoryModuleMap.end())
 			{
 				QTreeWidgetItem* moduleTypeItem = new QTreeWidgetItem(memoryMap[memoryTypeName]);
-				moduleTypeItem->setText(0, moduleTypeName);
+				moduleTypeItem->setText(0, captionTypeName);
 				moduleTypeItem->setData(0, Qt::UserRole, "");
-				memoryModuleMap[std::make_tuple(memoryTypeName, moduleTypeName)] = moduleTypeItem;
+				memoryModuleMap[std::make_tuple(memoryTypeName, captionTypeName)] = moduleTypeItem;
 			}
 
-			QTreeWidgetItem* moduleItem = new QTreeWidgetItem(memoryModuleMap[std::make_tuple(memoryTypeName, moduleTypeName)]);
+			QTreeWidgetItem* moduleItem = new QTreeWidgetItem(memoryModuleMap[std::make_tuple(memoryTypeName, captionTypeName)]);
 			moduleItem->setText(0, moduleName);
 			moduleItem->setData(0, Qt::UserRole, ":memory:" + memoryTypeName + ":" + moduleTypeName + ":" + moduleName);
 		}
@@ -183,6 +189,12 @@ cTreeModulesWidget* cToolBoxModulesWidget::makeTreeModulesAll(bool addSchemeModu
 			QString libraryName = QString::fromUtf8(std::get<0>(module.first).value.c_str());
 			QString moduleName = QString::fromUtf8(std::get<1>(module.first).value.c_str());
 			QString moduleTypeName = QString::fromUtf8(module.second->getModuleTypeName().value.c_str());
+			QString captionTypeName = QString::fromUtf8(module.second->getCaptionTypeName().value.c_str());
+
+			if (captionTypeName.isEmpty())
+			{
+				captionTypeName = moduleTypeName;
+			}
 
 			if (libraryMap.find(libraryName) == libraryMap.end())
 			{
@@ -193,15 +205,15 @@ cTreeModulesWidget* cToolBoxModulesWidget::makeTreeModulesAll(bool addSchemeModu
 				treeModules->expandItem(libraryItem);
 			}
 
-			if (moduleTypeMap.find(std::make_tuple(libraryName, moduleTypeName)) == moduleTypeMap.end())
+			if (moduleTypeMap.find(std::make_tuple(libraryName, captionTypeName)) == moduleTypeMap.end())
 			{
 				QTreeWidgetItem* moduleTypeItem = new QTreeWidgetItem(libraryMap[libraryName]);
-				moduleTypeItem->setText(0, moduleTypeName);
+				moduleTypeItem->setText(0, captionTypeName);
 				moduleTypeItem->setData(0, Qt::UserRole, "");
-				moduleTypeMap[std::make_tuple(libraryName, moduleTypeName)] = moduleTypeItem;
+				moduleTypeMap[std::make_tuple(libraryName, captionTypeName)] = moduleTypeItem;
 			}
 
-			QTreeWidgetItem* moduleItem = new QTreeWidgetItem(moduleTypeMap[std::make_tuple(libraryName, moduleTypeName)]);
+			QTreeWidgetItem* moduleItem = new QTreeWidgetItem(moduleTypeMap[std::make_tuple(libraryName, captionTypeName)]);
 			moduleItem->setText(0, moduleName);
 			moduleItem->setData(0, Qt::UserRole, libraryName + ":" + moduleTypeName + ":" + moduleName);
 		}

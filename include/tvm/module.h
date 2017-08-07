@@ -80,10 +80,11 @@ public:
 	virtual ~cModule();
 
 	virtual cModule* clone() const = 0;
+	virtual const tModuleTypeName getModuleTypeName() const = 0;
 
 	const tModuleName& getModuleName() const;
 	const tCaptionName& getCaptionName() const;
-	virtual const tModuleTypeName getModuleTypeName() const = 0;
+	const tCaptionTypeName& getCaptionTypeName() const;
 
 	const tSignalEntries& getSignalEntries() const;
 	const tMemoryEntries& getMemoryEntries() const;
@@ -97,6 +98,7 @@ public:
 protected:
 	void setModuleName(const tModuleName& moduleName);
 	void setCaptionName(const tCaptionName& captionName);
+	void setCaptionTypeName(const tCaptionTypeName& captionTypeName);
 	void setDeprecated();
 
 	template<typename TObject>
@@ -137,6 +139,7 @@ private:
 
 	tModuleName moduleName;
 	tCaptionName captionName;
+	tCaptionTypeName captionTypeName;
 	tSignalEntries signalEntries;
 	tMemoryEntries memoryEntries;
 	tSignalExits signalExits;
@@ -176,6 +179,11 @@ inline void cModule::setCaptionName(const tCaptionName& captionName)
 	this->captionName = captionName;
 }
 
+inline void cModule::setCaptionTypeName(const tCaptionTypeName& captionTypeName)
+{
+	this->captionTypeName = captionTypeName;
+}
+
 inline void cModule::setDeprecated()
 {
 	deprecated = true;
@@ -189,6 +197,11 @@ inline const tModuleName& cModule::getModuleName() const
 inline const tCaptionName& cModule::getCaptionName() const
 {
 	return captionName;
+}
+
+inline const tCaptionTypeName& cModule::getCaptionTypeName() const
+{
+	return captionTypeName;
 }
 
 inline const cModule::tSignalEntries& cModule::getSignalEntries() const

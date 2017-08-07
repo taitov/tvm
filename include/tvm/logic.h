@@ -17,7 +17,7 @@ using void_t = void;
 class cLogicModule: public cModule
 {
 public:
-	const tModuleTypeName getModuleTypeName() const override
+	const tModuleTypeName getModuleTypeName() const override final
 	{
 		return "logic";
 	}
@@ -1779,11 +1779,6 @@ public:
 	{
 	}
 
-	const tModuleTypeName getModuleTypeName() const override
-	{
-		return "convert";
-	}
-
 	cModule* clone() const override
 	{
 		return new cLogicConvert(moduleName,
@@ -1796,6 +1791,7 @@ public:
 	{
 		setModuleName(moduleName);
 		setCaptionName("convert");
+		setCaptionTypeName("convert");
 
 		if (!registerSignalEntry("signal", &cLogicConvert::signalEntry))
 		{
@@ -1863,11 +1859,6 @@ public:
 	{
 	}
 
-	const tModuleTypeName getModuleTypeName() const override
-	{
-		return "convert";
-	}
-
 	cModule* clone() const override
 	{
 		return new cLogicConvertBool(moduleName,
@@ -1880,6 +1871,7 @@ public:
 	{
 		setModuleName(moduleName);
 		setCaptionName("convert");
+		setCaptionTypeName("convert");
 
 		if (!registerSignalEntry("signal", &cLogicConvertBool::signalEntry))
 		{

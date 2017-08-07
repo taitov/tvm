@@ -106,6 +106,7 @@ MAKE_STRING_TYPE(std::string, tLibraryName);
 MAKE_STRING_TYPE(std::string, tRootModuleName);
 MAKE_STRING_TYPE(std::string, tModuleName);
 MAKE_STRING_TYPE(std::string, tCaptionName);
+MAKE_STRING_TYPE(std::string, tCaptionTypeName);
 MAKE_STRING_TYPE(std::string, tModuleTypeName);
 MAKE_STRING_TYPE(std::string, tSignalEntryName);
 MAKE_STRING_TYPE(std::string, tSignalExitName);
