@@ -23,12 +23,24 @@ cLogicModuleDataModel::cLogicModuleDataModel(const tLibraryName& libraryName,
 {
 	data.moduleTypeName = moduleTypeName;
 
-	NodeStyle style = nodeStyle();
-	style.GradientColor0 = QColor(0x234d20);
-	style.GradientColor1 = QColor(0x234d20);
-	style.GradientColor2 = QColor(0x234d20);
-	style.GradientColor3 = QColor(0x234d20);
-	setNodeStyle(style);
+	if (moduleTypeName.value == "logic")
+	{
+		NodeStyle style = nodeStyle();
+		style.GradientColor0 = QColor(0x234d20);
+		style.GradientColor1 = QColor(0x234d20);
+		style.GradientColor2 = QColor(0x234d20);
+		style.GradientColor3 = QColor(0x234d20);
+		setNodeStyle(style);
+	}
+	else
+	{
+		NodeStyle style = nodeStyle();
+		style.GradientColor0 = QColor(0x555555);
+		style.GradientColor1 = QColor(0x555555);
+		style.GradientColor2 = QColor(0x555555);
+		style.GradientColor3 = QColor(0x555555);
+		setNodeStyle(style);
+	}
 }
 
 cLogicModuleDataModel::~cLogicModuleDataModel()

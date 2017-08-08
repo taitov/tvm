@@ -212,7 +212,7 @@ public:
 							                                                         modelJson["variables"].toObject()[typeName].toObject());
 						}
 						else if (modelJson["moduleTypeName"].toString() == "logic" ||
-						         modelJson["moduleTypeName"].toString() == "convert")
+						         modelJson["moduleTypeName"].toString() == "action")
 						{
 							auto key = moduleIds[nodeJson["id"].toString()];
 							auto value = std::make_tuple(modelJson["libraryName"].toString().toStdString(),

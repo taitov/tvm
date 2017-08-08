@@ -49,11 +49,82 @@ private:
 	tCallback callback;
 };
 
+template<typename TObject>
+class cActionSignalEntryObject : public cSignalEntry
+{
+public:
+	using tCallback = void (TObject::*)();
+
+	cActionSignalEntryObject(tCallback callback)
+	{
+		this->callback = callback;
+	}
+
+	bool signalEntry(void* module) override;
+
+private:
+	class cSimpleThread
+	{
+	private:
+		struct sArgs
+		{
+			sArgs(tCallback callback, TObject* module) :
+			        callback(callback),
+			        module(module)
+			{
+			}
+
+			tCallback callback;
+			TObject* module;
+		};
+
+	public:
+		cSimpleThread(tCallback callback, void* module)
+		{
+			pthread_t thread;
+			pthread_attr_t attr;
+
+			if (pthread_attr_init(&attr) != 0)
+			{
+				return;
+			}
+
+			sArgs* args = new sArgs(callback, (TObject*)module);
+
+			if (pthread_create(&thread, &attr, &callHelper, args) != 0)
+			{
+				delete args;
+				pthread_attr_destroy(&attr);
+				return;
+			}
+
+			pthread_attr_destroy(&attr);
+		}
+
+	private:
+		static void* callHelper(void* pargs)
+		{
+			sArgs* args = (sArgs*)pargs;
+			TObject* object = args->module;
+			(object->*(args->callback))();
+			delete args;
+			return nullptr;
+		}
+	};
+
+private:
+	tCallback callback;
+};
+
 class cModule
 {
 	friend class cLibrary;
 	friend class cScheme;
 	friend class cVirtualMachine;
+	friend class cActionModule;
+
+	template<typename TObject>
+	friend class cActionSignalEntryObject;
 
 public:
 	using tSignalEntries = std::map<tSignalEntryName,

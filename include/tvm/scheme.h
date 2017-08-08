@@ -17,6 +17,10 @@ class cScheme
 {
 	friend class cVirtualMachine;
 	friend class cModule;
+	friend class cActionModule;
+
+	template<typename TObject>
+	friend class cActionSignalEntryObject;
 
 public:
 	using tLoadMemories = std::map<tModuleId,
@@ -354,6 +358,22 @@ inline void cScheme::rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TTy
 	{
 		parentScheme->rootSetMemory(rootMemoryExitId, value);
 	}
+}
+
+template<typename TObject>
+bool cActionModule::registerSignalEntry(const tSignalEntryName& signalEntryName,
+                                        void (TObject::* callback)())
+{
+	auto key = signalEntryName;
+	if (signalEntries.find(key) != signalEntries.end())
+	{
+		return false;
+	}
+
+	tSignalEntryId signalEntryId = signalEntries.size() + 1;
+	signalEntries[key] = std::make_tuple(signalEntryId,
+	                                     new cActionSignalEntryObject<TObject>(callback));
+	return true;
 }
 
 }

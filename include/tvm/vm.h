@@ -32,6 +32,10 @@ class cVirtualMachine
 {
 	friend class cLibrary;
 	friend class cScheme;
+	friend class cActionModule;
+
+	template<typename TObject>
+	friend class cActionSignalEntryObject;
 
 public:
 	using tBoolean = bool;
@@ -2031,6 +2035,21 @@ void cVirtualMachine::rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TT
 		return;
 	}
 	currentScheme->rootSetMemory(rootMemoryExitId, value);
+}
+
+inline bool cActionModule::signalFlow(tSignalExitId signalExitId)
+{
+	std::lock_guard<std::mutex> guard(scheme->virtualMachine->mutex);
+	return scheme->signalFlow(this, signalExitId);
+}
+
+template<typename TObject>
+inline bool cActionSignalEntryObject<TObject>::signalEntry(void* module)
+{
+	TObject* object = (TObject*)module;
+	object->scheme->virtualMachine->currentScheme = object->scheme;
+	cSimpleThread simpleThread(callback, module);
+	return true;
 }
 
 }
