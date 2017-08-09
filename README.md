@@ -56,7 +56,8 @@ $ make -j4
 
 Run:
 ```sh
-$ ./tvm/examples/step_4_base_library/gui/build/gui
+$ cd tvm/examples/step_4_base_library/gui/build
+$ ./gui
 ```
 
 Open TVM Project `tvm/examples/step_4_base_library/prog.tvmproject`
