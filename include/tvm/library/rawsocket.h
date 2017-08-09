@@ -106,10 +106,11 @@ public:
 			return false;
 		}
 
-		if (!registerMemoryTuple<tBoolean,
-		                         tString>("interfaceInformation",
-		                                  {"state", "name"},
-		                                  {"boolean", "string"}))
+		if (!registerMemoryTuple<tInterfaceInformation>("interfaceInformation",
+		                                                {
+		                                                 {"state", "boolean"},
+		                                                 {"name", "string"},
+		                                                }))
 		{
 			return false;
 		}

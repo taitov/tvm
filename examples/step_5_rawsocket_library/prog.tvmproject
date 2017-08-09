@@ -1117,8 +1117,8 @@
             "model": {
                 "libraryName": ":memory:ethernetAddress",
                 "moduleName": "toString",
-                "moduleTypeName": "convert",
-                "name": ":memory:ethernetAddress:convert:toString"
+                "moduleTypeName": "logic",
+                "name": ":memory:ethernetAddress:logic:toString"
             },
             "position": {
                 "x": 2299,

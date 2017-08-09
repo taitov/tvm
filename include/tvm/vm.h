@@ -501,114 +501,45 @@ public:
 		return true;
 	}
 
-	template<typename ... TTypes>
-	bool registerMemoryTuple(const std::vector<tMemoryName>& memoryNames,
-	                         const std::vector<tMemoryTypeName>& memoryTypeNames)
+	template<typename TTuple>
+	bool registerMemoryTuple(const std::vector<std::pair<tMemoryName, tMemoryTypeName>>& memories)
 	{
 		tMemoryTypeName memoryTypeNameTuple = "tuple<";
-		if (memoryNames.size())
+		if (memories.size())
 		{
-			for (unsigned int memoryTypeName_i = 0; memoryTypeName_i < memoryNames.size() - 1; memoryTypeName_i++)
+			for (unsigned int memoryTypeName_i = 0; memoryTypeName_i < memories.size() - 1; memoryTypeName_i++)
 			{
-				memoryTypeNameTuple.value += memoryNames[memoryTypeName_i].value + ",";
+				memoryTypeNameTuple.value += memories[memoryTypeName_i].first.value + ",";
 			}
-			for (unsigned int memoryTypeName_i = memoryNames.size() - 1; memoryTypeName_i < memoryNames.size(); memoryTypeName_i++)
+			for (unsigned int memoryTypeName_i = memories.size() - 1; memoryTypeName_i < memories.size(); memoryTypeName_i++)
 			{
-				memoryTypeNameTuple.value += memoryNames[memoryTypeName_i].value;
+				memoryTypeNameTuple.value += memories[memoryTypeName_i].first.value;
 			}
 		}
 		memoryTypeNameTuple.value += ">";
-		return registerMemoryTuple<TTypes ...>(memoryTypeNameTuple,
-		                                       memoryNames,
-		                                       memoryTypeNames);
+		return registerMemoryTuple<TTuple>(memoryTypeNameTuple,
+		                                   memories);
 	}
 
-	template<typename ... TTypes>
+	template<typename TTuple>
 	bool registerMemoryTuple(const tMemoryTypeName& memoryTypeNameTuple,
-	                         const std::vector<tMemoryName>& memoryNames,
-	                         const std::vector<tMemoryTypeName>& memoryTypeNames)
+	                         const std::vector<std::pair<tMemoryName, tMemoryTypeName>>& memories)
 	{
-		using tTuple = std::tuple<TTypes ...>;
+		TTuple* helper = nullptr;
 
-		if (sizeof...(TTypes) != memoryNames.size())
+		std::vector<tMemoryName> memoryNames;
+		std::vector<tMemoryTypeName> memoryTypeNames;
+
+		for (const auto& pair : memories)
 		{
-			return false;
+			memoryNames.push_back(pair.first);
+			memoryTypeNames.push_back(pair.second);
 		}
 
-		if (sizeof...(TTypes) != memoryTypeNames.size())
-		{
-			return false;
-		}
-
-		if (memoryTypes.find(memoryTypeNameTuple) != memoryTypes.end())
-		{
-			return false;
-		}
-
-		if (!registerMemoryModule(memoryTypeNameTuple,
-		                          new cLogicCopy<tTuple>(memoryTypeNameTuple)))
-		{
-			return false;
-		}
-
-		if (!registerMemoryModule(memoryTypeNameTuple,
-		                          new cLogicIfEqual<tTuple,
-		                                            tBoolean>(memoryTypeNameTuple,
-		                                                      memoryBooleanTypeName)))
-		{
-			return false;
-		}
-
-		if (!registerMemoryModule(memoryTypeNameTuple,
-		                          new cLogicTupleGet<TTypes ...>(memoryTypeNameTuple,
-		                                                         memoryNames,
-		                                                         memoryTypeNames)))
-		{
-			return false;
-		}
-
-		if (!registerMemoryModule(memoryTypeNameTuple,
-		                          new cLogicTupleSet<TTypes ...>(memoryTypeNameTuple,
-		                                                         memoryNames,
-		                                                         memoryTypeNames)))
-		{
-			return false;
-		}
-
-		if (!registerMemoryModule(memoryTypeNameTuple, new cLogicConvert<tTuple,
-		                                                                 tBuffer>("toBuffer",
-		                                                                          memoryTypeNameTuple,
-		                                                                          memoryBufferTypeName,
-			[](tTuple* from, tBuffer* to)
-			{
-				cStreamOut stream;
-				stream.push(*from);
-				*to = stream.getBuffer();
-			})))
-		{
-			return false;
-		}
-
-		if (!registerMemoryModule(memoryTypeNameTuple, new cLogicConvertBool<tBuffer,
-		                                                                     tTuple>("fromBuffer",
-		                                                                             memoryBufferTypeName,
-		                                                                             memoryTypeNameTuple,
-			[](tBuffer* from, tTuple* to)
-			{
-				cStreamIn stream(*from);
-				stream.pop(*to);
-				if (stream.isFailed())
-				{
-					return false;
-				}
-				return true;
-			})))
-		{
-			return false;
-		}
-
-		memoryTypes[memoryTypeNameTuple] = new cMemoryVariable<tTuple>();
-		return true;
+		return registerMemoryTupleHelper(memoryTypeNameTuple,
+		                                 memoryNames,
+		                                 memoryTypeNames,
+		                                 helper);
 	}
 
 	template<typename TEnum>
@@ -806,6 +737,95 @@ private:
 			return false;
 		}
 
+		return true;
+	}
+
+	template<typename ... TTypes>
+	bool registerMemoryTupleHelper(const tMemoryTypeName& memoryTypeNameTuple,
+	                               const std::vector<tMemoryName>& memoryNames,
+	                               const std::vector<tMemoryTypeName>& memoryTypeNames,
+	                               std::tuple<TTypes ...>*)
+	{
+		using tTuple = std::tuple<TTypes ...>;
+
+		if (sizeof...(TTypes) != memoryNames.size())
+		{
+			return false;
+		}
+
+		if (sizeof...(TTypes) != memoryTypeNames.size())
+		{
+			return false;
+		}
+
+		if (memoryTypes.find(memoryTypeNameTuple) != memoryTypes.end())
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameTuple,
+		                          new cLogicCopy<tTuple>(memoryTypeNameTuple)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameTuple,
+		                          new cLogicIfEqual<tTuple,
+		                                            tBoolean>(memoryTypeNameTuple,
+		                                                      memoryBooleanTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameTuple,
+		                          new cLogicTupleGet<TTypes ...>(memoryTypeNameTuple,
+		                                                         memoryNames,
+		                                                         memoryTypeNames)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameTuple,
+		                          new cLogicTupleSet<TTypes ...>(memoryTypeNameTuple,
+		                                                         memoryNames,
+		                                                         memoryTypeNames)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameTuple, new cLogicConvert<tTuple,
+		                                                                 tBuffer>("toBuffer",
+		                                                                          memoryTypeNameTuple,
+		                                                                          memoryBufferTypeName,
+			[](tTuple* from, tBuffer* to)
+			{
+				cStreamOut stream;
+				stream.push(*from);
+				*to = stream.getBuffer();
+			})))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameTuple, new cLogicConvertBool<tBuffer,
+		                                                                     tTuple>("fromBuffer",
+		                                                                             memoryBufferTypeName,
+		                                                                             memoryTypeNameTuple,
+			[](tBuffer* from, tTuple* to)
+			{
+				cStreamIn stream(*from);
+				stream.pop(*to);
+				if (stream.isFailed())
+				{
+					return false;
+				}
+				return true;
+			})))
+		{
+			return false;
+		}
+
+		memoryTypes[memoryTypeNameTuple] = new cMemoryVariable<tTuple>();
 		return true;
 	}
 
@@ -1376,35 +1396,12 @@ bool cLibrary::registerMemoryMap(const tMemoryTypeName& memoryKeyTypeName,
 	                                                     memoryValueTypeName);
 }
 
-template<typename ... TTypes>
-bool cLibrary::registerMemoryTuple(tMemoryTypeName memoryTypeNameTuple,
-                                   const std::vector<tMemoryName>& memoryNames,
-                                   const std::vector<tMemoryTypeName>& memoryTypeNames)
-{
-	return virtualMachine->registerMemoryTuple<TTypes ...>(memoryTypeNameTuple,
-	                                                       memoryNames,
-	                                                       memoryTypeNames);
-}
-
 template<typename TTuple>
-bool cLibrary::registerMemoryTupleContainer(tMemoryTypeName memoryTypeNameTuple,
-                                            const std::vector<std::pair<tMemoryName, tMemoryTypeName>>& memories)
+bool cLibrary::registerMemoryTuple(tMemoryTypeName memoryTypeNameTuple,
+                                   const std::vector<std::pair<tMemoryName, tMemoryTypeName>>& memories)
 {
-	TTuple* helper = nullptr;
-
-	std::vector<tMemoryName> memoryNames;
-	std::vector<tMemoryTypeName> memoryTypeNames;
-
-	for (const auto& pair : memories)
-	{
-		memoryNames.push_back(pair.first);
-		memoryTypeNames.push_back(pair.second);
-	}
-
-	return registerMemoryTupleContainerHelper(memoryTypeNameTuple,
-	                                          memoryNames,
-	                                          memoryTypeNames,
-	                                          helper);
+	return virtualMachine->registerMemoryTuple<TTuple>(memoryTypeNameTuple,
+	                                                   memories);
 }
 
 template<typename TEnum>
@@ -1413,17 +1410,6 @@ bool cLibrary::registerMemoryEnum(tMemoryTypeName memoryTypeNameEnum,
 {
 	return virtualMachine->registerMemoryEnum<TEnum>(memoryTypeNameEnum,
 	                                                 items);
-}
-
-template<typename ... TTypes>
-bool cLibrary::registerMemoryTupleContainerHelper(tMemoryTypeName memoryTypeNameTuple,
-                                                  const std::vector<tMemoryName>& memoryNames,
-                                                  const std::vector<tMemoryTypeName>& memoryTypeNames,
-                                                  std::tuple<TTypes ...>*)
-{
-	return registerMemoryTuple<TTypes ...>(memoryTypeNameTuple,
-	                                       memoryNames,
-	                                       memoryTypeNames);
 }
 
 inline bool cLibrary::registerRootSignalExit(const tRootModuleName& rootModuleName,
