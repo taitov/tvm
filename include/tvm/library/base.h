@@ -287,7 +287,8 @@ public:
 		if (!registerModules(new cLogicGetArguments(this),
 		                     new cLogicGetEnvironments(this),
 		                     new cLogicTrue(),
-		                     new cLogicFalse()))
+		                     new cLogicFalse(),
+		                     new cActionTouch()))
 		{
 			return false;
 		}
@@ -510,6 +511,41 @@ private: /** modules */
 		{
 			return false;
 		}
+	};
+
+	class cActionTouch : public cActionModule
+	{
+	public:
+		cModule* clone() const override
+		{
+			return new cActionTouch();
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("touch");
+
+			if (!registerSignalEntry("signal", &cActionTouch::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("signal", signalExit))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		void signalEntry()
+		{
+			signalFlow(signalExit);
+		}
+
+	private:
+		const tSignalExitId signalExit = 1;
 	};
 };
 
