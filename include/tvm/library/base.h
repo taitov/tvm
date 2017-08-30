@@ -284,6 +284,32 @@ public:
 			return false;
 		}
 
+		if (!registerMemoryModule("float",
+		                          new cLogicConvert<tFloat,
+		                                            tInteger>("toInteger",
+		                                                      "float",
+		                                                      memoryIntegerTypeName,
+			[](tFloat* from, tInteger* to)
+			{
+				*to = *from;
+			})))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryIntegerTypeName,
+		                          new cLogicConvert<tInteger,
+		                                            tFloat>("toFloat",
+		                                                     memoryIntegerTypeName,
+		                                                     "float",
+			[](tInteger* from, tFloat* to)
+			{
+				*to = *from;
+			})))
+		{
+			return false;
+		}
+
 		if (!registerModules(new cLogicGetArguments(this),
 		                     new cLogicGetEnvironments(this),
 		                     new cLogicTrue(),
