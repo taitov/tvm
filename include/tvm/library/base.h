@@ -90,6 +90,18 @@ public:
 		}
 
 		if (!registerMemoryModule(memoryBooleanTypeName,
+		                          new cLogicBooleanSetTrue()))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryBooleanTypeName,
+		                          new cLogicBooleanSetFalse()))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryBooleanTypeName,
 		                          new cLogicConvert<tBoolean,
 		                                            tString>("toString",
 		                                                     memoryBooleanTypeName,
@@ -475,6 +487,102 @@ private: /** modules */
 			if (to)
 			{
 				*to = !(*to);
+			}
+			return signalFlow(signalExit);
+		}
+
+	private:
+		const tSignalExitId signalExit = 1;
+
+	private:
+		tBoolean* to;
+	};
+
+	class cLogicBooleanSetTrue : public cLogicModule
+	{
+	public:
+		cModule* clone() const override
+		{
+			return new cLogicBooleanSetTrue();
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("setTrue");
+			setCaptionName("setTrue");
+
+			if (!registerSignalEntry("signal", &cLogicBooleanSetTrue::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("signal", signalExit))
+			{
+				return false;
+			}
+
+			if (!registerMemoryExit("boolean", "boolean", to))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		bool signalEntry()
+		{
+			if (to)
+			{
+				*to = true;
+			}
+			return signalFlow(signalExit);
+		}
+
+	private:
+		const tSignalExitId signalExit = 1;
+
+	private:
+		tBoolean* to;
+	};
+
+	class cLogicBooleanSetFalse : public cLogicModule
+	{
+	public:
+		cModule* clone() const override
+		{
+			return new cLogicBooleanSetFalse();
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("setFalse");
+			setCaptionName("setFalse");
+
+			if (!registerSignalEntry("signal", &cLogicBooleanSetFalse::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("signal", signalExit))
+			{
+				return false;
+			}
+
+			if (!registerMemoryExit("boolean", "boolean", to))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		bool signalEntry()
+		{
+			if (to)
+			{
+				*to = false;
 			}
 			return signalFlow(signalExit);
 		}
