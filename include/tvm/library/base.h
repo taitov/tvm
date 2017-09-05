@@ -314,7 +314,8 @@ public:
 		                     new cLogicGetEnvironments(this),
 		                     new cLogicTrue(),
 		                     new cLogicFalse(),
-		                     new cActionTouch()))
+		                     new cActionTouch(),
+		                     new cActionExit(this)))
 		{
 			return false;
 		}
@@ -572,6 +573,41 @@ private: /** modules */
 
 	private:
 		const tSignalExitId signalExit = 1;
+	};
+
+	class cActionExit : public cActionModule
+	{
+	public:
+		cActionExit(cBase* library) :
+		        library(library)
+		{
+		}
+
+		cModule* clone() const override
+		{
+			return new cActionExit(library);
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("exit");
+
+			if (!registerSignalEntry("signal", &cActionExit::signalEntry))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		void signalEntry()
+		{
+			library->stopVirtualMachine();
+		}
+
+	private:
+		cBase* library;
 	};
 };
 

@@ -1434,6 +1434,11 @@ inline bool cLibrary::registerRootMemoryExit(const tRootModuleName& rootModuleNa
 	                                              rootMemoryExitId);
 }
 
+inline void cLibrary::stopVirtualMachine()
+{
+	virtualMachine->stop();
+}
+
 inline bool cLibrary::rootSignalFlow(tRootSignalExitId rootSignalExitId)
 {
 	return virtualMachine->rootSignalFlow(rootSignalExitId);

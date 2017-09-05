@@ -114,6 +114,8 @@ protected:
 	bool registerModule(cModule* module);
 	bool registerRootModule(cRootModule& rootModule);
 
+	void stopVirtualMachine();
+
 protected: /** exec */
 	inline bool rootSignalFlow(tRootSignalExitId rootSignalExitId);
 
