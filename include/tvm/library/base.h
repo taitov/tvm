@@ -327,7 +327,8 @@ public:
 		                     new cLogicTrue(),
 		                     new cLogicFalse(),
 		                     new cActionTouch(),
-		                     new cActionExit(this)))
+		                     new cActionExit(this),
+		                     new cActionWait()))
 		{
 			return false;
 		}
@@ -716,6 +717,53 @@ private: /** modules */
 
 	private:
 		cBase* library;
+	};
+
+	class cActionWait : public cActionModule
+	{
+	public:
+		cModule* clone() const override
+		{
+			return new cActionWait();
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("wait");
+
+			if (!registerSignalEntry("signal", &cActionWait::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("milliseconds", "integer", milliseconds))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("signal", signalExit))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		void signalEntry()
+		{
+			if (milliseconds) /**< @todo: getMemory */
+			{
+				usleep((*milliseconds) * 1000);
+			}
+			signalFlow(signalExit);
+		}
+
+	private:
+		const tSignalExitId signalExit = 1;
+
+	private:
+		tInteger* milliseconds;
 	};
 };
 
