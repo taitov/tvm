@@ -731,7 +731,12 @@ private: /** modules */
 		{
 			setModuleName("wait");
 
-			if (!registerSignalEntry("signal", &cActionWait::signalEntry))
+			if (!registerSignalEntry("startOrRestart", &cActionWait::signalEntryStart))
+			{
+				return false;
+			}
+
+			if (!registerSignalEntry("startOrContinue", &cActionWait::signalEntryContinue))
 			{
 				return false;
 			}
@@ -750,7 +755,16 @@ private: /** modules */
 		}
 
 	private: /** signalEntries */
-		void signalEntry()
+		void signalEntryStart() /**< @todo */
+		{
+			if (milliseconds) /**< @todo: getMemory */
+			{
+				usleep((*milliseconds) * 1000);
+			}
+			signalFlow(signalExit);
+		}
+
+		void signalEntryContinue() /**< @todo */
 		{
 			if (milliseconds) /**< @todo: getMemory */
 			{
