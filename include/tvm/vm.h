@@ -35,7 +35,7 @@ class cVirtualMachine
 	friend class cActionModule;
 
 	template<typename TObject>
-	friend class cActionSignalEntryObject;
+	friend class cSignalEntryObject;
 
 public:
 	using tBoolean = bool;
@@ -78,9 +78,12 @@ public:
 	bool init();
 
 	bool loadFromFile(const std::string& filePath);
-	bool loadFromMemory(const std::vector<uint8_t>& buffer);
-	bool reload();
-	void unload();
+	bool loadFromFile(const tProjectName& projectName,
+	                  const std::string& filePath);
+	bool loadFromMemory(const tProjectName& projectName,
+	                    const std::vector<uint8_t>& buffer);
+	void unload(const tProjectName& projectName);
+	void unloadAll();
 
 	void run();
 	void wait();
@@ -111,7 +114,7 @@ public: /** gui */
 	const tGuiMemoryModules getGuiMemoryModules() const;
 
 public: /** exec */
-	inline bool rootSignalFlow(tRootSignalExitId rootSignalExitId);
+	inline void rootSignalFlow(tRootSignalExitId rootSignalExitId);
 
 	template<typename TType>
 	inline void rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TType& value);
@@ -832,7 +835,13 @@ private:
 	void registerBuildInLibrary();
 
 private: /** load */
-	bool readScheme(cStreamIn& stream);
+	using tSchemes = std::map<tSchemeName,
+	                          cScheme*>;
+
+	bool readScheme(cStreamIn& stream,
+	                tSchemes& schemes);
+
+	void freeSchemes(tSchemes& schemes);
 
 private:
 	using tMemoryTypes = std::map<tMemoryTypeName,
@@ -841,9 +850,6 @@ private:
 	using tModules = std::map<std::tuple<tLibraryName,
 	                                     tModuleName>,
 	                          cModule*>;
-
-	using tSchemes = std::map<tSchemeName,
-	                          cScheme*>;
 
 	using tRootSignalExits = std::map<std::tuple<tLibraryName,
 	                                             tRootModuleName,
@@ -858,7 +864,6 @@ private:
 
 	const tMemoryTypes getMemoryTypes() const;
 	const tModules getModules() const;
-	const tSchemes getSchemes() const;
 	const tRootSignalExits getRootSignalExits() const;
 	const tRootMemoryExits getRootMemoryExits() const;
 
@@ -877,12 +882,15 @@ private:
 	tRootMemoryExits rootMemoryExits;
 
 private: /** load */
-	tSchemes schemes;
+	std::map<tProjectName,
+	         std::tuple<tProjectId, ///< projectId
+	                    cScheme* ///< mainScheme
+	                   >> projects;
 
 private: /** exec */
 	volatile bool stopped;
-	cScheme* currentScheme; /**< @todo: currentScheme -> vector<currentScheme> + vector<mainScheme>; */
-	std::mutex mutex;
+	std::map<tProjectId, cScheme*> currentSchemes;
+	std::mutex mutex; /**< @todo: mutex perProject */
 	tRootSignalExitId rootSignalSchemeLoaded;
 	tRootSignalExitId rootSignalSchemeUnload;
 };
@@ -890,7 +898,6 @@ private: /** exec */
 inline cVirtualMachine::cVirtualMachine()
 {
 	stopped = false;
-	currentScheme = nullptr;
 	registerBuildInLibrary();
 }
 
@@ -898,7 +905,7 @@ inline cVirtualMachine::~cVirtualMachine()
 {
 	stop();
 	wait();
-	unload();
+	unloadAll();
 	unregisterLibraries();
 }
 
@@ -940,6 +947,13 @@ inline bool cVirtualMachine::init()
 
 inline bool cVirtualMachine::loadFromFile(const std::string& filePath)
 {
+	return loadFromFile(basename(filePath.c_str()),
+	                    filePath);
+}
+
+inline bool cVirtualMachine::loadFromFile(const tProjectName& projectName,
+                                          const std::string& filePath)
+{
 	std::ifstream fileStream(filePath, std::ifstream::binary);
 	if (!fileStream.is_open())
 	{
@@ -949,12 +963,18 @@ inline bool cVirtualMachine::loadFromFile(const std::string& filePath)
 	std::vector<uint8_t> buffer((std::istreambuf_iterator<char>(fileStream)),
 	                            std::istreambuf_iterator<char>());
 
-	return loadFromMemory(buffer);
+	return loadFromMemory(projectName, buffer);
 }
 
-inline bool cVirtualMachine::loadFromMemory(const std::vector<uint8_t>& buffer)
+inline bool cVirtualMachine::loadFromMemory(const tProjectName& projectName,
+                                            const std::vector<uint8_t>& buffer)
 {
-	unload();
+	std::lock_guard<std::mutex> guard(mutex);
+
+	if (projects.find(projectName) != projects.end())
+	{
+		return false;
+	}
 
 	cStreamIn stream(buffer);
 
@@ -965,89 +985,90 @@ inline bool cVirtualMachine::loadFromMemory(const std::vector<uint8_t>& buffer)
 		return false;
 	}
 
+	tSchemes schemes; /**< @todo: rewrite code */
 	uint32_t schemesCount = 0;
 	stream.pop(schemesCount);
 	for (uint64_t scheme_i = 0; scheme_i < schemesCount; scheme_i++)
 	{
-		if (!readScheme(stream))
+		if (!readScheme(stream, schemes))
 		{
+			freeSchemes(schemes);
 			return false;
 		}
 	}
 
 	if (stream.isFailed())
 	{
+		freeSchemes(schemes);
 		return false;
 	}
 
 	if (schemes.find("main") == schemes.end())
 	{
+		freeSchemes(schemes);
 		return false;
 	}
 
-	{
-		std::lock_guard<std::mutex> guard(mutex);
-		currentScheme = schemes["main"]->clone();
-		if (!currentScheme->init())
-		{
-			delete currentScheme;
-			currentScheme = nullptr;
-			return false;
-		}
+	tProjectId projectId = currentSchemes.size() + 1;
 
-		currentScheme->rootSignalFlow(rootSignalSchemeLoaded);
+	cScheme* mainScheme = schemes["main"]->clone();
+	if (!mainScheme->init(schemes, projectId))
+	{
+		delete mainScheme;
+		freeSchemes(schemes);
+		return false;
 	}
+
+	freeSchemes(schemes);
+
+	projects[projectName] = std::make_tuple(projectId,
+	                                        mainScheme);
+
+	currentSchemes[projectId] = mainScheme;
+
+	mainScheme->rootSignalFlow(rootSignalSchemeLoaded);
 
 	return true;
 }
 
-inline bool cVirtualMachine::reload()
+inline void cVirtualMachine::unload(const tProjectName& projectName)
 {
 	std::lock_guard<std::mutex> guard(mutex);
 
-	if (currentScheme)
+	if (projects.find(projectName) == projects.end())
 	{
-		currentScheme->rootSignalFlow(rootSignalSchemeUnload);
-
-		delete currentScheme;
-		currentScheme = nullptr;
+		return;
 	}
 
-	if (schemes.find("main") == schemes.end())
-	{
-		return false;
-	}
+	const tProjectId& projectId = std::get<0>(projects[projectName]);
+	cScheme* mainScheme = std::get<1>(projects[projectName]);
 
-	currentScheme = schemes["main"]->clone();
-	if (!currentScheme->init())
-	{
-		delete currentScheme;
-		currentScheme = nullptr;
-		return false;
-	}
+	currentSchemes[projectId]->rootSignalFlow(rootSignalSchemeUnload);
 
-	currentScheme->rootSignalFlow(rootSignalSchemeLoaded);
+	delete mainScheme;
 
-	return true;
+	currentSchemes.erase(projectId);
+	projects.erase(projectName);
 }
 
-inline void cVirtualMachine::unload()
+inline void cVirtualMachine::unloadAll()
 {
 	std::lock_guard<std::mutex> guard(mutex);
 
-	if (currentScheme)
+	for (auto& currentSchemeIter : currentSchemes)
 	{
+		cScheme* currentScheme = currentSchemeIter.second;
 		currentScheme->rootSignalFlow(rootSignalSchemeUnload);
-
-		delete currentScheme;
-		currentScheme = nullptr;
 	}
 
-	for (auto& iter : schemes)
+	for (auto& project : projects)
 	{
-		delete iter.second;
+		cScheme* mainScheme = std::get<1>(project.second);
+		delete mainScheme;
 	}
-	schemes.clear();
+
+	currentSchemes.clear();
+	projects.clear();
 }
 
 inline void cVirtualMachine::run()
@@ -1150,14 +1171,14 @@ inline const cVirtualMachine::tGuiMemoryModules cVirtualMachine::getGuiMemoryMod
 	return guiMemoryModules;
 }
 
-inline bool cVirtualMachine::rootSignalFlow(tRootSignalExitId rootSignalExitId)
+inline void cVirtualMachine::rootSignalFlow(tRootSignalExitId rootSignalExitId)
 {
 	std::lock_guard<std::mutex> guard(mutex);
-	if (!currentScheme)
+	for (const auto& currentSchemeIter : currentSchemes)
 	{
-		return false;
+		cScheme* currentScheme = currentSchemeIter.second;
+		currentScheme->rootSignalFlow(rootSignalExitId);
 	}
-	return currentScheme->rootSignalFlow(rootSignalExitId);
 }
 
 inline bool cVirtualMachine::isStopped() const
@@ -1262,7 +1283,8 @@ inline void cVirtualMachine::registerBuildInLibrary()
 	registerRootSignalExit("tvm", "schemeUnload", "signal", rootSignalSchemeUnload);
 }
 
-inline bool cVirtualMachine::readScheme(cStreamIn& stream)
+inline bool cVirtualMachine::readScheme(cStreamIn& stream,
+                                        tSchemes& schemes)
 {
 	tSchemeName schemeName;
 	stream.pop(schemeName);
@@ -1294,6 +1316,15 @@ inline bool cVirtualMachine::readScheme(cStreamIn& stream)
 	return true;
 }
 
+inline void cVirtualMachine::freeSchemes(cVirtualMachine::tSchemes& schemes)
+{
+	for (auto& schemeIter : schemes)
+	{
+		cScheme* scheme = schemeIter.second;
+		delete scheme;
+	}
+}
+
 inline const cVirtualMachine::tMemoryTypes cVirtualMachine::getMemoryTypes() const
 {
 	return memoryTypes;
@@ -1321,11 +1352,6 @@ inline const cVirtualMachine::tModules cVirtualMachine::getModules() const
 	}
 
 	return modules;
-}
-
-inline const cVirtualMachine::tSchemes cVirtualMachine::getSchemes() const
-{
-	return schemes;
 }
 
 inline const cVirtualMachine::tRootSignalExits cVirtualMachine::getRootSignalExits() const
@@ -1439,9 +1465,9 @@ inline void cLibrary::stopVirtualMachine()
 	virtualMachine->stop();
 }
 
-inline bool cLibrary::rootSignalFlow(tRootSignalExitId rootSignalExitId)
+inline void cLibrary::rootSignalFlow(tRootSignalExitId rootSignalExitId)
 {
-	return virtualMachine->rootSignalFlow(rootSignalExitId);
+	virtualMachine->rootSignalFlow(rootSignalExitId);
 }
 
 template<typename TType>
@@ -1455,12 +1481,14 @@ inline bool cLibrary::isStopped() const
 	return virtualMachine->isStopped();
 }
 
-inline bool cScheme::init()
+inline bool cScheme::init(const tSchemes& schemes,
+                          const tProjectId& projectId)
 {
 	this->parentScheme = nullptr;
 	this->parentModuleId = 0;
+	this->projectId = projectId;
 
-	if (!initModules())
+	if (!initModules(schemes))
 	{
 		return false;
 	}
@@ -1473,7 +1501,7 @@ inline bool cScheme::init()
 	return true;
 }
 
-inline bool cScheme::initModules()
+inline bool cScheme::initModules(const tSchemes& schemes)
 {
 #define CHECK_MAP(map, key) \
 do { \
@@ -1484,7 +1512,6 @@ do { \
 } while (0)
 
 	const auto virtualMachineModules = virtualMachine->getModules();
-	const auto virtualMachineSchemes = virtualMachine->getSchemes();
 
 	for (const auto& iter : loadMemories)
 	{
@@ -1532,12 +1559,13 @@ do { \
 	{
 		const tModuleId moduleId = iter.first;
 		const tSchemeName& schemeName = iter.second;
-		CHECK_MAP(virtualMachineSchemes, schemeName);
+		CHECK_MAP(schemes, schemeName);
 
-		cScheme* scheme = virtualMachineSchemes.find(schemeName)->second->clone();
+		cScheme* scheme = schemes.find(schemeName)->second->clone();
 		scheme->parentScheme = this;
 		scheme->parentModuleId = moduleId;
-		if (!scheme->initModules())
+		scheme->projectId = projectId;
+		if (!scheme->initModules(schemes))
 		{
 			delete scheme;
 			return false;
@@ -2021,26 +2049,17 @@ template<typename TType>
 void cVirtualMachine::rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TType& value)
 {
 	std::lock_guard<std::mutex> guard(mutex);
-	if (!currentScheme)
+	for (const auto& currentSchemeIter : currentSchemes)
 	{
-		return;
+		cScheme* currentScheme = currentSchemeIter.second;
+		currentScheme->rootSetMemory(rootMemoryExitId, value);
 	}
-	currentScheme->rootSetMemory(rootMemoryExitId, value);
 }
 
 inline bool cActionModule::signalFlow(tSignalExitId signalExitId)
 {
 	std::lock_guard<std::mutex> guard(scheme->virtualMachine->mutex);
 	return scheme->signalFlow(this, signalExitId);
-}
-
-template<typename TObject>
-inline bool cActionSignalEntryObject<TObject>::signalEntry(void* module)
-{
-	TObject* object = (TObject*)module;
-	object->scheme->virtualMachine->currentScheme = object->scheme;
-	cSimpleThread simpleThread(callback, module);
-	return true;
 }
 
 }

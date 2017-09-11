@@ -117,7 +117,7 @@ protected:
 	void stopVirtualMachine();
 
 protected: /** exec */
-	inline bool rootSignalFlow(tRootSignalExitId rootSignalExitId);
+	inline void rootSignalFlow(tRootSignalExitId rootSignalExitId);
 
 	template<typename TType>
 	inline void rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TType& value);

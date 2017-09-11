@@ -101,6 +101,7 @@ MAKE_TYPE(uint32_t, tSignalEntryId);
 MAKE_TYPE(uint32_t, tSignalExitId);
 MAKE_TYPE(uint32_t, tMemoryEntryId);
 MAKE_TYPE(uint32_t, tMemoryExitId);
+MAKE_TYPE(uint32_t, tProjectId);
 
 MAKE_STRING_TYPE(std::string, tLibraryName);
 MAKE_STRING_TYPE(std::string, tRootModuleName);
@@ -116,6 +117,7 @@ MAKE_STRING_TYPE(std::string, tMemoryName);
 MAKE_STRING_TYPE(std::string, tMemoryTypeName);
 MAKE_STRING_TYPE(std::string, tVariableName);
 MAKE_STRING_TYPE(std::string, tSchemeName);
+MAKE_STRING_TYPE(std::string, tProjectName);
 
 MAKE_TYPE(uint32_t, tModuleId);
 

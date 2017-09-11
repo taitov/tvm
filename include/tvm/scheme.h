@@ -20,9 +20,12 @@ class cScheme
 	friend class cActionModule;
 
 	template<typename TObject>
-	friend class cActionSignalEntryObject;
+	friend class cSignalEntryObject;
 
 public:
+	using tSchemes = std::map<tSchemeName,
+	                          cScheme*>;
+
 	using tLoadMemories = std::map<tModuleId,
 	                               tMemoryTypeName>;
 
@@ -78,10 +81,11 @@ public:
 
 	bool read(cStreamIn& stream);
 
-	bool init();
+	bool init(const tSchemes& schemes,
+	          const tProjectId& projectId);
 
 private:
-	bool initModules();
+	bool initModules(const tSchemes& schemes);
 	bool initFlows();
 
 	bool findEntryPathModule(const tModuleId entryModuleId,
@@ -110,6 +114,7 @@ private:
 	cVirtualMachine* virtualMachine;
 	cScheme* parentScheme;
 	tModuleId parentModuleId;
+	tProjectId projectId;
 
 private: /** load */
 	tLoadMemories loadMemories;
@@ -360,9 +365,8 @@ inline void cScheme::rootSetMemory(tRootMemoryExitId rootMemoryExitId, const TTy
 	}
 }
 
-template<typename TObject>
-bool cActionModule::registerSignalEntry(const tSignalEntryName& signalEntryName,
-                                        void (TObject::* callback)())
+inline bool cActionModule::registerSignalEntry(const tSignalEntryName& signalEntryName,
+                                               const tSignalEntryId signalEntryId)
 {
 	auto key = signalEntryName;
 	if (signalEntries.find(key) != signalEntries.end())
@@ -370,9 +374,8 @@ bool cActionModule::registerSignalEntry(const tSignalEntryName& signalEntryName,
 		return false;
 	}
 
-	tSignalEntryId signalEntryId = signalEntries.size() + 1;
 	signalEntries[key] = std::make_tuple(signalEntryId,
-	                                     new cActionSignalEntryObject<TObject>(callback));
+	                                     new cSignalEntryObject<cActionModule>(&cActionModule::doSignalEntry, signalEntryId));
 	return true;
 }
 

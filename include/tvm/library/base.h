@@ -661,7 +661,7 @@ private: /** modules */
 		{
 			setModuleName("touch");
 
-			if (!registerSignalEntry("signal", &cActionTouch::signalEntry))
+			if (!registerSignalEntry("signal", signalEntryTouch))
 			{
 				return false;
 			}
@@ -675,12 +675,20 @@ private: /** modules */
 		}
 
 	private: /** signalEntries */
-		void signalEntry()
+		bool signalEntry(const tSignalEntryId& signalEntryId) override
+		{
+			thread.run(this);
+			return true;
+		}
+
+		void run() override
 		{
 			signalFlow(signalExit);
 		}
 
 	private:
+		const tSignalEntryId signalEntryTouch = 1;
+
 		const tSignalExitId signalExit = 1;
 	};
 
@@ -701,7 +709,7 @@ private: /** modules */
 		{
 			setModuleName("exit");
 
-			if (!registerSignalEntry("signal", &cActionExit::signalEntry))
+			if (!registerSignalEntry("signal", signalEntryExit))
 			{
 				return false;
 			}
@@ -710,13 +718,22 @@ private: /** modules */
 		}
 
 	private: /** signalEntries */
-		void signalEntry()
+		bool signalEntry(const tSignalEntryId& signalEntryId) override
+		{
+			thread.run(this);
+			return true;
+		}
+
+		void run() override
 		{
 			library->stopVirtualMachine();
 		}
 
 	private:
 		cBase* library;
+
+	private:
+		const tSignalEntryId signalEntryExit = 1;
 	};
 
 	class cActionWait : public cActionModule
@@ -731,12 +748,12 @@ private: /** modules */
 		{
 			setModuleName("wait");
 
-			if (!registerSignalEntry("startOrRestart", &cActionWait::signalEntryStart))
+			if (!registerSignalEntry("startOrRestart", signalEntryStart))
 			{
 				return false;
 			}
 
-			if (!registerSignalEntry("startOrContinue", &cActionWait::signalEntryContinue))
+			if (!registerSignalEntry("startOrContinue", signalEntryContinue))
 			{
 				return false;
 			}
@@ -755,29 +772,48 @@ private: /** modules */
 		}
 
 	private: /** signalEntries */
-		void signalEntryStart() /**< @todo */
+		bool signalEntry(const tSignalEntryId& signalEntryId) override
 		{
-			if (milliseconds) /**< @todo: getMemory */
+			if (!milliseconds)
 			{
-				usleep((*milliseconds) * 1000);
+				return false;
 			}
-			signalFlow(signalExit);
+
+			if (signalEntryId == signalEntryStart)
+			{
+				if (thread.isRunning())
+				{
+					thread.stop();
+				}
+				thread.run(this);
+				return true;
+			}
+			else if (signalEntryId == signalEntryContinue)
+			{
+				if (!thread.isRunning())
+				{
+					thread.run(this);
+				}
+				return true;
+			}
+
+			return false;
 		}
 
-		void signalEntryContinue() /**< @todo */
+		void run() override
 		{
-			if (milliseconds) /**< @todo: getMemory */
-			{
-				usleep((*milliseconds) * 1000);
-			}
+			usleep((*milliseconds) * 1000); ///< @todo: getMemory (!) */
 			signalFlow(signalExit);
 		}
 
 	private:
+		const tSignalEntryId signalEntryStart = 1;
+		const tSignalEntryId signalEntryContinue = 2;
+
 		const tSignalExitId signalExit = 1;
 
 	private:
-		tInteger* milliseconds;
+		tInteger* milliseconds; ///< @todo: getMemory (!) */
 	};
 };
 

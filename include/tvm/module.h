@@ -33,87 +33,40 @@ class cSignalEntryObject : public cSignalEntry
 {
 public:
 	using tCallback = bool (TObject::*)();
+	using tCallbackWithId = bool (TObject::*)(const tSignalEntryId& signalEntryId);
 
-	cSignalEntryObject(tCallback callback)
+	cSignalEntryObject(tCallback callback) :
+	        signalEntryId(0)
 	{
 		this->callback = callback;
+	}
+
+	cSignalEntryObject(tCallbackWithId callbackWithId,
+	                   const tSignalEntryId signalEntryId) :
+	        signalEntryId(signalEntryId)
+	{
+		this->callbackWithId = callbackWithId;
 	}
 
 	bool signalEntry(void* module) override
 	{
 		TObject* object = (TObject*)module;
+		if (signalEntryId)
+		{
+			if ((object->*callbackWithId)(signalEntryId))
+			{
+				object->scheme->virtualMachine->currentSchemes[object->scheme->projectId] = object->scheme;
+				return true;
+			}
+			return false;
+		}
 		return (object->*callback)();
 	}
 
 private:
 	tCallback callback;
-};
-
-template<typename TObject>
-class cActionSignalEntryObject : public cSignalEntry
-{
-public:
-	using tCallback = void (TObject::*)();
-
-	cActionSignalEntryObject(tCallback callback)
-	{
-		this->callback = callback;
-	}
-
-	bool signalEntry(void* module) override;
-
-private:
-	class cSimpleThread
-	{
-	private:
-		struct sArgs
-		{
-			sArgs(tCallback callback, TObject* module) :
-			        callback(callback),
-			        module(module)
-			{
-			}
-
-			tCallback callback;
-			TObject* module;
-		};
-
-	public:
-		cSimpleThread(tCallback callback, void* module)
-		{
-			pthread_t thread;
-			pthread_attr_t attr;
-
-			if (pthread_attr_init(&attr) != 0)
-			{
-				return;
-			}
-
-			sArgs* args = new sArgs(callback, (TObject*)module);
-
-			if (pthread_create(&thread, &attr, &callHelper, args) != 0)
-			{
-				delete args;
-				pthread_attr_destroy(&attr);
-				return;
-			}
-
-			pthread_attr_destroy(&attr);
-		}
-
-	private:
-		static void* callHelper(void* pargs)
-		{
-			sArgs* args = (sArgs*)pargs;
-			TObject* object = args->module;
-			(object->*(args->callback))();
-			delete args;
-			return nullptr;
-		}
-	};
-
-private:
-	tCallback callback;
+	tCallbackWithId callbackWithId;
+	const tSignalEntryId signalEntryId;
 };
 
 class cModule
@@ -124,7 +77,7 @@ class cModule
 	friend class cActionModule;
 
 	template<typename TObject>
-	friend class cActionSignalEntryObject;
+	friend class cSignalEntryObject;
 
 public:
 	using tSignalEntries = std::map<tSignalEntryName,
