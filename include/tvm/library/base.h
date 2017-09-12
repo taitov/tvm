@@ -177,6 +177,18 @@ public:
 			return false;
 		}
 
+		if (!registerMemoryModule("string",
+		                          new cLogicStringStartWith()))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule("string",
+		                          new cLogicStringSubString()))
+		{
+			return false;
+		}
+
 		if (!registerMemoryStandart<tInteger>(memoryIntegerTypeName,
 		                                      0))
 		{
@@ -593,6 +605,150 @@ private: /** modules */
 
 	private:
 		tBoolean* to;
+	};
+
+	class cLogicStringStartWith : public cLogicModule
+	{
+	public:
+		cModule* clone() const override
+		{
+			return new cLogicStringStartWith();
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("startWith");
+			setCaptionName("startWith");
+
+			if (!registerSignalEntry("signal", &cLogicStringStartWith::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("string", "string", string))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("startWith", "string", startWith))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("true", signalExitTrue))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("false", signalExitFalse))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		bool signalEntry()
+		{
+			if (string && startWith)
+			{
+				if (string->substr(0, startWith->size()) == *startWith)
+				{
+					return signalFlow(signalExitTrue);
+				}
+			}
+			return signalFlow(signalExitFalse);
+		}
+
+	private:
+		const tSignalExitId signalExitTrue = 1;
+		const tSignalExitId signalExitFalse = 2;
+
+	private:
+		tString* string;
+		tString* startWith;
+	};
+
+	class cLogicStringSubString : public cLogicModule
+	{
+	public:
+		cModule* clone() const override
+		{
+			return new cLogicStringSubString();
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("subString");
+			setCaptionName("subString");
+
+			if (!registerSignalEntry("signal", &cLogicStringSubString::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("string", "string", string))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("start", "integer", start))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("count", "integer", count))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("signal", signalExit))
+			{
+				return false;
+			}
+
+			if (!registerMemoryExit("subString", "string", subString))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		bool signalEntry()
+		{
+			if (string && subString)
+			{
+				if (start && count)
+				{
+					*subString = string->substr(*start, *count);
+				}
+				else if (start)
+				{
+					*subString = string->substr(*start);
+				}
+				else if (count)
+				{
+					*subString = string->substr(0, *count);
+				}
+				else
+				{
+					*subString = *string;
+				}
+			}
+			return signalFlow(signalExit);
+		}
+
+	private:
+		const tSignalExitId signalExit = 1;
+
+	private:
+		tString* string;
+		tInteger* start;
+		tInteger* count;
+		tString* subString;
 	};
 
 	class cLogicTrue : public cLogicModule
