@@ -200,6 +200,12 @@ public:
 			return false;
 		}
 
+		if (!registerMemoryModule("vector<string>",
+		                          new cLogicVectorStringsAppend()))
+		{
+			return false;
+		}
+
 		if (!registerMemoryMap<tString,
 		                       tString>("string",
 		                                "string"))
@@ -749,6 +755,82 @@ private: /** modules */
 		tInteger* start;
 		tInteger* count;
 		tString* subString;
+	};
+
+	class cLogicVectorStringsAppend : public cLogicModule
+	{
+	public:
+		cModule* clone() const override
+		{
+			return new cLogicVectorStringsAppend();
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("append");
+			setCaptionName("append");
+
+			if (!registerSignalEntry("signal", &cLogicVectorStringsAppend::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("vector<string>", "vector<string>", vector))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("delimiter", "string", delimiter))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("signal", signalExit))
+			{
+				return false;
+			}
+
+			if (!registerMemoryExit("string", "string", toString))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		bool signalEntry()
+		{
+			if (vector && toString)
+			{
+				toString->clear();
+
+				std::string tdelimiter = "";
+				if (delimiter)
+				{
+					tdelimiter = *delimiter;
+				}
+
+				if (vector->size())
+				{
+					*toString = (*vector)[0];
+
+					for (size_t i = 1; i < vector->size(); i++)
+					{
+						*toString = *toString + tdelimiter + (*vector)[i];
+					}
+				}
+			}
+			return signalFlow(signalExit);
+		}
+
+	private:
+		const tSignalExitId signalExit = 1;
+
+	private:
+		std::vector<tString>* vector;
+		tString* delimiter;
+		tString* toString;
 	};
 
 	class cLogicTrue : public cLogicModule
