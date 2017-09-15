@@ -47,6 +47,9 @@ public:
 	using tBuffer = std::vector<uint8_t>;
 	const tMemoryTypeName memoryBufferTypeName = "buffer";
 
+	using tString = std::string;
+	const tMemoryTypeName memoryStringTypeName = "string";
+
 public:
 	cVirtualMachine();
 	~cVirtualMachine();
@@ -561,7 +564,49 @@ public:
 			return false;
 		}
 
-		/** @todo */
+		std::map<tMemoryName, int64_t>& mapEnums = enums[memoryTypeNameEnum];
+		for (const auto& iter : items)
+		{
+			mapEnums[iter.first] = (int64_t)iter.second;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameEnum, new cLogicConvert<TEnum,
+		                                                                tString>("toString",
+		                                                                         memoryTypeNameEnum,
+		                                                                         memoryStringTypeName,
+			[this, memoryTypeNameEnum](TEnum* from, tString* to)
+			{
+				const std::map<tMemoryName, int64_t>& mapEnums = enums[memoryTypeNameEnum];
+				for (const auto& iter : mapEnums)
+				{
+					if (iter.second == (int64_t)*from)
+					{
+						*to = iter.first;
+						return;
+					}
+				}
+			})))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameEnum, new cLogicConvertBool<tString,
+		                                                                    TEnum>("fromString",
+		                                                                           memoryStringTypeName,
+		                                                                           memoryTypeNameEnum,
+			[this, memoryTypeNameEnum](tString* from, TEnum* to)
+			{
+				const std::map<tMemoryName, int64_t>& mapEnums = enums[memoryTypeNameEnum];
+				if (mapEnums.find(*from) == mapEnums.end())
+				{
+					return false;
+				}
+				*to = (TEnum)mapEnums.find(*from)->second;
+				return true;
+			})))
+		{
+			return false;
+		}
 
 		memoryTypes[memoryTypeNameEnum] = new cMemoryVariable<TEnum>();
 		return true;
@@ -847,6 +892,9 @@ private:
 	using tMemoryTypes = std::map<tMemoryTypeName,
 	                              cMemory*>;
 
+	using tEnums = std::map<tMemoryTypeName,
+	                        std::map<tMemoryName, int64_t>>;
+
 	using tModules = std::map<std::tuple<tLibraryName,
 	                                     tModuleName>,
 	                          cModule*>;
@@ -880,6 +928,7 @@ private:
 	tMemoryModules memoryModules;
 	tRootSignalExits rootSignalExits;
 	tRootMemoryExits rootMemoryExits;
+	tEnums enums;
 
 private: /** load */
 	std::map<tProjectName,
@@ -928,6 +977,7 @@ inline void cVirtualMachine::unregisterLibraries()
 		delete memoryModule.second;
 	}
 	memoryModules.clear();
+	enums.clear();
 
 	registerBuildInLibrary();
 }
