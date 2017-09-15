@@ -189,6 +189,12 @@ public:
 			return false;
 		}
 
+		if (!registerMemoryModule("string",
+		                          new cLogicStringFindString()))
+		{
+			return false;
+		}
+
 		if (!registerMemoryStandart<tInteger>(memoryIntegerTypeName,
 		                                      0))
 		{
@@ -755,6 +761,81 @@ private: /** modules */
 		tInteger* start;
 		tInteger* count;
 		tString* subString;
+	};
+
+	class cLogicStringFindString : public cLogicModule
+	{
+	public:
+		cModule* clone() const override
+		{
+			return new cLogicStringFindString();
+		}
+
+		bool registerModule() override
+		{
+			setModuleName("findString");
+			setCaptionName("findString");
+
+			if (!registerSignalEntry("signal", &cLogicStringFindString::signalEntry))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("string", "string", string))
+			{
+				return false;
+			}
+
+			if (!registerMemoryEntry("subString", "string", subString))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("done", signalExitDone))
+			{
+				return false;
+			}
+
+			if (!registerSignalExit("fail", signalExitFail))
+			{
+				return false;
+			}
+
+			if (!registerMemoryExit("position", "integer", position))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+	private: /** signalEntries */
+		bool signalEntry()
+		{
+			if (string && subString)
+			{
+				size_t tposition = string->find(*subString);
+				if (tposition != tString::npos)
+				{
+					if (position)
+					{
+						*position = tposition;
+					}
+					return signalFlow(signalExitDone);
+				}
+				return signalFlow(signalExitFail);
+			}
+			return signalFlow(signalExitFail);
+		}
+
+	private:
+		const tSignalExitId signalExitDone = 1;
+		const tSignalExitId signalExitFail = 2;
+
+	private:
+		tString* string;
+		tString* subString;
+		tInteger* position;
 	};
 
 	class cLogicVectorStringsAppend : public cLogicModule
