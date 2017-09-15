@@ -11,115 +11,68 @@ namespace nVirtualMachine
 class cMemory
 {
 public:
-	using tVariables = std::map<tVariableName,
-	                            std::tuple<std::type_index,
-	                                       void*>>;
-
-public:
 	virtual ~cMemory() = default;
 
 	virtual cMemory* clone() const = 0;
-	virtual void* getValue() = 0;
-	const tVariables& getVariables() const;
+	virtual void* getPointer() = 0;
 
-	virtual bool setVariables(const std::vector<uint8_t>& buffer) = 0;
-
-protected:
-	template<typename TType>
-	bool registerVariable(const tVariableName& variableName,
-	                      TType& variable)
-	{
-		if (variables.find(variableName) != variables.end())
-		{
-			return false;
-		}
-
-		variables.insert(std::make_pair(variableName,
-		                                std::make_tuple(std::type_index(typeid(TType)),
-		                                                &variable)));
-		return true;
-	}
-
-	template<typename TType, typename TDefaultType>
-	bool registerVariable(const tVariableName& variableName,
-	                      TType& variable,
-	                      const TDefaultType& defaultValue)
-	{
-		variable = defaultValue;
-		return registerVariable<TType>(variableName, variable);
-	}
-
-private:
-	tVariables variables;
+	virtual bool write(const std::vector<uint8_t>& buffer) = 0;
+	virtual std::vector<uint8_t> read() = 0;
 };
 
 template<typename TType>
 class cMemoryVariable : public cMemory
 {
 public:
-	cMemoryVariable();
-	cMemoryVariable(const TType& value);
-
-	cMemory* clone() const override;
-
-	void* getValue() override;
-
-	bool setVariables(const std::vector<uint8_t>& buffer) override;
-
-private:
-	TType value;
-};
-
-inline const cMemory::tVariables& cMemory::getVariables() const
-{
-	return variables;
-}
-
-template<typename TType>
-cMemoryVariable<TType>::cMemoryVariable()
-{
-	registerVariable("value", this->value);
-}
-
-template<typename TType>
-cMemoryVariable<TType>::cMemoryVariable(const TType& value)
-{
-	this->value = value;
-	registerVariable("value", this->value);
-}
-
-template<typename TType>
-cMemory* cMemoryVariable<TType>::clone() const
-{
-	return new cMemoryVariable(this->value);
-}
-
-template<typename TType>
-void* cMemoryVariable<TType>::getValue()
-{
-	return &value;
-}
-
-template<typename TType>
-bool cMemoryVariable<TType>::setVariables(const std::vector<uint8_t>& buffer)
-{
-	if (!buffer.size())
+	cMemoryVariable()
 	{
-		/** @todo: temporary */
+	}
+
+	cMemoryVariable(const TType& value)
+	{
+		this->value = value;
+	}
+
+	cMemory* clone() const override
+	{
+		return new cMemoryVariable(this->value);
+	}
+
+	void* getPointer() override
+	{
+		return &value;
+	}
+
+	bool write(const std::vector<uint8_t>& buffer) override
+	{
+		if (!buffer.size())
+		{
+			/** @todo: temporary */
+			return true;
+		}
+
+		cStreamIn stream(buffer);
+
+		stream.pop(value);
+
+		if (stream.isFailed())
+		{
+			return false;
+		}
+
 		return true;
 	}
 
-	cStreamIn stream(buffer);
-
-	stream.pop(value);
-
-	if (stream.isFailed())
+	std::vector<uint8_t> read() override
 	{
-		return false;
+		cStreamOut buffer;
+		buffer.push(value);
+		return buffer.getBuffer();
 	}
 
-	return true;
-}
+protected:
+	TType value;
+};
 
 }
 

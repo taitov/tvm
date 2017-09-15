@@ -95,10 +95,6 @@ public:
 	                              std::tuple<tMemoryTypeName,
 	                                         std::ptrdiff_t>>;
 
-	using tVariables = std::map<tVariableName,
-	                            std::tuple<std::type_index,
-	                                       void*>>;
-
 public:
 	cModule();
 	virtual ~cModule();
@@ -114,10 +110,7 @@ public:
 	const tMemoryEntries& getMemoryEntries() const;
 	const tSignalExits& getSignalExits() const;
 	const tMemoryExits& getMemoryExits() const;
-	const tVariables& getVariables() const;
 	const bool& isDeprecated() const;
-
-	bool setVariables(const std::vector<uint8_t>& buffer);
 
 protected:
 	void setModuleName(const tModuleName& moduleName);
@@ -142,15 +135,6 @@ protected:
 	                        const tMemoryTypeName& memoryTypeName,
 	                        TType*& memory);
 
-	template<typename TType>
-	bool registerVariable(const tVariableName& variableName,
-	                      TType& variable);
-
-	template<typename TType, typename TDefaultType>
-	bool registerVariable(const tVariableName& variableName,
-	                      TType& variable,
-	                      const TDefaultType& defaultValue);
-
 private:
 	bool doRegisterModule(cVirtualMachine* virtualMachine);
 	virtual bool registerModule() = 0;
@@ -168,7 +152,6 @@ private:
 	tMemoryEntries memoryEntries;
 	tSignalExits signalExits;
 	tMemoryExits memoryExits;
-	tVariables variables;
 	bool deprecated;
 
 protected: /** exec */
@@ -246,11 +229,6 @@ inline const cModule::tSignalExits& cModule::getSignalExits() const
 inline const cModule::tMemoryExits& cModule::getMemoryExits() const
 {
 	return memoryExits;
-}
-
-inline const cModule::tVariables& cModule::getVariables() const
-{
-	return variables;
 }
 
 inline const bool& cModule::isDeprecated() const
@@ -341,29 +319,6 @@ bool cModule::registerSignalEntry(const tSignalEntryName& signalEntryName, bool 
 	signalEntries[key] = std::make_tuple(signalEntryId,
 	                                     new cSignalEntryObject<TObject>(callback));
 	return true;
-}
-
-template<typename TType>
-bool cModule::registerVariable(const tVariableName& variableName, TType& variable)
-{
-	if (variables.find(variableName) != variables.end())
-	{
-		return false;
-	}
-
-	variables.insert(std::make_pair(variableName,
-	                                std::make_tuple(std::type_index(typeid(TType)),
-	                                                &variable)));
-	return true;
-}
-
-template<typename TType, typename TDefaultType>
-bool cModule::registerVariable(const tVariableName& variableName,
-                               TType& variable,
-                               const TDefaultType& defaultValue)
-{
-	variable = defaultValue;
-	return registerVariable<TType>(variableName, variable);
 }
 
 }

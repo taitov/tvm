@@ -1580,7 +1580,7 @@ do { \
 
 		CHECK_MAP(memories, moduleId);
 
-		if (!memories.find(moduleId)->second->setVariables(iter.second))
+		if (!memories.find(moduleId)->second->write(iter.second))
 		{
 			return false;
 		}
@@ -1903,7 +1903,7 @@ do { \
 	{
 		CHECK_MAP(memories, entryModuleId);
 
-		pointer = memories.find(entryModuleId)->second->getValue();
+		pointer = memories.find(entryModuleId)->second->getPointer();
 
 		return true;
 	}
@@ -1976,7 +1976,7 @@ do { \
 	{
 		CHECK_MAP(memories, moduleId);
 
-		pointer = memories.find(moduleId)->second->getValue();
+		pointer = memories.find(moduleId)->second->getPointer();
 
 		return true;
 	}
@@ -2029,20 +2029,6 @@ do { \
 	return false;
 
 #undef CHECK_MAP
-}
-
-inline bool cModule::setVariables(const std::vector<uint8_t>& buffer)
-{
-	cStreamIn stream(buffer);
-
-	/** @todo */
-
-	if (stream.isFailed())
-	{
-		return false;
-	}
-
-	return true;
 }
 
 template<typename TType>

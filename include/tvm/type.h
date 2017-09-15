@@ -115,7 +115,6 @@ MAKE_STRING_TYPE(std::string, tMemoryEntryName);
 MAKE_STRING_TYPE(std::string, tMemoryExitName);
 MAKE_STRING_TYPE(std::string, tMemoryName);
 MAKE_STRING_TYPE(std::string, tMemoryTypeName);
-MAKE_STRING_TYPE(std::string, tVariableName);
 MAKE_STRING_TYPE(std::string, tSchemeName);
 MAKE_STRING_TYPE(std::string, tProjectName);
 
