@@ -1276,6 +1276,193 @@ private:
 
 template<typename TKeyType,
          typename TValueType>
+class cLogicMapFind : public cLogicModule
+{
+	using tMap = std::map<TKeyType, TValueType>;
+
+public:
+	cLogicMapFind(const tMemoryTypeName& memoryKeyTypeName,
+	              const tMemoryTypeName& memoryValueTypeName) :
+	        memoryKeyTypeName(memoryKeyTypeName),
+	        memoryValueTypeName(memoryValueTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicMapFind(memoryKeyTypeName,
+		                         memoryValueTypeName);
+	}
+
+	bool registerModule() override
+	{
+		tMemoryTypeName memoryTypeNameMap = "map<" + memoryKeyTypeName.value + "," + memoryValueTypeName.value + ">";
+
+		setModuleName("find");
+		setCaptionName("find");
+
+		if (!registerSignalEntry("signal", &cLogicMapFind::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry(memoryTypeNameMap.value, memoryTypeNameMap, map))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("key", memoryKeyTypeName, key))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("done", signalExitDone))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("fail", signalExitFail))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit("value", memoryValueTypeName, value))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (!map || !key)
+		{
+			return signalFlow(signalExitFail);
+		}
+
+		if (map->find(*key) != map->end())
+		{
+			if (value)
+			{
+				*value = (*map)[*key];
+			}
+
+			return signalFlow(signalExitDone);
+		}
+
+		return signalFlow(signalExitFail);
+	}
+
+private:
+	const tMemoryTypeName memoryKeyTypeName;
+	const tMemoryTypeName memoryValueTypeName;
+
+private:
+	const tSignalExitId signalExitDone = 1;
+	const tSignalExitId signalExitFail = 2;
+
+private:
+	tMap* map;
+	TKeyType* key;
+	TValueType* value;
+};
+
+template<typename TKeyType,
+         typename TValueType>
+class cLogicMapSelectOrCreate : public cLogicModule
+{
+	using tMap = std::map<TKeyType, TValueType>;
+
+public:
+	cLogicMapSelectOrCreate(const tMemoryTypeName& memoryKeyTypeName,
+	                        const tMemoryTypeName& memoryValueTypeName) :
+	        memoryKeyTypeName(memoryKeyTypeName),
+	        memoryValueTypeName(memoryValueTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicMapSelectOrCreate(memoryKeyTypeName,
+		                                   memoryValueTypeName);
+	}
+
+	bool registerModule() override
+	{
+		tMemoryTypeName memoryTypeNameMap = "map<" + memoryKeyTypeName.value + "," + memoryValueTypeName.value + ">";
+
+		setModuleName("selectOrCreate");
+		setCaptionName("selectOrCreate");
+
+		if (!registerSignalEntry("signal", &cLogicMapSelectOrCreate::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry(memoryTypeNameMap.value, memoryTypeNameMap, map))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("key", memoryKeyTypeName, key))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry("newValue", memoryValueTypeName, inValue))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("signal", signalExit))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit("value", memoryValueTypeName, outValue))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (!map || !key || !inValue || !outValue)
+		{
+			return signalFlow(signalExit);
+		}
+
+		if (map->find(*key) == map->end())
+		{
+			(*map)[*key] = *inValue;
+		}
+
+		*outValue = (*map)[*key];
+
+		return signalFlow(signalExit);
+	}
+
+private:
+	const tMemoryTypeName memoryKeyTypeName;
+	const tMemoryTypeName memoryValueTypeName;
+
+private:
+	const tSignalExitId signalExit = 1;
+
+private:
+	tMap* map;
+	TKeyType* key;
+	TValueType* inValue;
+	TValueType* outValue;
+};
+
+template<typename TKeyType,
+         typename TValueType>
 class cLogicMapGet : public cLogicModule
 {
 	using tMap = std::map<TKeyType, TValueType>;

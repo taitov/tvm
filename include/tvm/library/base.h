@@ -1122,7 +1122,7 @@ private: /** modules */
 		void run() override
 		{
 			usleep((*milliseconds) * 1000); ///< @todo: getMemory (!) */
-			signalFlow(signalExit);
+			signalFlow(signalExit); ///< @todo: new thread */
 		}
 
 	private:

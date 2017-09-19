@@ -447,6 +447,22 @@ public:
 		}
 
 		if (!registerMemoryModule(memoryTypeNameMap,
+		                          new cLogicMapFind<TKeyType,
+		                                            TValueType>(memoryKeyTypeName,
+		                                                        memoryValueTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameMap,
+		                          new cLogicMapSelectOrCreate<TKeyType,
+		                                                      TValueType>(memoryKeyTypeName,
+		                                                                  memoryValueTypeName)))
+		{
+			return false;
+		}
+
+		if (!registerMemoryModule(memoryTypeNameMap,
 		                          new cLogicSize<tMap,
 		                                         tInteger>("getCount",
 		                                                   memoryTypeNameMap,
