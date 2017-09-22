@@ -94,13 +94,7 @@ protected:
 		}
 
 	private:
-		static void* callHelper(void* args)
-		{
-			cSimpleThread* simpleThread = (cSimpleThread*)args;
-			simpleThread->module->run();
-			simpleThread->thread = 0;
-			return nullptr;
-		}
+		static void* callHelper(void* args);
 
 		pthread_t thread;
 		cActionModule* module;

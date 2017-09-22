@@ -2114,6 +2114,17 @@ inline bool cActionModule::signalFlow(tSignalExitId signalExitId)
 	return scheme->signalFlow(this, signalExitId);
 }
 
+void* cActionModule::cSimpleThread::callHelper(void* args)
+{
+	cSimpleThread* simpleThread = (cSimpleThread*)args;
+	if (!simpleThread->module->scheme->virtualMachine->isStopped())
+	{
+		simpleThread->module->run();
+	}
+	simpleThread->thread = 0;
+	return nullptr;
+}
+
 }
 
 #endif // TVM_VM_H
