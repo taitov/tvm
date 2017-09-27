@@ -2114,7 +2114,7 @@ inline bool cActionModule::signalFlow(tSignalExitId signalExitId)
 	return scheme->signalFlow(this, signalExitId);
 }
 
-void* cActionModule::cSimpleThread::callHelper(void* args)
+inline void* cActionModule::cSimpleThread::callHelper(void* args)
 {
 	cSimpleThread* simpleThread = (cSimpleThread*)args;
 	if (!simpleThread->module->scheme->virtualMachine->isStopped())
