@@ -369,6 +369,12 @@ public:
 			return false;
 		}
 
+		if (!registerMemoryModule(memoryTypeNameVector,
+		                          new cLogicVectorGetRandomItem<TType>(memoryTypeName)))
+		{
+			return false;
+		}
+
 		if (!registerMemoryModule(memoryTypeNameVector, new cLogicConvert<tVector,
 		                                                                  tBuffer>("toBuffer",
 		                                                                           memoryTypeNameVector,

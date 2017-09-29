@@ -338,6 +338,86 @@ private:
 	TType* value;
 };
 
+template<typename TType>
+class cLogicVectorGetRandomItem : public cLogicModule
+{
+	using tVector = std::vector<TType>;
+
+public:
+	cLogicVectorGetRandomItem(const tMemoryTypeName& memoryTypeName) :
+	        memoryTypeName(memoryTypeName)
+	{
+	}
+
+	cModule* clone() const override
+	{
+		return new cLogicVectorGetRandomItem(memoryTypeName);
+	}
+
+	bool registerModule() override
+	{
+		tMemoryTypeName memoryTypeNameVector = "vector<" + memoryTypeName.value + ">";
+
+		setModuleName("getRandomItem");
+		setCaptionName("getRandomItem");
+
+		if (!registerSignalEntry("signal", &cLogicVectorGetRandomItem::signalEntry))
+		{
+			return false;
+		}
+
+		if (!registerMemoryEntry(memoryTypeNameVector.value, memoryTypeNameVector, vector))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("done", signalExitDone))
+		{
+			return false;
+		}
+
+		if (!registerSignalExit("fail", signalExitFail))
+		{
+			return false;
+		}
+
+		if (!registerMemoryExit(memoryTypeName.value, memoryTypeName, value))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+private: /** signalEntries */
+	bool signalEntry()
+	{
+		if (vector && vector->size())
+		{
+			std::size_t index = rand() % vector->size();
+
+			if (value)
+			{
+				*value = (*vector)[index];
+			}
+
+			return signalFlow(signalExitDone);
+		}
+		return signalFlow(signalExitFail);
+	}
+
+private:
+	const tMemoryTypeName memoryTypeName;
+
+private:
+	const tSignalExitId signalExitDone = 1;
+	const tSignalExitId signalExitFail = 2;
+
+private:
+	tVector* vector;
+	TType* value;
+};
+
 template<typename TType, typename TIntegerType>
 class cLogicVectorSet : public cLogicModule
 {
