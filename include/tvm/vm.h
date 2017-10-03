@@ -50,6 +50,17 @@ public:
 	using tString = std::string;
 	const tMemoryTypeName memoryStringTypeName = "string";
 
+	using tRootSignalExits = std::map<std::tuple<tLibraryName,
+	                                             tRootModuleName,
+	                                             tSignalExitName>,
+	                                  tRootSignalExitId>;
+
+	using tRootMemoryExits = std::map<std::tuple<tLibraryName,
+	                                             tRootModuleName,
+	                                             tMemoryExitName>,
+	                                  std::tuple<tMemoryTypeName,
+	                                             tRootMemoryExitId>>;
+
 public:
 	cVirtualMachine();
 	~cVirtualMachine();
@@ -77,6 +88,9 @@ public:
 	                          cModule* module);
 
 	void unregisterLibraries();
+
+	const tRootSignalExits getRootSignalExits() const;
+	const tRootMemoryExits getRootMemoryExits() const;
 
 	bool init();
 
@@ -921,21 +935,8 @@ private:
 	                                     tModuleName>,
 	                          cModule*>;
 
-	using tRootSignalExits = std::map<std::tuple<tLibraryName,
-	                                             tRootModuleName,
-	                                             tSignalExitName>,
-	                                  tRootSignalExitId>;
-
-	using tRootMemoryExits = std::map<std::tuple<tLibraryName,
-	                                             tRootModuleName,
-	                                             tMemoryExitName>,
-	                                  std::tuple<tMemoryTypeName,
-	                                             tRootMemoryExitId>>;
-
 	const tMemoryTypes getMemoryTypes() const;
 	const tModules getModules() const;
-	const tRootSignalExits getRootSignalExits() const;
-	const tRootMemoryExits getRootMemoryExits() const;
 
 private:
 	using tLibraries = std::map<tLibraryName,
