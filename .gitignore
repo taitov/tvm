@@ -1,11 +1,7 @@
-*.o
 *.config
 *.creator
 *.creator.user
 *.files
 *.includes
 build
-converter
-engine
-*.tvm
 .vscode
