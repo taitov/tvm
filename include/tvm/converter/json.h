@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_CONVERTER_JSON_H
-#define TVM_CONVERTER_JSON_H
+#pragma once
 
 #include "nlohmann/json.hpp"
 
@@ -2411,5 +2410,3 @@ tConverterModuleName cSchemeJson::getConverterModuleName(const tConverterModuleI
 }
 
 }
-
-#endif // TVM_CONVERTER_JSON_H

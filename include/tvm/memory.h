@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_MEMORY_H
-#define TVM_MEMORY_H
+#pragma once
 
 #include "result.h"
 #include "type.h"
@@ -26,5 +25,3 @@ inline cMemoryModuleManager::~cMemoryModuleManager()
 }
 
 }
-
-#endif // TVM_MEMORY_H

@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_SCHEME_H
-#define TVM_SCHEME_H
+#pragma once
 
 #include <vector>
 #include <shared_mutex>
@@ -135,5 +134,3 @@ inline void cScheme::startThread()
 }
 
 }
-
-#endif // TVM_SCHEME_H

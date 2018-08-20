@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_LOGIC_H
-#define TVM_LOGIC_H
+#pragma once
 
 #include "result.h"
 #include "type.h"
@@ -58,5 +57,3 @@ inline cCallbackBase::~cCallbackBase()
 }
 
 }
-
-#endif // TVM_LOGIC_H

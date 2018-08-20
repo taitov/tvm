@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_TYPE_H
-#define TVM_TYPE_H
+#pragma once
 
 #include <inttypes.h>
 
@@ -43,5 +42,3 @@ enum class eMemoryPosition : uint8_t
 };
 
 }
-
-#endif // TVM_TYPE_H

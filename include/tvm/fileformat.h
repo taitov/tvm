@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_FILEFORMAT_H
-#define TVM_FILEFORMAT_H
+#pragma once
 
 #include <stdio.h>
 #include <endian.h>
@@ -65,5 +64,3 @@ using tProject = std::tuple<std::vector<tRootModule>, ///< rootModules
 }
 
 }
-
-#endif // TVM_FILEFORMAT_H

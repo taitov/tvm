@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_STREAM_H
-#define TVM_STREAM_H
+#pragma once
 
 #include <string.h>
 #include <inttypes.h>
@@ -488,5 +487,3 @@ inline void cStreamOut::push(const TType& value)
 }
 
 }
-
-#endif // TVM_STREAM_H

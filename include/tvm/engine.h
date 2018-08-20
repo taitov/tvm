@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_ENGINE_H
-#define TVM_ENGINE_H
+#pragma once
 
 #ifdef TVM_CONVERTER
 #error "include 'engine' or 'converter'"
@@ -1006,5 +1005,3 @@ inline eResult cScheme::loadLogicModuleMemories(const std::vector<nFileFormat::t
 }
 
 }
-
-#endif // TVM_ENGINE_H

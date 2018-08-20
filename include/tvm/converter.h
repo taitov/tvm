@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_CONVERTER_H
-#define TVM_CONVERTER_H
+#pragma once
 
 #ifdef TVM_ENGINE
 #error "include 'engine' or 'converter'"
@@ -36,5 +35,3 @@ eResult cConverter::convert(TVM_UNUSED const std::string& fromFilePath,
 }
 
 }
-
-#endif // TVM_CONVERTER_H

@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_RESULT_H
-#define TVM_RESULT_H
+#pragma once
 
 #include "type.h"
 
@@ -43,5 +42,3 @@ enum class eResult : uint32_t
 };
 
 }
-
-#endif // TVM_RESULT_H

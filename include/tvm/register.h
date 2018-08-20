@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_REGISTER_H
-#define TVM_REGISTER_H
+#pragma once
 
 #if !defined (TVM_ENGINE) && !defined (TVM_CONVERTER)
 #error "include 'engine' or 'converter'"
@@ -1499,5 +1498,3 @@ eResult cRegister::registerLogicModule(TArgs ... args)
 }
 
 }
-
-#endif // TVM_REGISTER_H

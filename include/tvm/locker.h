@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_LOCKER_H
-#define TVM_LOCKER_H
+#pragma once
 
 #include <shared_mutex>
 
@@ -31,5 +30,3 @@ inline void cLocker::unlock() const
 }
 
 }
-
-#endif // TVM_LOCKER_H

@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_ROOT_H
-#define TVM_ROOT_H
+#pragma once
 
 #include "result.h"
 #include "type.h"
@@ -42,5 +41,3 @@ inline const cLocker* cRootModuleManager::getLocker() const
 }
 
 }
-
-#endif // TVM_ROOT_H

@@ -1,7 +1,6 @@
 // Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
-#ifndef TVM_COMMON_H
-#define TVM_COMMON_H
+#pragma once
 
 #include <stdio.h>
 #include <endian.h>
@@ -71,5 +70,3 @@ static tUniqueId getUniqueId() ///< @todo: constexpr
 }
 
 }
-
-#endif // TVM_COMMON_H
