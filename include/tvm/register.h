@@ -45,6 +45,12 @@ namespace nVirtualMachine
 #define tvmRegisterLogicModule(type) \
 	static void tvmRegisterModule(cRegisterLogicModule<type>& registerModule)
 
+#define tvmRestore() \
+	bool tvmMemoryRestore(cStreamIn& stream)
+
+#define tvmSave() \
+	void tvmMemorySave(cStreamOut& stream)
+
 template<typename TType>
 class cEngineValueHelper
 {

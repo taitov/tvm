@@ -2,43 +2,41 @@ EXTRA_CXX ?= g++
 EXTRA_CFLAGS ?= -Wall -Wextra -Werror -Ofast -fno-exceptions -fno-rtti -flto
 EXTRA_LDFLAGS ?= -flto
 
-SRCDIRS := .
-
 VPATH := .
 VPATH += ../../include/tvm
 VPATH += ../../include/tvm/library
 VPATH += ../../include/tvm/converter
+VPATH += ../../thirdparty/concurrentqueue
+VPATH += ../../thirdparty/json/include
 
-SRC := $(foreach sdir,$(SRCDIRS),$(wildcard $(sdir)/*.cpp))
 HDR := $(foreach sdir,$(VPATH),$(wildcard $(sdir)/*.h))
-OBJ := $(SRC:%.cpp=%.o)
-CFLAGS := $(addprefix -I,$(VPATH))
 
 CFLAGS += --std=c++17 $(EXTRA_CFLAGS)
 CFLAGS += -I../../include
+CFLAGS += -I../../thirdparty/concurrentqueue
+CFLAGS += -I../../thirdparty/json/include
 
 LDFLAGS += -lpthread $(EXTRA_LDFLAGS)
 
-all: build
+all: build/engine build/converter
 
-build: engine converter
-
-$(OBJ): $(HDR) Makefile
-
-%.o: %.cpp
+build/%.o: %.cpp $(HDR) Makefile
+	@mkdir -p $(@D)
 	$(EXTRA_CXX) -c -o $@ $< $(CFLAGS)
 
-engine: engine.o
+build/engine: build/engine.o
+	@mkdir -p $(@D)
 	$(EXTRA_CXX) -o $@ $^ $(LDFLAGS)
 
-converter: converter.o
+build/converter: build/converter.o
+	@mkdir -p $(@D)
 	$(EXTRA_CXX) -o $@ $^ $(LDFLAGS)
 
 run:
-	./converter example.json example.tvm
-	./engine example.tvm
+	./build/converter example.json build/example.tvm
+	./build/engine build/example.tvm
 
-.PHONY: clean
 clean:
-	rm -f *.o
-	rm -f engine converter
+	rm -rf build
+
+.PHONY: all build run clean

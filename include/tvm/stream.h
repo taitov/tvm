@@ -245,7 +245,7 @@ private:
 
 namespace nPopHelper
 {
-hasFunctionHelper(restore,
+hasFunctionHelper(tvmMemoryRestore,
                   std::declval<cStreamIn&>());
 }
 
@@ -261,14 +261,14 @@ inline cStreamIn::cStreamIn(const std::vector<uint8_t>& buffer) :
 template<typename TType>
 inline void cStreamIn::pop(TType& value)
 {
-	if constexpr (nPopHelper::has_restore<TType>::value)
+	if constexpr (nPopHelper::has_tvmMemoryRestore<TType>::value)
 	{
 		if (isFailed())
 		{
 			return;
 		}
 
-		failed = !value.restore(*this);
+		failed = !value.tvmMemoryRestore(*this);
 	}
 	else
 	{
@@ -465,7 +465,7 @@ cStreamIn::popVariant(std::variant<TArgs ...>& variant,
 
 namespace nPushHelper
 {
-hasFunctionHelper(save,
+hasFunctionHelper(tvmMemorySave,
                   std::declval<cStreamOut&>());
 }
 
@@ -474,9 +474,9 @@ hasFunctionHelper(save,
 template<typename TType>
 inline void cStreamOut::push(const TType& value)
 {
-	if constexpr (nPushHelper::has_save<TType>::value)
+	if constexpr (nPushHelper::has_tvmMemorySave<TType>::value)
 	{
-		value.save(*this);
+		value.tvmMemorySave(*this);
 	}
 	else
 	{
