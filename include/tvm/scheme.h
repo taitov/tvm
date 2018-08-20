@@ -5,7 +5,7 @@
 #include <vector>
 #include <shared_mutex>
 
-#include "concurrentqueue/blockingconcurrentqueue.h"
+#include <blockingconcurrentqueue.h>
 
 #include "result.h"
 #include "type.h"

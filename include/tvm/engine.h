@@ -16,7 +16,7 @@
 #include <mutex>
 #include <shared_mutex>
 
-#include "concurrentqueue/blockingconcurrentqueue.h"
+#include <blockingconcurrentqueue.h>
 
 #include "register.h"
 #include "stream.h"
