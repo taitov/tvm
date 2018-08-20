@@ -11,11 +11,33 @@ namespace nVirtualMachine
 class cRootStart ///< root module
 {
 public:
+	tvmRegisterRootModule(cRootStart)
+	{
+		registerModule.setModuleName("start");
+		registerModule.setCaptionName("start");
+
+		registerModule.insertRootSignalExit("signal", ///< signal name
+		                                    &cRootStart::rootSignalExit); ///< store signal id
+	}
+
+public:
 	tRootSignalExitId rootSignalExit;
 };
 
+//
+
 class cLogicPrint ///< logic module
 {
+public:
+	tvmRegisterLogicModule(cLogicPrint)
+	{
+		registerModule.setModuleName("print");
+		registerModule.setCaptionName("print");
+
+		registerModule.insertSignalEntry("signal", ///< signal name
+		                                 &cLogicPrint::signalEntry); ///< callback
+	}
+
 public:
 	tFlowId signalEntry()
 	{
@@ -24,36 +46,13 @@ public:
 	}
 };
 
+//
+
 eResult registerModules(cRegister& virtualMachine)
 {
-	eResult result;
-
-	/// register root modules
-	result = virtualMachine.registerRootModuleBase<cRootStart>("start", ///< module name
-	                                                           "start", ///< caption name (for gui)
-	                                                           {{"signal", ///< signal name
-	                                                             &cRootStart::rootSignalExit}}, ///< store signal id
-	                                                           {});
-	if (result != eResult::success)
-	{
-		return result;
-	}
-
-	/// register logic modules
-	result = virtualMachine.registerLogicModuleBase<cLogicPrint>("printHelloWorld", ///< module name
-	                                                             "printHelloWorld", ///< caption name (for gui)
-	                                                             {{"signal", ///< signal name
-	                                                               &cLogicPrint::signalEntry}}, ///< callback
-	                                                             {},
-	                                                             {},
-	                                                             {},
-	                                                             {});
-	if (result != eResult::success)
-	{
-		return result;
-	}
-
-	return result;
+	virtualMachine.registerRootModule<cRootStart>();
+	virtualMachine.registerLogicModule<cLogicPrint>();
+	return virtualMachine.getRegisterResult();
 }
 
 }

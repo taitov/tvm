@@ -23,7 +23,7 @@
 				},
 				{
 					"id" : "2",
-					"moduleName" : ":logic:printHelloWorld"
+					"moduleName" : ":logic:print"
 				}
 			]
 		}

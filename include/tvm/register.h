@@ -36,14 +36,14 @@
 namespace nVirtualMachine
 {
 
-#define tvmRegisterMemoryModule() \
-	static void tvmRegisterModule(cRegisterMemoryModule<auto>& registerModule)
+#define tvmRegisterMemoryModule(type) \
+	static void tvmRegisterModule(cRegisterMemoryModule<type>& registerModule)
 
-#define tvmRegisterRootModule() \
-	static void tvmRegisterModule(cRegisterRootModule<auto>& registerModule)
+#define tvmRegisterRootModule(type) \
+	static void tvmRegisterModule(cRegisterRootModule<type>& registerModule)
 
-#define tvmRegisterLogicModule() \
-	static void tvmRegisterModule(cRegisterLogicModule<auto>& registerModule)
+#define tvmRegisterLogicModule(type) \
+	static void tvmRegisterModule(cRegisterLogicModule<type>& registerModule)
 
 template<typename TType>
 class cEngineValueHelper
@@ -206,7 +206,7 @@ public:
 	         typename ... TArgs>
 	eResult registerMemoryModuleBase(const tModuleName& moduleName,
 	                                 const cMemoryValueType& memoryValueType,
-	                                 TArgs ... args);
+	                                 TArgs ... args); ///< @todo: delete
 
 	template<typename TType,
 	         typename ... TArgs>
@@ -218,7 +218,7 @@ public:
 	                               const tCaptionName& captionName,
 	                               const std::vector<tRootSignalExit<TType>>& rootSignalExits,
 	                               const std::vector<tRootMemoryExit<TType>>& rootMemoryExits,
-	                               TArgs ... args);
+	                               TArgs ... args); ///< @todo: delete
 
 	template<typename TType,
 	         typename ... TArgs>
@@ -233,7 +233,7 @@ public:
 	                                const std::vector<tSignalExit<TType>>& signalExits,
 	                                const std::vector<tMemoryExit<TType>>& memoryExits,
 	                                const std::vector<tMemoryEntryExit<TType>>& memoryEntryExits,
-	                                TArgs ... args);
+	                                TArgs ... args); ///< @todo: delete
 
 	template<typename TType,
 	         typename ... TArgs>
