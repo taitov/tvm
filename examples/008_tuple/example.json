@@ -1,0 +1,92 @@
+{
+	"format" : "pure",
+	"formatVersion" : "1",
+	"schemes" :
+	[
+		{
+			"modules" :
+			[
+				{
+					"id" : "1",
+					"moduleName" : ":memory:keyValue",
+					"value" :
+					[
+						{
+							"valueName" : "key",
+							"value" : "1"
+						},
+						{
+							"valueName" : "value",
+							"value" : "Ivan"
+						}
+					]
+				},
+				{
+					"id" : "2",
+					"moduleName" : ":root:start",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal1",
+							"target" :
+							{
+								"id" : "3",
+								"signalEntryName" : "signal"
+							}
+						},
+						{
+							"signalExitName" : "signal2",
+							"target" :
+							{
+								"id" : "4",
+								"signalEntryName" : "signal"
+							}
+						}
+					]
+				},
+				{
+					"id" : "3",
+					"moduleName" : ":logic:copy",
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "string",
+							"target" :
+							{
+								"targetType" : "const",
+								"value" : "Michael"
+							}
+						}
+					],
+					"memoryExits" :
+					[
+						{
+							"memoryEntryName" : "string",
+							"target" :
+							{
+								"targetType" : "scheme",
+								"id" : "1",
+								"tupleValueName" : "value"
+							}
+						}
+					]
+				},
+				{
+					"id" : "4",
+					"moduleName" : ":logic:print",
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "keyValue",
+							"target" :
+							{
+								"targetType" : "scheme",
+								"id" : "1"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

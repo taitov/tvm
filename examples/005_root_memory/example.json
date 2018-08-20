@@ -1,0 +1,56 @@
+{
+	"format" : "pure",
+	"formatVersion" : "1",
+	"rootMemories":
+	[
+		{
+			"moduleName" : ":root:start",
+			"memoryExits" :
+			[
+				{
+					"memoryExitName" : "memoryExit",
+					"value" : "default value"
+				}
+			]
+		}
+	],
+	"schemes" :
+	[
+		{
+			"modules" :
+			[
+				{
+					"id" : "1",
+					"moduleName" : ":root:start",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal",
+							"target" :
+							{
+								"id" : "2",
+								"signalEntryName" : "signal"
+							}
+						}
+					]
+				},
+				{
+					"id" : "2",
+					"moduleName" : ":logic:print",
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "memoryEntry",
+							"target" :
+							{
+								"targetType" : "root",
+								"moduleName" : ":root:start",
+								"memoryExitName" : "memoryExit"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

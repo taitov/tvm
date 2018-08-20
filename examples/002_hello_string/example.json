@@ -1,0 +1,104 @@
+{
+	"format" : "pure",
+	"formatVersion" : "1",
+	"schemes" :
+	[
+		{
+			"modules" :
+			[
+				{
+					"id" : "1",
+					"moduleName" : ":memory:string"
+				},
+				{
+					"id" : "2",
+					"moduleName" : ":memory:string",
+					"value" : "How are you?"
+				},
+				{
+					"id" : "3",
+					"moduleName" : ":root:start",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal",
+							"target" :
+							{
+								"id" : "4",
+								"signalEntryName" : "signal"
+							}
+						}
+					]
+				},
+				{
+					"id" : "4",
+					"moduleName" : ":logic:print",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal",
+							"target" :
+							{
+								"id" : "5",
+								"signalEntryName" : "signal"
+							}
+						}
+					],
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "string",
+							"target" :
+							{
+								"targetType" : "scheme",
+								"id" : "1"
+							}
+						}
+					]
+
+				},
+				{
+					"id" : "5",
+					"moduleName" : ":logic:print",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal",
+							"target" :
+							{
+								"id" : "6",
+								"signalEntryName" : "signal"
+							}
+						}
+					],
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "string",
+							"target" :
+							{
+								"targetType" : "scheme",
+								"id" : "2"
+							}
+						}
+					]
+				},
+				{
+					"id" : "6",
+					"moduleName" : ":logic:print",
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "string",
+							"target" :
+							{
+								"targetType" : "const",
+								"value" : "I'm fine, thank you!"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

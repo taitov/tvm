@@ -1,0 +1,80 @@
+{
+	"format" : "pure",
+	"formatVersion" : "1",
+	"schemes" :
+	[
+		{
+			"modules" :
+			[
+				{
+					"id" : "11",
+					"moduleName" : ":memory:string1"
+				},
+				{
+					"id" : "12",
+					"moduleName" : ":root:start1",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal",
+							"target" :
+							{
+								"id" : "13",
+								"signalEntryName" : "signal"
+							}
+						}
+					]
+				},
+				{
+					"id" : "13",
+					"moduleName" : ":logic:print1",
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "memoryEntry",
+							"target" :
+							{
+								"targetType" : "scheme",
+								"id" : "11"
+							}
+						}
+					]
+				},
+				{
+					"id" : "21",
+					"moduleName" : ":memory:string2"
+				},
+				{
+					"id" : "22",
+					"moduleName" : ":root:start2",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal",
+							"target" :
+							{
+								"id" : "23",
+								"signalEntryName" : "signal"
+							}
+						}
+					]
+				},
+				{
+					"id" : "23",
+					"moduleName" : ":logic:print2",
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "memoryEntry",
+							"target" :
+							{
+								"targetType" : "scheme",
+								"id" : "21"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

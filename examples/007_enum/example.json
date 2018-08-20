@@ -1,0 +1,47 @@
+{
+	"format" : "pure",
+	"formatVersion" : "1",
+	"schemes" :
+	[
+		{
+			"modules" :
+			[
+				{
+					"id" : "1",
+					"moduleName" : ":memory:type",
+					"value" : "three"
+				},
+				{
+					"id" : "2",
+					"moduleName" : ":root:start",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal",
+							"target" :
+							{
+								"id" : "3",
+								"signalEntryName" : "signal"
+							}
+						}
+					]
+				},
+				{
+					"id" : "3",
+					"moduleName" : ":logic:print",
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "type",
+							"target" :
+							{
+								"targetType" : "scheme",
+								"id" : "1"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

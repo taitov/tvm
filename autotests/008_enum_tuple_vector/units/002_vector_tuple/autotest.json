@@ -1,0 +1,100 @@
+{
+	"format" : "pure",
+	"formatVersion" : "1",
+	"schemes" :
+	[
+		{
+			"modules" :
+			[
+				{
+					"id" : "1",
+					"moduleName" : ":memory:lines",
+					"value" :
+					[
+						{
+							"value" :
+							[
+								{
+									"valueName" : "id",
+									"value" : "1"
+								},
+								{
+									"valueName" : "login",
+									"value" : "user1 "
+								}
+							]
+						},
+						{
+							"value" :
+							[
+								{
+									"valueName" : "id",
+									"value" : "2"
+								},
+								{
+									"valueName" : "login",
+									"value" : "user2 "
+								}
+							]
+						},
+						{
+							"value" :
+							[
+								{
+									"valueName" : "id",
+									"value" : "3"
+								},
+								{
+									"valueName" : "login",
+									"value" : "user3"
+								}
+							]
+						}
+					]
+				},
+				{
+					"id" : "2",
+					"moduleName" : ":root:start",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal1",
+							"target" :
+							{
+								"id" : "3",
+								"signalEntryName" : "signal"
+							}
+						}
+					]
+				},
+				{
+					"id" : "3",
+					"moduleName" : ":logic:printLines",
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "lines",
+							"target" :
+							{
+								"targetType" : "scheme",
+								"id" : "1"
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"autotest" :
+	{
+		"steps" :
+		[
+			{
+				"stepType" : "rootSignal",
+				"rootModuleName" : "start",
+				"signalExitName" : "signal1",
+				"expectedString" : "1: user1 2: user2 3: user3"
+			}
+		]
+	}
+}

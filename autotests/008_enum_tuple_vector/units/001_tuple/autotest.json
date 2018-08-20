@@ -1,0 +1,69 @@
+{
+	"format" : "pure",
+	"formatVersion" : "1",
+	"schemes" :
+	[
+		{
+			"modules" :
+			[
+				{
+					"id" : "1",
+					"moduleName" : ":memory:line",
+					"value" :
+					[
+						{
+							"valueName" : "id",
+							"value" : "1"
+						},
+						{
+							"valueName" : "login",
+							"value" : "user1"
+						}
+					]
+				},
+				{
+					"id" : "2",
+					"moduleName" : ":root:start",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal1",
+							"target" :
+							{
+								"id" : "3",
+								"signalEntryName" : "signal"
+							}
+						}
+					]
+				},
+				{
+					"id" : "3",
+					"moduleName" : ":logic:printLine",
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "line",
+							"target" :
+							{
+								"targetType" : "scheme",
+								"id" : "1"
+							}
+						}
+					]
+				}
+			]
+		}
+	],
+	"autotest" :
+	{
+		"steps" :
+		[
+			{
+				"stepType" : "rootSignal",
+				"rootModuleName" : "start",
+				"signalExitName" : "signal1",
+				"expectedString" : "1: user1\n"
+			}
+		]
+	}
+}

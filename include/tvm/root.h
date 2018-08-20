@@ -1,81 +1,44 @@
-// Copyright © 2017, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
+// Copyright © 2018, Timur Aitov. Contacts: timonbl4@gmail.com. All rights reserved
 
 #ifndef TVM_ROOT_H
 #define TVM_ROOT_H
 
+#include "result.h"
 #include "type.h"
+#include "locker.h"
 
 namespace nVirtualMachine
 {
 
-class cLibrary;
-
-class cRootModule
+class cRootModuleManager
 {
-	friend class cLibrary;
-
 public:
-	using tSignalExits = std::map<tSignalExitName,
-	                              tSignalExitId>;
+	virtual ~cRootModuleManager();
 
-	using tMemoryExits = std::map<tMemoryExitName,
-	                              std::tuple<tMemoryTypeName,
-	                                         tMemoryExitId>>;
+	const cLocker* getLocker() const;
 
-public:
-	cRootModule();
-	~cRootModule();
+	virtual void initRootMemory() = 0;
 
-	const tRootModuleName& getModuleName() const;
-	const tModuleTypeName getModuleTypeName() const;
+	virtual eResult setRootMemoryExit(const tRootMemoryExitId& rootMemoryExitId,
+	                                  void* memoryModulePointer) = 0;
+
+	virtual tUniqueId getRootModuleUniqueId() const = 0;
+
+	virtual const void* getRootModule() const = 0;
 
 protected:
-	void setModuleName(const tRootModuleName& rootModuleName);
-
-	bool registerSignalExit(const tSignalExitName& signalExitName,
-	                        tRootSignalExitId& rootSignalExitId);
-
-	bool registerMemoryExit(const tMemoryExitName& memoryExitName,
-	                        const tMemoryTypeName& memoryTypeName,
-	                        tRootMemoryExitId& rootMemoryExitId);
-
-private:
-	bool doRegisterModule(cLibrary* library);
-	virtual bool registerModule() = 0;
-
-private:
-	cLibrary* library;
-
-	tRootModuleName rootModuleName;
+	cLocker locker;
 };
 
-inline cRootModule::cRootModule()
+//
+
+inline cRootModuleManager::~cRootModuleManager()
 {
 }
 
-inline cRootModule::~cRootModule()
+inline const cLocker* cRootModuleManager::getLocker() const
 {
-}
-
-inline const tRootModuleName& cRootModule::getModuleName() const
-{
-	return rootModuleName;
-}
-
-inline const tModuleTypeName cRootModule::getModuleTypeName() const
-{
-	return "root";
-}
-
-inline void cRootModule::setModuleName(const tRootModuleName& rootModuleName)
-{
-	this->rootModuleName = rootModuleName;
-}
-
-inline bool cRootModule::doRegisterModule(cLibrary* library)
-{
-	this->library = library;
-	return registerModule();
+	return &locker;
 }
 
 }

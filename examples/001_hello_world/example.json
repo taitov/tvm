@@ -1,0 +1,31 @@
+{
+	"format" : "pure",
+	"formatVersion" : "1",
+	"schemes" :
+	[
+		{
+			"modules" :
+			[
+				{
+					"id" : "1",
+					"moduleName" : ":root:start",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal",
+							"target" :
+							{
+								"id" : "2",
+								"signalEntryName" : "signal"
+							}
+						}
+					]
+				},
+				{
+					"id" : "2",
+					"moduleName" : ":logic:printHelloWorld"
+				}
+			]
+		}
+	]
+}

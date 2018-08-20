@@ -1,0 +1,58 @@
+{
+	"format" : "pure",
+	"formatVersion" : "1",
+	"schemes" :
+	[
+		{
+			"modules" :
+			[
+				{
+					"id" : "1",
+					"moduleName" : ":memory:strings",
+					"value" :
+					[
+						{
+							"value" : "10 HOME"
+						},
+						{
+							"value" : "20 SWEET"
+						},
+						{
+							"value" : "30 GOTO 10"
+						}
+					]
+				},
+				{
+					"id" : "2",
+					"moduleName" : ":root:start",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "signal",
+							"target" :
+							{
+								"id" : "3",
+								"signalEntryName" : "signal"
+							}
+						}
+					]
+				},
+				{
+					"id" : "3",
+					"moduleName" : ":logic:print",
+					"memoryEntries" :
+					[
+						{
+							"memoryEntryName" : "memoryEntry",
+							"target" :
+							{
+								"targetType" : "scheme",
+								"id" : "1"
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

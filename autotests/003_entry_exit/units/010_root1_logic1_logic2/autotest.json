@@ -1,0 +1,84 @@
+{
+	"format" : "autotest",
+	"formatVersion" : "1",
+	"schemes" :
+	[
+		{
+			"modules" :
+			[
+				{
+					"id" : "1",
+					"moduleName" : ":root:start_2",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "exit_1",
+							"target" :
+							{
+								"id" : "2",
+								"signalEntryName" : "entry_1"
+							}
+						},
+						{
+							"signalExitName" : "exit_2",
+							"target" :
+							{
+								"id" : "2",
+								"signalEntryName" : "entry_2"
+							}
+						}
+					]
+				},
+				{
+					"id" : "2",
+					"moduleName" : ":logic:print_2_2",
+					"signalExits" :
+					[
+						{
+							"signalExitName" : "exit_1",
+							"target" :
+							{
+								"id" : "3",
+								"signalEntryName" : "entry_1"
+							}
+						},
+						{
+							"signalExitName" : "exit_2",
+							"target" :
+							{
+								"id" : "4",
+								"signalEntryName" : "entry_1"
+							}
+						}
+					]
+				},
+				{
+					"id" : "3",
+					"moduleName" : ":logic:print_1_0"
+				},
+				{
+					"id" : "4",
+					"moduleName" : ":logic:print_1_0"
+				}
+			]
+		}
+	],
+	"autotest" :
+	{
+		"steps" :
+		[
+			{
+				"stepType" : "rootSignal",
+				"rootModuleName" : "start_2",
+				"signalExitName" : "exit_1",
+				"expectedString" : "1001:print_2_2:entry_1\n1002:print_1_0:entry_1\n"
+			},
+			{
+				"stepType" : "rootSignal",
+				"rootModuleName" : "start_2",
+				"signalExitName" : "exit_2",
+				"expectedString" : "1001:print_2_2:entry_2\n1003:print_1_0:entry_1\n"
+			}
+		]
+	}
+}
