@@ -623,6 +623,30 @@ inline void cRegisterMemoryModule<TType>::setMemoryAsString()
 }
 
 template<typename TType>
+inline void cRegisterMemoryModule<TType>::setMemoryAsInteger8()
+{
+	this->memoryValueType.valueSetType("int8");
+}
+
+template<typename TType>
+inline void cRegisterMemoryModule<TType>::setMemoryAsInteger16()
+{
+	this->memoryValueType.valueSetType("int16");
+}
+
+template<typename TType>
+inline void cRegisterMemoryModule<TType>::setMemoryAsInteger32()
+{
+	this->memoryValueType.valueSetType("int32");
+}
+
+template<typename TType>
+inline void cRegisterMemoryModule<TType>::setMemoryAsInteger64()
+{
+	this->memoryValueType.valueSetType("int64");
+}
+
+template<typename TType>
 inline void cRegisterMemoryModule<TType>::setMemoryAsVector(const cConverterStringHelper& memoryModuleName)
 {
 	this->memoryValueType.vectorSetMemoryModule(memoryModuleName);

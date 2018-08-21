@@ -35,7 +35,7 @@
 					"memoryEntryExits" :
 					[
 						{
-							"memoryEntryExitName" : "memoryEntryExit",
+							"memoryEntryExitName" : "integer",
 							"target" :
 							{
 								"targetType" : "global",
@@ -70,7 +70,7 @@
 					"memoryEntries" :
 					[
 						{
-							"memoryEntryName" : "memoryEntry",
+							"memoryEntryName" : "integer",
 							"target" :
 							{
 								"targetType" : "global",
