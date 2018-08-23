@@ -4,7 +4,7 @@
 
 #include <shared_mutex>
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 class cLocker

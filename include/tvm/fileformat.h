@@ -10,7 +10,7 @@
 
 #include "type.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 namespace nFileFormat

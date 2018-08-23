@@ -4,7 +4,7 @@
 
 #include "memory_string2.h"
 
-using namespace nVirtualMachine;
+using namespace tvm;
 
 bool cMemoryString2::restore(cStreamIn& stream)
 {

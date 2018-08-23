@@ -5,7 +5,7 @@
 
 #include "vm.h"
 
-using namespace nVirtualMachine;
+using namespace tvm;
 
 int main(int argc, char** argv)
 {

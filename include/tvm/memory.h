@@ -5,7 +5,7 @@
 #include "result.h"
 #include "type.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 class cMemoryModuleManager

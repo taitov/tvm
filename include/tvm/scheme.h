@@ -13,7 +13,7 @@
 #include "engine.h"
 #include "fileformat.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 class cEngine;

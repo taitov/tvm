@@ -4,7 +4,7 @@
 
 #include <inttypes.h>
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 using tFlowId = uint32_t;

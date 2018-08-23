@@ -11,7 +11,7 @@
 #include "logic.h"
 #include "memory.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 eResult registerModules(cRegister& virtualMachine)

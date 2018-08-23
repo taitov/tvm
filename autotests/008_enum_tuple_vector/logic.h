@@ -7,7 +7,7 @@
 
 #include "memory.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 std::string checkString;

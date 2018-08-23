@@ -12,7 +12,7 @@
 
 #include "register.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 class cConverter : public cRegister

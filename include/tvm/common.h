@@ -19,7 +19,7 @@
 #define TVM_UNUSED [[maybe_unused]]
 #endif
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 template<class ...>

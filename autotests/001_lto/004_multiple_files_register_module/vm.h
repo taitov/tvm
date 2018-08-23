@@ -13,7 +13,7 @@
 #include "logic_print1.h"
 #include "logic_print2.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 eResult registerModules(cRegister& virtualMachine)

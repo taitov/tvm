@@ -10,7 +10,7 @@
 #include "root.h"
 #include "logic.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 eResult registerModules(cRegister& virtualMachine)

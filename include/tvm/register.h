@@ -33,7 +33,7 @@
 #include "stream.h"
 #include "locker.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 #define tvmRegisterMemoryModule(type) \

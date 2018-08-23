@@ -5,7 +5,7 @@
 
 #include <tvm/register.h>
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 class cMemoryString2 : public std::string

@@ -13,7 +13,7 @@
 
 #include "common.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 /// file format virtual machine to host endian

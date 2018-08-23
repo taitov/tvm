@@ -6,7 +6,7 @@
 #include "type.h"
 #include "locker.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 class cRootModuleManager

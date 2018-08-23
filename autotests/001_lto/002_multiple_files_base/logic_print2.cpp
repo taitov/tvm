@@ -2,7 +2,7 @@
 
 #include "logic_print2.h"
 
-using namespace nVirtualMachine;
+using namespace tvm;
 
 cLogicPrint2::cLogicPrint2(const std::string& string) :
         string4(string)

@@ -5,7 +5,7 @@
 
 #include "vm.h"
 
-using namespace nVirtualMachine;
+using namespace tvm;
 
 std::map<std::tuple<std::string,
                     std::string>,

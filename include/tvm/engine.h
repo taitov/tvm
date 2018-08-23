@@ -24,7 +24,7 @@
 #include "locker.h"
 #include "fileformat.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 class cEngine : public cRegister

@@ -7,7 +7,7 @@
 
 #include "memory_string1.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 class cRootStart1

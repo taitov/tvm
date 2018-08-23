@@ -7,7 +7,7 @@
 
 #include <tvm/register.h>
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 static unsigned int staticId = 1001;
@@ -26,7 +26,7 @@ std::string checkString;
 #include "logic_print32.h"
 #include "logic_print33.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 eResult registerModules(cRegister& virtualMachine)

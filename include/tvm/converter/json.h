@@ -8,7 +8,7 @@
 #include "../stream.h"
 #include "../fileformat.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 namespace

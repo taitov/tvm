@@ -4,7 +4,7 @@
 
 #include "type.h"
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 enum class eResult : uint32_t

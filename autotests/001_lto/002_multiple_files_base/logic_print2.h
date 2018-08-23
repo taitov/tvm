@@ -5,7 +5,7 @@
 
 #include <tvm/common.h>
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 class cLogicPrint2

@@ -3,7 +3,7 @@
 
 #include <tvm/register.h>
 
-namespace nVirtualMachine
+namespace tvm
 {
 
 class cMemoryString : public std::string ///< memory module

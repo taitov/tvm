@@ -4,7 +4,7 @@
 
 #include "root_start2.h"
 
-using namespace nVirtualMachine;
+using namespace tvm;
 
 cRootStart2::cRootStart2(const std::string& value) :
         value(value)
