@@ -7,6 +7,51 @@
 namespace tvm
 {
 
+template<typename TType,
+         unsigned int TIndex>
+class raiiValue
+{
+public:
+	using type = raiiValue<TType, TIndex>;
+
+public:
+	inline raiiValue() :
+	        value(0)
+	{
+	}
+
+	inline raiiValue(const TType& value) :
+	        value(value)
+	{
+	}
+
+	inline operator TType() const
+	{
+		return value;
+	}
+
+	inline type& operator+=(const type& rhs)
+	{
+		this->value += rhs.value;
+		return *this;
+	}
+
+	inline type& operator-=(const type& rhs)
+	{
+		this->value -= rhs.value;
+		return *this;
+	}
+
+	inline type& operator++()
+	{
+		this->value++;
+		return *this;
+	}
+
+public:
+	TType value;
+};
+
 using tFlowId = uint32_t;
 using tMemoryModuleId = uint32_t;
 using tLogicModuleId = uint32_t;
